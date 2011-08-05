@@ -18,9 +18,9 @@
 
 import functools
 
-from GTG.tools.liblarch.tree import MainTree
-from GTG.tools.liblarch.filteredtree import FilteredTree
-from GTG.tools.liblarch.filters_bank import FiltersBank
+from liblarch.tree import MainTree
+from liblarch.filteredtree import FilteredTree
+from liblarch.filters_bank import FiltersBank
 
 class Tree:
     """ A thin wrapper to MainTree that adds filtering capabilities.

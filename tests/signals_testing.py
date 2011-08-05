@@ -3,8 +3,7 @@ import gobject
 import time
 import unittest
 
-from GTG.tools.watchdog import Watchdog
-
+from tests.watchdog import Watchdog
 
 
 class SignalCatcher(object):

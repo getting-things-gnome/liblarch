@@ -27,11 +27,11 @@ import inspect
 import time
 import random
 
-from GTG.tools.liblarch import Tree
-from GTG.tools.liblarch.tree import TreeNode
-from GTG.gtk.liblarch_gtk import TreeView
-from GTG.tests.signals_testing import SignalCatcher, CallbackCatcher, GobjectSignalsManager
-from GTG.tests.tree_testing import TreeTester
+from liblarch import Tree
+from liblarch.tree import TreeNode
+from liblarch_gtk import TreeView
+from tests.signals_testing import SignalCatcher, CallbackCatcher, GobjectSignalsManager
+from tests.tree_testing import TreeTester
 
 # Prefer callbacks or signals?
 USE_CALLBACKS_INSTEAD_OF_SIGNALS=True

@@ -19,11 +19,9 @@
 
 import gtk
 
-from GTG import _
-from GTG.tools.liblarch import Tree
-from GTG.tools.liblarch.tree import TreeNode
-from GTG.gtk.liblarch_gtk import TreeView
-from GTG.tools.logger import Log
+from liblarch import Tree
+from liblarch.tree import TreeNode
+from liblarch_gtk import TreeView
 
 import os
 import uuid
@@ -155,7 +153,7 @@ class LiblarchDemo:
 
         col_name = 'label'
         col = {}
-        col['title'] = _("Title")
+        col['title'] = "Title"
         render_text = gtk.CellRendererText()
         col['renderer'] = ['markup',render_text]
         col['value'] = [str, self.task_label_column]
@@ -269,7 +267,7 @@ class LiblarchDemo:
         """ Add a new task. If a task is selected,
         the new task is added as its child """
 
-        Log.info('Adding a task')
+        print 'Adding a task'
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -281,17 +279,17 @@ class LiblarchDemo:
             # Adding a subchild
             parent = selected[0]
             self.tree.add_node(task, parent_id = parent)
-            Log.info('Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent))
+            print 'Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent)
         else:
             # Adding as a new child
             self.tree.add_node(task)
             for parent_id in selected:
                 task.add_parent(parent_id)
-            Log.info('Added task "%s" (%s)' % (t_title, t_id))
+            print 'Added task "%s" (%s)' % (t_title, t_id)
 
     @save_backup
     def tree_high_3(self, widget):
-        Log.info('Adding a tree of height 3')
+        print 'Adding a tree of height 3'
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -312,7 +310,7 @@ class LiblarchDemo:
 
     @save_backup
     def tree_high_3_backwards(self, widget):
-        Log.info('Adding a tree of height 3 backwards')
+        print 'Adding a tree of height 3 backwards'
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -353,10 +351,10 @@ class LiblarchDemo:
 
     @save_backup
     def delete_task(self, widget, order='normal'):
-        Log.info('Deleting a task')
+        print 'Deleting a task'
         selected = self.liblarch_widget.get_selected_nodes()
 
-        Log.info('Order: %s' % order)
+        print 'Order: %s' % order
 
         if   order == 'normal':
             ordered_nodes = selected
@@ -379,7 +377,7 @@ class LiblarchDemo:
 
         for node_id in ordered_nodes:
             self.tree.del_node(node_id)
-            Log.info('Removed node %s' % node_id)
+            print 'Removed node %s' % node_id
 
         self.print_tree(None)
 

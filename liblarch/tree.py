@@ -21,8 +21,6 @@
 import threading
 import gobject
 
-from GTG.tools.logger import Log
-
 class SyncQueue:
     """ Synchronized queue for processing requests"""
 
@@ -590,7 +588,7 @@ class TreeNode:
             self.children.append(child_id)
             self.new_relationship(self.node_id, child_id)
         else:
-            Log.debug("%s was already in children of %s" % (child_id, self.node_id))
+            print "%s was already in children of %s" % (child_id, self.node_id)
 
     def has_child(self, child_id=None):
         """ Has child/children?

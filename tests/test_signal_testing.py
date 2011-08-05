@@ -2,7 +2,7 @@ import unittest
 import gobject
 import uuid
 
-from GTG.tests.signals_testing import SignalCatcher, GobjectSignalsManager
+from tests.signals_testing import SignalCatcher, GobjectSignalsManager
 
 class TestSignalTesting(unittest.TestCase):
 
