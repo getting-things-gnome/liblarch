@@ -147,6 +147,9 @@ class LiblarchDemo:
 
     def _build_tree_view(self):
         self.tree = Tree()
+        self.tree.add_filter("even",self.even_filter)
+        self.tree.add_filter("odd",self.odd_filter)
+        self.tree.add_filter("flat",self.flat_filter,{"flat": True})
         self.view_tree = self.tree.get_viewtree()
 
         desc = {}
@@ -173,6 +176,19 @@ class LiblarchDemo:
         tree_view.set_property("enable-tree-lines", True)
 
         return tree_view
+        
+    def even_filter(self,node):
+        if node.get_id().isdigit():
+            return int(node.get_id())%2 == 0
+        else:
+            return False
+    
+    def odd_filter(self,node):
+        return not self.even_filter(node)
+        
+    def flat_filter(self,node,parameters=None):
+        return True
+        
 
     def __init__(self):
         self.window = gtk.Window()
@@ -201,6 +217,14 @@ class LiblarchDemo:
             button = gtk.Button(name)
             button.connect('clicked', callback)
             action_panel.pack_start(button)
+            
+        filter_panel= gtk.HBox()
+        filter_panel.set_spacing(5)
+            
+        for name in self.tree.list_filters():
+            button = gtk.ToggleButton("%s filter"%name)
+            button.connect('toggled',self.apply_filter,name)
+            filter_panel.pack_start(button)
 
         # Use cases
         usecases_vbox = gtk.VBox()
@@ -239,6 +263,7 @@ class LiblarchDemo:
         # Show it
         vbox = gtk.VBox()
         vbox.pack_start(action_panel, False, True, 10)
+        vbox.pack_start(filter_panel, False, True, 10)
         vbox.pack_start(scrolled_window)
         vbox.pack_start(usecase_panel, False, True, 10)
 
@@ -286,6 +311,13 @@ class LiblarchDemo:
             for parent_id in selected:
                 task.add_parent(parent_id)
             print 'Added task "%s" (%s)' % (t_title, t_id)
+            
+    def apply_filter(self,widget,param):
+        print "applying filter: %s" %param
+        if param in self.view_tree.list_applied_filters():
+            self.view_tree.unapply_filter(param)
+        else:
+            self.view_tree.apply_filter(param)
 
     @save_backup
     def tree_high_3(self, widget):
