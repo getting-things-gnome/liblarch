@@ -148,6 +148,7 @@ class LiblarchDemo:
     def _build_tree_view(self):
         self.tree = Tree()
         self.tree.add_filter("even",self.even_filter)
+        self.tree.add_filter("odd",self.odd_filter)
         self.view_tree = self.tree.get_viewtree()
 
         desc = {}
@@ -176,7 +177,13 @@ class LiblarchDemo:
         return tree_view
         
     def even_filter(self,node):
-        return node.get_id() == "4"
+        if node.get_id().isdigit():
+            return int(node.get_id())%2 == 0
+        else:
+            return False
+    
+    def odd_filter(self,node):
+        return not self.even_filter(node)
         
 
     def __init__(self):
@@ -210,9 +217,10 @@ class LiblarchDemo:
         filter_panel= gtk.HBox()
         filter_panel.set_spacing(5)
             
-        button = gtk.Button("filter")
-        button.connect('clicked',self.apply_filter,"test")
-        filter_panel.pack_start(button)
+        for name in self.tree.list_filters():
+            button = gtk.ToggleButton("%s filter"%name)
+            button.connect('toggled',self.apply_filter,name)
+            filter_panel.pack_start(button)
 
         # Use cases
         usecases_vbox = gtk.VBox()
@@ -302,7 +310,10 @@ class LiblarchDemo:
             
     def apply_filter(self,widget,param):
         print "applying filter: %s" %param
-        self.view_tree.apply_filter("even")
+        if param in self.view_tree.list_applied_filters():
+            self.view_tree.unapply_filter(param)
+        else:
+            self.view_tree.apply_filter(param)
 
     @save_backup
     def tree_high_3(self, widget):
