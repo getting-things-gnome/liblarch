@@ -127,8 +127,12 @@ class FilteredTree():
                     if child_id not in need_update:
                         need_update.append(child_id)
 
-        for node_id in need_update:
-            self.update_node(node_id)
+        while need_update != []:
+            to_update = need_update
+            need_update = []
+            for node_id in to_update:
+                if not self.update_node(node_id):
+                    need_update.append(node_id)
 
         #self.test_validity()
 
@@ -153,9 +157,11 @@ class FilteredTree():
         current_display = self.is_displayed(node_id)
         new_display = self.__is_displayed(node_id)
 
+        completely_updated = True
+
         if not current_display and not new_display:
             # Nothing to do
-            return False
+            return completely_updated
         elif not current_display and new_display:
             action = 'added'
         elif current_display and not new_display:
@@ -171,7 +177,8 @@ class FilteredTree():
         if action == 'added' or action == 'modified':
             current_parents = self.nodes[node_id]['parents']
             new_parents = self.__node_parents(node_id)
-            self.nodes[node_id]['parents'] = new_parents
+            self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents 
+                if parent_id in self.nodes]
 
             remove_from = list(set(current_parents) - set(new_parents))
             add_to = list(set(new_parents) - set(current_parents))
@@ -181,8 +188,11 @@ class FilteredTree():
                 self.nodes[parent_id]['children'].remove(node_id)
 
             for parent_id in add_to:
-                self.nodes[parent_id]['children'].append(node_id)
-                self.send_add_tree(node_id, parent_id)
+                if parent_id in self.nodes:
+                    self.nodes[parent_id]['children'].append(node_id)
+                    self.send_add_tree(node_id, parent_id)
+                else:
+                    completely_updated = False
 
         elif action == 'deleted':
             for child_id in reversed(self.nodes[node_id]['children']):
@@ -198,6 +208,8 @@ class FilteredTree():
             for parent_id in self.nodes[node_id]['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
             del self.nodes[node_id]
+
+        return completely_updated
 
     def send_add_tree(self, node_id, parent_id):
         paths = self.get_paths_for_node(parent_id)
