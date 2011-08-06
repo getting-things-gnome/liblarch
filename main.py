@@ -147,6 +147,7 @@ class LiblarchDemo:
 
     def _build_tree_view(self):
         self.tree = Tree()
+        self.tree.add_filter("even",self.even_filter)
         self.view_tree = self.tree.get_viewtree()
 
         desc = {}
@@ -173,6 +174,10 @@ class LiblarchDemo:
         tree_view.set_property("enable-tree-lines", True)
 
         return tree_view
+        
+    def even_filter(self,node):
+        return node.get_id() == "4"
+        
 
     def __init__(self):
         self.window = gtk.Window()
@@ -201,6 +206,13 @@ class LiblarchDemo:
             button = gtk.Button(name)
             button.connect('clicked', callback)
             action_panel.pack_start(button)
+            
+        filter_panel= gtk.HBox()
+        filter_panel.set_spacing(5)
+            
+        button = gtk.Button("filter")
+        button.connect('clicked',self.apply_filter,"test")
+        filter_panel.pack_start(button)
 
         # Use cases
         usecases_vbox = gtk.VBox()
@@ -239,6 +251,7 @@ class LiblarchDemo:
         # Show it
         vbox = gtk.VBox()
         vbox.pack_start(action_panel, False, True, 10)
+        vbox.pack_start(filter_panel, False, True, 10)
         vbox.pack_start(scrolled_window)
         vbox.pack_start(usecase_panel, False, True, 10)
 
@@ -286,6 +299,10 @@ class LiblarchDemo:
             for parent_id in selected:
                 task.add_parent(parent_id)
             print 'Added task "%s" (%s)' % (t_title, t_id)
+            
+    def apply_filter(self,widget,param):
+        print "applying filter: %s" %param
+        self.view_tree.apply_filter("even")
 
     @save_backup
     def tree_high_3(self, widget):
