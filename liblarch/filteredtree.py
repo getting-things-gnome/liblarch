@@ -98,13 +98,15 @@ class FilteredTree():
             if node_id in self.nodes:
                 for parent_id in self.nodes[node_id]['parents']:
                     if parent_id not in visited and not self.is_node_okay(parent_id):
-                        need_update.insert(0, parent_id)
                         queue.append(parent_id)
+                        if parent_id not in need_update:
+                            need_update.insert(0, parent_id)
 
             for parent_id in self.__node_parents(node_id):
                 if parent_id not in visited and not self.is_node_okay(parent_id):
-                    need_update.insert(0, parent_id)
                     queue.append(parent_id)
+                    if parent_id not in need_update:
+                        need_update.insert(0, parent_id)
 
         # Go down
         queue = [node_id]
@@ -115,13 +117,15 @@ class FilteredTree():
             if node_id in self.nodes:
                 for child_id in self.nodes[node_id]['children']:
                     if child_id not in visited and not self.is_node_okay(child_id):
-                        need_update.append(child_id)
                         queue.append(child_id)
+                        if child_id not in need_update:
+                            need_update.append(child_id)
 
             for child_id in self.__node_children(node_id):
                 if child_id not in visited and not self.is_node_okay(child_id):
-                    need_update.append(child_id)
                     queue.append(child_id)
+                    if child_id not in need_update:
+                        need_update.append(child_id)
 
         for node_id in need_update:
             self.update_node(node_id)
