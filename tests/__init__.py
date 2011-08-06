@@ -23,7 +23,6 @@ import unittest
 import os
 import sys
 
-
 TEST_MODULE_PREFIX = "tests."
 
 def test_suite():
@@ -46,7 +45,14 @@ def test_suite():
             sys.modules[module_path] = module
             globals()[module_path] = module
             #fetching the testsuite
-            a_test = getattr(module, module_name)
+
+            # Crude hack to satisfy both GIT repository and GTG trunk
+            if TEST_MODULE_PREFIX == "GTG.tests.":
+                tests = getattr(module, "tests")
+            else:
+                tests = module
+
+            a_test = getattr(tests, module_name)
             #adding it to the unittest.TestSuite
             test_suite.addTest(getattr(a_test, "test_suite")())
 
