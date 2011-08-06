@@ -149,6 +149,7 @@ class LiblarchDemo:
         self.tree = Tree()
         self.tree.add_filter("even",self.even_filter)
         self.tree.add_filter("odd",self.odd_filter)
+        self.tree.add_filter("flat",self.flat_filter,{"flat": True})
         self.view_tree = self.tree.get_viewtree()
 
         desc = {}
@@ -184,6 +185,9 @@ class LiblarchDemo:
     
     def odd_filter(self,node):
         return not self.even_filter(node)
+        
+    def flat_filter(self,node,parameters=None):
+        return True
         
 
     def __init__(self):
