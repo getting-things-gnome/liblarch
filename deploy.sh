@@ -31,16 +31,6 @@ done
 # Go to its directory
 cd $(dirname $0)
 
-# Check if there are uncommited changes
-cd ../integrate-liblarch-to-gtg/
-# FIXME it should check only files we care about
-if [ $(bzr status | wc -l) -ne 0 ] ; then
-    echo "Branch integrate-liblarch-to-gtg has uncommited changes"
-    bzr status
-    exit 1
-fi
-cd -
-
 make clean
 deploy ../integrate-liblarch-to-gtg/GTG/tools/ liblarch/*
 deploy ../integrate-liblarch-to-gtg/GTG/gtk/ liblarch_gtk/*
