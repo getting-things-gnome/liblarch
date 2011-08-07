@@ -106,13 +106,14 @@ def random_id():
 
 class TaskNode(TreeNode):
 
-    def __init__(self, tid, label):
+    def __init__(self, tid, label,viewtree):
         TreeNode.__init__(self, tid)
         self.label = label
         self.tid = tid
+        self.vt = viewtree
 
     def get_label(self):
-        return "%s (%s)" % (self.label, self.tid)
+        return "%s (%s children)" % (self.label, self.vt.node_n_children(self.tid))
 
 class Backend(threading.Thread):
     def __init__(self, backend_id, finish_event, delay, tree):
@@ -129,7 +130,7 @@ class Backend(threading.Thread):
         while not self.finish_event.wait(self.delay):
             task_id = self.backend_id + "_" + str(counter)
             title = task_id
-            self.tree.add_node(TaskNode(task_id, title), parent_id)
+            self.tree.add_node(TaskNode(task_id, title), parent_id,self.view_tree)
             parent_id = task_id
 
             # Delete some tasks
@@ -298,7 +299,7 @@ class LiblarchDemo:
 
         t_id = random_id()
         t_title = random_task_title(t_id)
-        task = TaskNode(t_id, t_title)
+        task = TaskNode(t_id, t_title,self.view_tree)
 
         if len(selected) == 1:
             # Adding a subchild
@@ -333,7 +334,7 @@ class LiblarchDemo:
         for i in range(3):
             t_id = random_id()
             t_title = random_task_title(t_id)
-            task = TaskNode(t_id, t_title)
+            task = TaskNode(t_id, t_title,self.view_tree)
 
             self.tree.add_node(task, parent_id = parent)
 
@@ -356,7 +357,7 @@ class LiblarchDemo:
         for i in range(3):
             t_id = random_id()
             t_title = random_task_title(t_id)
-            task = TaskNode(t_id, t_title)
+            task = TaskNode(t_id, t_title,self.view_tree)
 
             tasks.append((t_id, task))
 
@@ -449,7 +450,7 @@ class LiblarchDemo:
             for i in range(LOAD_MANY_TASKS_COUNT):
                 t_id = prefix + str(i)
                 t_title = t_id
-                task = TaskNode(t_id, t_title)
+                task = TaskNode(t_id, t_title,self.view_tree)
 
                 # There is 25 % chance to adding as a sub_task
                 if tasks_ids != [] and randint(0, 100) < 90:
@@ -516,7 +517,7 @@ class LiblarchDemo:
             print
 
             for node_id in nodes:
-                task = TaskNode(node_id, random_task_title(node_id))
+                task = TaskNode(node_id, random_task_title(node_id),self.view_tree)
                 self.tree.add_node(task)
 
             for parent, child in relationships:
