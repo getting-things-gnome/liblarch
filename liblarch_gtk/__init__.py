@@ -25,7 +25,7 @@ from liblarch_gtk.treemodel import TreeModel
 
 # Useful for debugging purpose.
 # Disabling that will disable the TreeModelSort on top of our TreeModel
-ENABLE_SORTING = False
+ENABLE_SORTING = True
 #FIXME Drag and Drop does not work with ENABLE_SORTING = True :-(
 #FIXME on-child-row_expanded is really slow with ENABLE_SORTING = True :-(
 # see test delete_child_randomly
@@ -120,10 +120,14 @@ class TreeView(gtk.TreeView):
 
             # Allow to set background color
             col.set_cell_data_func(renderer, self._celldatafunction)
+            
+            self.append_column(col)
+            self.columns[col_name] = (col_num, col)
 
             if ENABLE_SORTING:
                 if 'sorting' in desc:
                     # Just allow sorting and use default comparing
+                    print self.columns
                     sort_num, sort_col = self.columns[desc['sorting']]
                     col.set_sort_column_id(sort_num)
 
@@ -131,8 +135,7 @@ class TreeView(gtk.TreeView):
                     # Use special funcion for comparing, e.g. dates
                     sorting_func.append((col_num, col, desc['sorting_func']))
 
-            self.append_column(col)
-            self.columns[col_name] = (col_num, col)
+            
 
         self.basetree = tree
         # Build the model around LibLarch tree

@@ -163,7 +163,7 @@ class LiblarchDemo:
         col['value'] = [str, self.task_label_column]
         col['expandable'] = True
         col['resizable'] = True
-        col['sorting'] = 'title'
+        col['sorting'] = 'label'
         col['order'] = 0
         desc[col_name] = col
 
