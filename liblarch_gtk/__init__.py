@@ -25,7 +25,7 @@ from liblarch_gtk.treemodel import TreeModel
 
 # Useful for debugging purpose.
 # Disabling that will disable the TreeModelSort on top of our TreeModel
-ENABLE_SORTING = True
+ENABLE_SORTING = False
 #FIXME Drag and Drop does not work with ENABLE_SORTING = True :-(
 #FIXME on-child-row_expanded is really slow with ENABLE_SORTING = True :-(
 # see test delete_child_randomly
@@ -157,6 +157,7 @@ class TreeView(gtk.TreeView):
 
         self.connect('row-expanded', self.__emit, 'expanded')
         self.connect('row-collapsed', self.__emit, 'collapsed')
+        #FIXME: this one is crazingly slow, but it is a gtk bug in TreeModelSort
         self.treemodel.connect('row-has-child-toggled', self.on_child_toggled)
 
     def __emit(self, sender, iter, path, data):
@@ -170,7 +171,7 @@ class TreeView(gtk.TreeView):
     def on_child_toggled(self, treemodel, path, iter, param=None):
         """ Expand row """
         if not self.row_expanded(path):
-            self.expand_row(path, False)
+            self.expand_row(path, True)
 
     def collapse_node(self, node_id):
         """ Hide children of a node
