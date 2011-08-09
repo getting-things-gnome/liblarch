@@ -25,9 +25,10 @@ from liblarch_gtk.treemodel import TreeModel
 
 # Useful for debugging purpose.
 # Disabling that will disable the TreeModelSort on top of our TreeModel
-ENABLE_SORTING = False
+ENABLE_SORTING = True
 #FIXME Drag and Drop does not work with ENABLE_SORTING = True :-(
-#FIXME on-child-row_expanded is really slow with ENABLE_SORTING = True :-(
+#Problem: on-child-row_expanded is really slow with ENABLE_SORTING = True :-(
+#Answer: this is not our fault but a known bug in gtk.treemodelsort.
 # see test delete_child_randomly
 
 class TreeView(gtk.TreeView):
@@ -294,8 +295,10 @@ class TreeView(gtk.TreeView):
         self.connect('drag_data_received', self.on_drag_data_received)
 
         if ENABLE_SORTING:
-            #self.connect('drag_drop', self.on_drag_drop)
-            pass
+            self.connect('drag_drop', self.on_drag_drop)
+            self.connect('button_press_event', self.on_button_press)
+            self.connect('button_release_event', self.on_button_release)
+            
 
     def set_dnd_external(self, sourcename, func):
         """ Add a new external target and initialize Drag'n'Drop support"""
@@ -320,7 +323,8 @@ class TreeView(gtk.TreeView):
         drag_dest_set()). To know difference, look in PyGTK FAQ:
         http://faq.pygtk.org/index.py?file=faq13.033.htp&req=show
         """
-
+        self.defer_select = False
+        
         if self.dnd_internal_target == '':
             error = 'Cannot initialize DND without a valid name\n'
             error += 'Use set_dnd_name() first'
@@ -336,6 +340,42 @@ class TreeView(gtk.TreeView):
 
         self.enable_model_drag_dest(\
             dnd_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+            
+        self.drag_source_set(\
+            gtk.gdk.BUTTON1_MASK,
+            [('gtg/task-iter-str', gtk.TARGET_SAME_WIDGET, 0)],
+            gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+
+        self.drag_dest_set(\
+            gtk.DEST_DEFAULT_ALL,
+            [('gtg/task-iter-str', gtk.TARGET_SAME_WIDGET, 0)],
+            gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+            
+    def on_button_press(self, widget, event):
+        # Here we intercept mouse clicks on selected items so that we can
+        # drag multiple items without the click selecting only one
+        target = self.get_path_at_pos(int(event.x), int(event.y))
+        if (target 
+           and event.type == gtk.gdk.BUTTON_PRESS
+           and not (event.state & (gtk.gdk.CONTROL_MASK|gtk.gdk.SHIFT_MASK))
+           and self.get_selection().path_is_selected(target[0])):
+               # disable selection
+               self.get_selection().set_select_function(lambda *ignore: False)
+               self.defer_select = target[0]
+            
+    def on_button_release(self, widget, event):
+        # re-enable selection
+        self.get_selection().set_select_function(lambda *ignore: True)
+        
+        target = self.get_path_at_pos(int(event.x), int(event.y))    
+        if (self.defer_select and target 
+           and self.defer_select == target[0]
+           and not (event.x==0 and event.y==0)): # certain drag and drop 
+                                                 # operations still have path
+               # if user didn't drag, simulate the click previously ignored
+               self.set_cursor(target[0], target[1], False)
+            
+        self.defer_select=False
 
     def on_drag_drop(self, treeview, context, selection, info, timestamp):
         """ When using TreeModelSort, drag_drop signal must be handled to
@@ -442,6 +482,8 @@ class TreeView(gtk.TreeView):
 
                 # Handle external Drag'n'Drop
                 f(source, destination_tid)
+                
+        self.emit_stop_by_name('drag_data_received')
 
 
     ######### Separators support ##############################################
