@@ -47,18 +47,23 @@ class TreeModel(gtk.TreeStore):
         self.tree.get_current_state()
 
     def my_get_iter(self, path):
-        """ Many times I get problem with iter_path, therefore there is my own implementation """
+        #simpler implementation
+        if path == ():
+            return None
+        else:
+            return self.get_iter(path)
+#        """ Many times I get problem with iter_path, therefore there is my own implementation """
 
-        iterator = None
-        for position in path:
-            iterator = self.iter_nth_child(iterator, position)
+#        iterator = None
+#        for position in path:
+#            iterator = self.iter_nth_child(iterator, position)
 
-            if iterator is None:
-                self.print_tree()
-                print "Requested iterator for path", path
-                raise IndexError('Not valid iterator')
+#            if iterator is None:
+#                self.print_tree()
+#                print "Requested iterator for path", path
+#                raise IndexError('Not valid iterator')
 
-        return iterator
+#        return iterator
 
     def print_tree(self):
         """ Print TreeStore as Tree into console """
@@ -90,6 +95,7 @@ class TreeModel(gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
+        print "add_task %s %s" %(node_id,path)
         node = self.tree.get_node(node_id)
 
         # Build a new row
@@ -114,6 +120,7 @@ class TreeModel(gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
+        print "remove_task %s %s" %(node_id,path)
         it = self.my_get_iter(path)
         actual_node_id = self.get_value(it, 0)
         assert actual_node_id == node_id
@@ -125,6 +132,7 @@ class TreeModel(gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
+        print "update_task %s %s" %(node_id,path)
         node = self.tree.get_node(node_id)
         iterator = self.my_get_iter(path)
 
