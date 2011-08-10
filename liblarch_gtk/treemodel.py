@@ -55,17 +55,16 @@ class TreeModel(gtk.TreeStore):
             #The following code is ugly. Yuk!
             #We just wanted to convert a node path like (node1,node2,)
             #to an iterator.
-            #don't look at it, it works! Ploum, DS2011
+            #don't look at it! Ploum, DS2011
             iter = self.get_iter_root()
             current_nid = self.get_value(iter,0)
             depth = 0
-            while iter and current_nid != path[:-1]:
-                print "iteration on %s" %current_nid
+            while iter and current_nid != str(path[-1]):
                 in_the_path = path[depth]
-                while iter and current_nid != in_the_path:
-                    print "iteration 2"
+                while iter and current_nid != str(in_the_path):
                     iter = self.iter_next(iter)
-                    current_nid = self.get_value(iter,0)
+                    if iter:
+                        current_nid = self.get_value(iter,0)
                 if depth+1 < len(path):
                     depth += 1
                     iter = self.iter_children(iter)
@@ -113,11 +112,10 @@ class TreeModel(gtk.TreeStore):
             row.append(value)
 
         # Find position to add task
-        position = path[-1]
         iter_path = path[:-1]
 
         iterator = self.my_get_iter(iter_path)
-        it = self.insert(iterator, position, row)
+        it = self.insert(iterator, -1, row)
 
         # Show the new task if possible
         self.row_has_child_toggled(self.get_path(it), it)
@@ -129,6 +127,8 @@ class TreeModel(gtk.TreeStore):
         @param path: identification of position
         """
         it = self.my_get_iter(path)
+        if not it:
+            raise Exception("Trying to remove node %s with no iterator"%node_id)
         actual_node_id = self.get_value(it, 0)
         assert actual_node_id == node_id
         self.remove(it)
