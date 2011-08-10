@@ -401,6 +401,7 @@ class TreeView(gtk.TreeView):
         model, paths = treeselection.get_selected_rows()
         iters = [model.get_iter(path) for path in paths]
         iter_str = ','.join([model.get_string_from_iter(iter) for iter in iters])
+        print "__init__ 404: iter_str %s" %iter_str
         selection.set(self.dnd_internal_target, 0, iter_str)
 
     def on_drag_data_received(self, treeview, context, x, y, selection, info,\
@@ -462,34 +463,37 @@ class TreeView(gtk.TreeView):
         else:
             iters = selection.data.split(',')
 
+        dragged_iters = []
         for iter in iters:
             if info == 0:
                 try:
-                    dragged_iter = model.get_iter_from_string(iter)
+                    dragged_iters.append(model.get_iter_from_string(iter))
                 except ValueError:
                     #I hate to silently fail but we have no choice.
                     #It means that the iter is not good.
                     #Thanks shitty gtk API for not allowing us to test the string
+                    print "cannot get an iter from %s" %iter
                     dragged_iter = None
 
+            elif info in self.dnd_external_targets and destination_tid:
+                f = self.dnd_external_targets[info][1]
+
+                src_model = context.get_source_widget().get_model()
+                dragged_iters.append(src_model.get_iter_from_string(iter))
+                
+                
+        for dragged_iter in dragged_iters:
+            if info == 0:
                 if dragged_iter and model.iter_is_valid(dragged_iter):
                     dragged_tid = model.get_value(dragged_iter, 0)
                     try:
                         tree.move_node(dragged_tid, new_parent_id=destination_tid)
                     except Exception, e:
                         print 'Problem with dragging: %s' % e
-
-            elif info in self.dnd_external_targets and destination_tid:
-                f = self.dnd_external_targets[info][1]
-
-                src_model = context.get_source_widget().get_model()
-                i = src_model.get_iter_from_string(iter)
-                source = src_model.get_value(i,0)
-
+            elif info in self.dnd_external_targets and destination_tid:    
+                source = src_model.get_value(dragged_iter,0)
                 # Handle external Drag'n'Drop
                 f(source, destination_tid)
-                
-#        self.emit_stop_by_name('drag_data_received')
 
 
     ######### Separators support ##############################################
