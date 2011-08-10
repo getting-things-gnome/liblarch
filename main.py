@@ -170,11 +170,14 @@ class LiblarchDemo:
         tree_view = TreeView(self.view_tree, desc)
 
         # Polish TreeView
+        def on_row_activate(sender,a,b):
+            print "Selected nodes are: %s" %str(tree_view.get_selected_nodes())
 
         tree_view.set_dnd_name('liblarch-demo/liblarch_widget')
         tree_view.set_multiple_selection(True)
 
         tree_view.set_property("enable-tree-lines", True)
+        tree_view.connect('row-activated', on_row_activate)
 
         return tree_view
         
@@ -292,9 +295,6 @@ class LiblarchDemo:
     def add_task(self, widget):
         """ Add a new task. If a task is selected,
         the new task is added as its child """
-
-        print 'Adding a task'
-
         selected = self.liblarch_widget.get_selected_nodes()
 
         t_id = random_id()

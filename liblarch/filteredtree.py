@@ -399,10 +399,10 @@ class FilteredTree():
                     raise Exception("Parent %s does not exists" % parent_id)
                 if node_id not in self.nodes[parent_id]['children']:
                     raise Exception("%s is not children of %s" % (node_id, parent_id))
-                index = self.nodes[parent_id]['children'].index(node_id)
+#                index = self.nodes[parent_id]['children'].index(node_id)
 
                 for parent_path in self.get_paths_for_node(parent_id):
-                    mypath = parent_path + (index,)
+                    mypath = parent_path + (node_id,)
                     toreturn.append(mypath)
 
             return toreturn
