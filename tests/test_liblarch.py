@@ -760,25 +760,25 @@ class TestLibLarch(unittest.TestCase):
     def test_viewtree_get_node_for_path(self):
         view = self.tree.get_viewtree(refresh=True)
         #nid1 and nid2 are not always the same
-        nid1 = view.get_node_for_path((0,))
-        nid2 = self.mainview.get_node_for_path((0,))
+        nid1 = view.get_node_for_path(('0',))
+        nid2 = self.mainview.get_node_for_path(('0',))
         self.assertTrue(nid1 != None)
         self.assertTrue(nid2 != None)
         #Thus we do a mix of test.
         nid1b = view.next_node(nid1)
         path1b = view.get_paths_for_node(nid1b)
-        self.assertEqual([(1,)],path1b)
+        self.assertEqual([(nid1b,)],path1b)
         #same for mainview
         nid2b = self.mainview.next_node(nid2)
         path2b = self.mainview.get_paths_for_node(nid2b)
-        self.assertEqual([(1,)],path2b)
+        self.assertEqual([(nid2b,)],path2b)
         #with children
         node = DummyNode('temp')
         node.add_color('blue')
         self.tree.add_node(node,parent_id=nid1)
         self.tree.add_parent('temp',nid2)
-        self.assertEqual('temp',self.mainview.get_node_for_path((0,0)))
-        self.assertEqual('temp',view.get_node_for_path((0,0)))
+        self.assertEqual('temp',self.mainview.get_node_for_path((nid1,'temp')))
+        self.assertEqual('temp',view.get_node_for_path((nid2,'temp')))
         #Adding a child to the child
         node2 = DummyNode('temp2')
         node2.add_color('blue')
@@ -786,14 +786,14 @@ class TestLibLarch(unittest.TestCase):
         node = DummyNode('temp_child')
         node.add_color('blue')
         self.tree.add_node(node,parent_id='temp2')
-        self.assertEqual('temp_child',view.get_node_for_path((0,1,0)))
+        self.assertEqual('temp_child',view.get_node_for_path((nid1,'temp2','temp_child')))
         self.tree.add_parent('temp2',nid2)
-        self.assertEqual('temp_child',self.mainview.get_node_for_path((0,1,0)))
+        self.assertEqual('temp_child',self.mainview.get_node_for_path((nid2,'temp2','temp_child')))
         #with filters
         view.apply_filter('blue')
         pl = view.get_paths_for_node('temp2')
         for p in pl:
-            pp = p + (0,)
+            pp = p + ('temp_child',)
             self.assertEqual('temp_child',view.get_node_for_path(pp))
         
     def test_viewtree_get_paths_for_node(self):
