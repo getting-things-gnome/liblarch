@@ -102,8 +102,11 @@ class TreeTester:
             old_path = path
             if check_prefix(path):
                 new_path =  list(path)
-                new_path[len(path_prefix)] -= 1
+                new_path[len(path_prefix)] = str(int(new_path[len(path_prefix)])-1)
                 new_path = tuple(new_path)
+                
+                print "new_path: %s" %str(new_path)
+                print "self.paths: %s" %str(self.paths)
 
                 assert new_path not in self.paths
 

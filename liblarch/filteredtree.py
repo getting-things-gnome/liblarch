@@ -261,8 +261,8 @@ class FilteredTree():
                 path = start_path + relative_path
                 self.callback('added', node_id, path)
 
-            for node_id, child_id in enumerate(self.nodes[node_id]['children']):
-                queue.append((child_id, relative_path + (node_id,)))
+            for child_id in self.nodes[node_id]['children']:
+                queue.append((child_id, relative_path + (child_id,)))
 
     def send_remove_tree(self, node_id, parent_id):
         paths = self.get_paths_for_node(parent_id)
@@ -397,12 +397,11 @@ class FilteredTree():
                     raise Exception("Parent %s does not exists" % parent_id)
                 if node_id not in self.nodes[parent_id]['children']:
                     raise Exception("%s is not children of %s" % (node_id, parent_id))
-#                index = self.nodes[parent_id]['children'].index(node_id)
 
                 for parent_path in self.get_paths_for_node(parent_id):
                     mypath = parent_path + (node_id,)
                     toreturn.append(mypath)
-
+            print "paths of %s are %s" %(node_id,str(toreturn))
             return toreturn
 
     def print_tree(self, string=False):
@@ -511,21 +510,19 @@ class FilteredTree():
             return total_count
 
     def get_node_for_path(self, path):
-        print "** ** get_node_for_path not ported to new path **"
         if not path or path == ():
             return None
 
-        node_id = self.root_id
-        for index in path:
-            if 0 <= index < len(self.nodes[node_id]['children']):
-                node_id = self.nodes[node_id]['children'][index]
-            else:
-                return None
+        node_id = path[-1]
+#        for index in path:
+#            if 0 <= index < len(self.nodes[node_id]['children']):
+#                node_id = self.nodes[node_id]['children'][index]
+#            else:
+#                return None
 
         return node_id
 
     def next_node(self, node_id, parent_id):
-        print "** next node not ported ** ***"
         if node_id == self.root_id:
             raise Exception("Calling next_node on the root node")
 
