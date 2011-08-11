@@ -18,6 +18,7 @@ from __future__ import with_statement
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 #
+import gobject
 
 class FilteredTree():
     # FIXME comment of class
@@ -64,13 +65,15 @@ class FilteredTree():
         @param event: one of added, modified, deleted, reordered
         @param func: callback function
         """
-        if event == 'runonce' and node_id:
+        if event == 'runonce':
+            if not node_id:
+                raise Exception('runonce callback should come with a node_id')
             print "run_once for node %s" %node_id
             if self.is_displayed(node_id):
                 print "runonce : now"
                 gobject.idle_add(func,param)
             else:
-                print "runonce : later"
+                print "runonce : later (node_id is %s)" %node_id
                 self.cllbcks[node_id] = [func,node_id,param]
         else:
             self.cllbcks[event] = [func,node_id,param]
@@ -87,12 +90,18 @@ class FilteredTree():
         
         The runonce event is actually only run once, when a given task appears.
         """
+        
         if event == 'added':
+#            print "callback %s for %s" %(event, node_id)
             func,nid,param = self.cllbcks.get(node_id, (None,None,None))
-            if nid == node_id:
+            if nid and self.is_displayed(nid):
                 print "calling the runonce stored for %s" %nid
                 func(param)
                 self.cllbcks.pop(node_id)
+#            else:
+#                print "%s is not displayed" %nid
+#                print "the cllbacks are: %s" %str(self.cllbcks)
+#                raise Exception('%s is not displayed but %s was added' %(nid,node_id))
         func,nid,param = self.cllbcks.get(event, (None,None,None))
         if func:
             if neworder:
