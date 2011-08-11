@@ -251,8 +251,8 @@ class TestLibLarch(unittest.TestCase):
                             self.assertSignal(self.view, \
                                               'node-added-inview', \
                                           self.tree.add_node))(node, parent_id = '0')
-        self.assertTrue(('temp',(0, 0)) in self.recorded_signals['node-added-inview'])
-        self.assertTrue(('0',(0, )) in \
+        self.assertTrue(('temp',('0', 'temp')) in self.recorded_signals['node-added-inview'])
+        self.assertTrue(('0',('0', )) in \
                      self.recorded_signals['node-modified-inview'])
         shouldbe = self.blue_nodes + 1
         total = self.red_nodes + self.blue_nodes + self.green_nodes
@@ -285,7 +285,7 @@ class TestLibLarch(unittest.TestCase):
         self.assertSignal(self.view, \
                           'node-modified-inview', \
                           self.tree.add_node, 1)(node,parent_id='0')
-        self.assertTrue(('0',(0, )) in self.recorded_signals['node-modified-inview'])
+        self.assertTrue(('0',('0', )) in self.recorded_signals['node-modified-inview'])
         #Node is blue
         self.assertTrue(viewblue.is_displayed('temp'))
         self.assertFalse(viewred.is_displayed('temp'))
@@ -390,9 +390,9 @@ class TestLibLarch(unittest.TestCase):
         roots = view.get_paths_for_node('0')
         #Then, (X,0) and (X,1) should be both in paths of children
         for r in roots:
-            p = r + (0,)
+            p = r + ('child',)
             self.assertTrue(p in paths)
-            p = r + (1,)
+            p = r + ('child2',)
             self.assertTrue(p in paths)
             
     def test_clean_multiple_parents(self):
@@ -598,7 +598,7 @@ class TestLibLarch(unittest.TestCase):
                           'node-deleted-inview', \
                           self.tree.del_node, 1)('0', recursive = True)
 #        print "A lot of deleted signals", self.recorded_signals['node-deleted-inview']
-        self.assertTrue(('temp',(0, 0)) in self.recorded_signals['node-deleted-inview'])
+        self.assertTrue(('temp',('0', 'temp')) in self.recorded_signals['node-deleted-inview'])
         #FIXME : the deleted path is not necesarly the one given
 #        self.assertTrue(('0',(0,)) in self.recorded_signals['node-deleted-inview'])
         all_nodes = self.view.get_all_nodes()
@@ -625,7 +625,7 @@ class TestLibLarch(unittest.TestCase):
                           'node-modified-inview', \
                           self.tree.move_node, 2)('temp','1')
 #        self.assertTrue(('0',(0,)) in self.recorded_signals['node-modified-inview'])
-        self.assertTrue(('1',(1,)) in self.recorded_signals['node-modified-inview'])
+        self.assertTrue(('1',('1',)) in self.recorded_signals['node-modified-inview'])
         self.assertTrue(view.node_has_child('1'))
         self.assertTrue('temp' in view.node_all_children('1'))
         self.assertTrue('temp' not in view.node_all_children('0'))
@@ -652,7 +652,7 @@ class TestLibLarch(unittest.TestCase):
                           self.tree.add_node, 1)(node, parent_id = '0')
         #Not checking temp. Indeed, it has been added, so there should not 
         #be any modified signal
-        self.assertTrue(('0',(0,)) in self.recorded_signals['node-modified-inview'])
+        self.assertTrue(('0',('0',)) in self.recorded_signals['node-modified-inview'])
         #Testing initial situation
         self.assertTrue(view.node_has_child('0'))
         self.assertTrue('temp' in view.node_all_children('0'))
@@ -661,7 +661,7 @@ class TestLibLarch(unittest.TestCase):
         self.assertSignal(self.view, \
                           'node-modified-inview', \
                           self.tree.add_parent, 1)('temp','1')
-        self.assertTrue(('1',(1,)) in self.recorded_signals['node-modified-inview'])
+        self.assertTrue(('1',('1',)) in self.recorded_signals['node-modified-inview'])
         self.assertTrue(view.node_has_child('1'))
         self.assertTrue('temp' in view.node_all_children('1'))
         self.assertTrue('temp' in view.node_all_children('0'))
@@ -1072,13 +1072,13 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(total,view.get_n_nodes())
         view.apply_filter('green')
         self.assertEqual(1,view.get_n_nodes())
-        nid = view.get_node_for_path((0,))
+        nid = view.get_node_for_path(('14',))
         #Now, we add a new node
         node = DummyNode('temp')
         node.add_color('green')
         self.tree.add_node(node,parent_id=nid)
         self.assertEqual(1,view.get_n_nodes())
-        nid = view.get_node_for_path((0,))
+        nid = view.get_node_for_path(('temp',))
         self.assertEqual('temp',nid)
         test.test_validity()
 
@@ -1094,13 +1094,13 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(total,view.get_n_nodes())
         view.apply_filter('green')
         self.assertEqual(1,view.get_n_nodes())
-        nid = view.get_node_for_path((0,))
+        nid = view.get_node_for_path(('14',))
         #Now, we add a new node
         node = DummyNode('temp')
         node.add_color('green')
         self.tree.add_node(node,parent_id=nid)
         self.assertEqual(1,view.get_n_nodes())
-        nid = view.get_node_for_path((0,))
+        nid = view.get_node_for_path(('temp',))
         self.assertEqual('temp',nid)
         test.test_validity()
         
