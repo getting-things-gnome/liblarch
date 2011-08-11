@@ -401,7 +401,6 @@ class FilteredTree():
                 for parent_path in self.get_paths_for_node(parent_id):
                     mypath = parent_path + (node_id,)
                     toreturn.append(mypath)
-            print "paths of %s are %s" %(node_id,str(toreturn))
             return toreturn
 
     def print_tree(self, string=False):
@@ -512,15 +511,11 @@ class FilteredTree():
     def get_node_for_path(self, path):
         if not path or path == ():
             return None
-
         node_id = path[-1]
-#        for index in path:
-#            if 0 <= index < len(self.nodes[node_id]['children']):
-#                node_id = self.nodes[node_id]['children'][index]
-#            else:
-#                return None
-
-        return node_id
+        if path in self.get_paths_for_node(node_id):
+            return node_id
+        else:
+            return None
 
     def next_node(self, node_id, parent_id):
         if node_id == self.root_id:

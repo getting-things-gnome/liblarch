@@ -436,7 +436,7 @@ class TestLibLarch(unittest.TestCase):
         view.apply_filter('red')
         self.assertEqual(view.node_parents('child'),['0'])
         path0 = view.get_paths_for_node('0')[0]
-        pathchild = path0 + (0,)
+        pathchild = path0 + ('child',)
         self.assertEqual(view.get_paths_for_node('child'),[pathchild])
         node0 = view.get_node('0')
         node0.add_color('blue')
@@ -447,7 +447,7 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(len(view.get_paths_for_node('child')[0]),1)
         node0.add_color('red')
         path0 = view.get_paths_for_node('0')[0]
-        pathchild = path0 + (0,)
+        pathchild = path0 + ('child',)
         self.assertEqual(view.node_parents('child'),['0'])
         self.assertEqual(view.get_paths_for_node('child'),[pathchild])
         
@@ -811,7 +811,7 @@ class TestLibLarch(unittest.TestCase):
             returned = view.get_paths_for_node(str(firstgreen+i))[0]
             self.assertEqual(pp,returned)
             i+=1
-            pp += (0,)
+            pp += (str(firstgreen+i),)
         #with filters
         view.apply_filter('green')
         pp = view.get_paths_for_node(str(firstgreen+1))[0]
@@ -821,7 +821,7 @@ class TestLibLarch(unittest.TestCase):
             returned = view.get_paths_for_node(str(firstgreen+i))[0]
             self.assertEqual(pp,returned)
             i+=1
-            pp += (0,)
+            pp += (str(firstgreen+i),)
         
     def test_viewtree_next_node(self):
         view = self.tree.get_viewtree(refresh=True)
@@ -1118,11 +1118,12 @@ class TestLibLarch(unittest.TestCase):
         view.apply_filter('flatgreen')
         #all green nodes should be visibles
         self.assertEqual(self.green_nodes,view.get_n_nodes())
-        i = 0
+        i = 10
         nodes = []
         #we check that the paths are on the root
         while i < self.green_nodes:
-            nid = view.get_node_for_path((i,))
+            nid = view.get_node_for_path((str(i),))
+            view.print_tree()
             nodes.append(nid)
             self.assertFalse(nid == None)
             #let see if a node has parent
@@ -1131,7 +1132,7 @@ class TestLibLarch(unittest.TestCase):
             self.assertFalse(view.node_has_child(nid))
             i += 1
         #we check that we have seen all the nodes
-        i = 1
+        i = 10
         while i <= self.green_nodes :
             self.assertTrue(str(self.total-i) in nodes)
             i += 1

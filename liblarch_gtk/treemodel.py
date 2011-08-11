@@ -61,22 +61,14 @@ class TreeModel(gtk.TreeStore):
             depth = 0
             while iter and current_nid != str(path[-1]):
                 in_the_path = path[depth]
-                print "current_nid : %s" %current_nid
-                print "looping with in_the_path %s and iter %s" %(str(in_the_path),self.get_string_from_iter(iter))
                 while iter and current_nid != str(in_the_path):
                     iter = self.iter_next(iter)
-                    print "iter_next: %s" %self.get_string_from_iter(iter)
                     if iter:
                         current_nid = self.get_value(iter,0)
                 if depth+1 < len(path):
                     depth += 1
-                    print "### will ask for iter_children of %s" %self.get_string_from_iter(iter)
-                    print "has_child? %s" %self.iter_has_child(iter)
                     iter = self.iter_children(iter)
-                    print "### my_get_iter "+current_nid +"  "+ str(path)
-                    print "### and iter is %s" %self.get_string_from_iter(iter)
                     current_nid = self.get_value(iter,0)
-                    print "### new current_nid "+current_nid
                 else:
                     break
             return iter
