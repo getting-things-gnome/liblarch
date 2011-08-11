@@ -107,7 +107,9 @@ class TreeView(gtk.TreeView):
             if 'renderer' in desc:
                 rend_attribute, renderer = desc['renderer']
             else:
-                raise ValueError("The treeview description should have a renderer")
+                rend_attribute = 'markup'
+                renderer = gtk.CellRendererText()
+#                raise ValueError("The treeview description should have a renderer")
 
             col = gtk.TreeViewColumn()
             col.set_visible(visible)
@@ -401,7 +403,6 @@ class TreeView(gtk.TreeView):
         model, paths = treeselection.get_selected_rows()
         iters = [model.get_iter(path) for path in paths]
         iter_str = ','.join([model.get_string_from_iter(iter) for iter in iters])
-#        print "__init__ 404: iter_str %s" %iter_str
         selection.set(self.dnd_internal_target, 0, iter_str)
 
     def on_drag_data_received(self, treeview, context, x, y, selection, info,\
@@ -431,7 +432,6 @@ class TreeView(gtk.TreeView):
         if drop_info:
             path, position = drop_info
             iter = model.get_iter(path)
-#            print "we are dropping on %s" %str(path)
             # Must add the task to the parent of the task situated
             # before/after 
             if position == gtk.TREE_VIEW_DROP_BEFORE or\

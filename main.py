@@ -158,8 +158,6 @@ class LiblarchDemo:
         col_name = 'label'
         col = {}
         col['title'] = "Title"
-        render_text = gtk.CellRendererText()
-        col['renderer'] = ['markup',render_text]
         col['value'] = [str, self.task_label_column]
         col['expandable'] = True
         col['resizable'] = True
