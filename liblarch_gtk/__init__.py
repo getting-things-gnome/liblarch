@@ -109,7 +109,6 @@ class TreeView(gtk.TreeView):
             else:
                 rend_attribute = 'markup'
                 renderer = gtk.CellRendererText()
-#                raise ValueError("The treeview description should have a renderer")
 
             col = gtk.TreeViewColumn()
             col.set_visible(visible)
