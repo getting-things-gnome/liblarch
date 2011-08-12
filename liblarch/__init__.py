@@ -45,10 +45,10 @@ class Tree:
         """ Does the node exists in this tree? """
         return self.__tree.has_node(node_id)
 
-    def add_node(self, node, parent_id=None):
+    def add_node(self, node, parent_id=None, high_priority=False):
         """ Add a node to tree. If parent_id is set, put the node as a child of
         this node, otherwise put it as a child of the root node."""
-        self.__tree.add_node(node, parent_id)
+        self.__tree.add_node(node, parent_id, high_priority)
 
     def del_node(self, node_id, recursive=False):
         """ Remove node from tree and return whether it was successful or not """
@@ -65,7 +65,6 @@ class Tree:
     def move_node(self, node_id, new_parent_id=None):
         """ Move the node to a new parent (dismissing all other parents)
         use pid None to move it to the root """
-
         if self.has_node(node_id):
             node = self.get_node(node_id)
             node.set_parent(new_parent_id)
