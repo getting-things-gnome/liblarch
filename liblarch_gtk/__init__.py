@@ -191,19 +191,17 @@ class TreeView(gtk.TreeView):
 
     def on_child_toggled(self, treemodel, path, iter, param=None):
         """ Expand row """
-#        print "expanding row for %s" %treemodel.get_value(iter,0)
         #is the toggled node in the collapsed paths?
         collapsed = False
         nid = treemodel.get_value(iter,0)
-        for c in self.collapsed_paths:
-            if c[-1] == nid:
-                collapsed = True
+        while iter and not collapsed:
+            for c in self.collapsed_paths:
+                if c[-1] == nid:
+                    collapsed = True
+            iter = treemodel.iter_parent(iter)
         if not self.row_expanded(path) and not collapsed:
             self.expand_row(path, True)
             
-#    def on_row_changed(self,treemodel,path,iter,param=None):
-##        print "on-row-changed for %s" %treemodel.get_value(iter,0)
-#        a=0
 
     def collapse_node(self, llpath):
         """ Hide children of a node
