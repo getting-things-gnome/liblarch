@@ -32,6 +32,6 @@ done
 cd $(dirname $0)
 
 make clean
-deploy ../integrate-liblarch-to-gtg/GTG/tools/ liblarch/*
-deploy ../integrate-liblarch-to-gtg/GTG/gtk/ liblarch_gtk/*
-deploy ../integrate-liblarch-to-gtg/GTG/ tests/*
+deploy ../gtg/GTG/tools/ liblarch/*
+deploy ../gtg/GTG/gtk/ liblarch_gtk/*
+deploy ../gtg/GTG/ tests/*
