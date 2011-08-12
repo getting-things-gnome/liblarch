@@ -167,10 +167,11 @@ class TreeView(gtk.TreeView):
 
         self.expand_all()
         self.show()
-
+        
+        
+        self.collapsed_paths = []
         self.connect('row-expanded', self.__emit, 'expanded')
         self.connect('row-collapsed', self.__emit, 'collapsed')
-        #FIXME: this one is crazingly slow, but it is a gtk bug in TreeModelSort
         self.treemodel.connect('row-has-child-toggled', self.on_child_toggled)
 
     def __emit(self, sender, iter, path, data):
@@ -190,8 +191,19 @@ class TreeView(gtk.TreeView):
 
     def on_child_toggled(self, treemodel, path, iter, param=None):
         """ Expand row """
-        if not self.row_expanded(path):
+#        print "expanding row for %s" %treemodel.get_value(iter,0)
+        #is the toggled node in the collapsed paths?
+        collapsed = False
+        nid = treemodel.get_value(iter,0)
+        for c in self.collapsed_paths:
+            if c[-1] == nid:
+                collapsed = True
+        if not self.row_expanded(path) and not collapsed:
             self.expand_row(path, True)
+            
+#    def on_row_changed(self,treemodel,path,iter,param=None):
+##        print "on-row-changed for %s" %treemodel.get_value(iter,0)
+#        a=0
 
     def collapse_node(self, llpath):
         """ Hide children of a node
@@ -209,8 +221,12 @@ class TreeView(gtk.TreeView):
             if iter:
                 target_path = self.basetreemodel.get_path(iter)
                 if self.basetreemodel.get_value(iter,0) == node_id:
-#                    print "we will collapse %s at %s" %(node_id,str(target_path))
+                    print "we will collapse %s at %s" %(node_id,str(target_path))
                     self.collapse_row(target_path)
+                    self.collapsed_paths.append(llpath)
+                    it = self.basetreemodel.get_iter(target_path)
+                    newid = self.basetreemodel.get_value(it,0)
+                    print "we have collapsed node %s" %newid
                 else:
                     self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
             else:
