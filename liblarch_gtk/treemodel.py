@@ -51,6 +51,8 @@ class TreeModel(gtk.TreeStore):
         """ Because we sort the TreeStore, paths in the treestore are
         not the same as paths in the FilteredTree. We do the  conversion here.
         We receive a Liblarch path as argument and return a gtk.TreeIter"""
+        #The function is recursive. We take iter for path (A,B,C) in cache.
+        #If there is not, we take iter for path (A,B) and try to find C.
         if path == ():
             return None
         nid = str(path[-1])
