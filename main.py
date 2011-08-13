@@ -34,7 +34,7 @@ import threading
 import gobject
 
 # Constants
-LOAD_MANY_TASKS_COUNT = 1000
+LOAD_MANY_TASKS_COUNT = 10000
 ADD_MANY_TASKS_TO_EXISTING_TASKS = True
 
 # Useful for experimenting with the tree
