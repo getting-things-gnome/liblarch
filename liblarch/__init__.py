@@ -250,7 +250,7 @@ class ViewTree:
         is up and has some nodes). """
 
         if self.static:
-            self.__maintree.refersh_all()
+            self.__maintree.refresh_all()
         else:
             self.__ft.get_current_state()
 
@@ -330,6 +330,8 @@ class ViewTree:
         """ Return quantity of children of node_id.
         If node_id is None, use the root node. 
         Every instance of node has the same children"""
+        if not self.__ft:
+            self.__ft = FilteredTree(self.__maintree, self.__fbank, refresh = True)
         return self.__ft.node_n_children(node_id,recursive)
 
     def node_nth_child(self, node_id, n):
