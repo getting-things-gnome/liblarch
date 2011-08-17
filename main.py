@@ -34,7 +34,7 @@ import threading
 import gobject
 
 # Constants
-LOAD_MANY_TASKS_COUNT = 10000
+LOAD_MANY_TASKS_COUNT = 1000
 ADD_MANY_TASKS_TO_EXISTING_TASKS = True
 
 # Useful for experimenting with the tree
@@ -113,7 +113,7 @@ class TaskNode(TreeNode):
         self.vt = viewtree
 
     def get_label(self):
-        return "%s (%s children)" % (self.label, self.vt.node_n_children(self.tid))
+        return "%s (%s children)" % (self.label, self.vt.node_n_children(self.tid,recursive=True))
 
 class Backend(threading.Thread):
     def __init__(self, backend_id, finish_event, delay, tree):

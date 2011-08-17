@@ -177,6 +177,7 @@ class MainTree:
     def refresh_all(self):
         """ Refresh all nodes """
         for node_id in self.nodes.keys():
+            print "refreshing %s" %node_id
             self.modify_node(node_id)
 
 ####### IMPLEMENTATION OF HANDLING REQUESTS ###################################

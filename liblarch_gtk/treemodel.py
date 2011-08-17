@@ -32,6 +32,7 @@ class TreeModel(gtk.TreeStore):
         gtk.TreeStore.__init__(self, *only_types)
         self.cache_paths = {}
         self.tree = tree
+        self.count = 0
 
     def connect_model(self):
         """ Register "signals", callbacks from liblarch.
@@ -138,13 +139,14 @@ class TreeModel(gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
+        self.count += 1
         node = self.tree.get_node(node_id)
         iterator = self.my_get_iter(path)
 
         for column_num, (python_type, access_method) in enumerate(self.types):
             value = access_method(node)
             self.set_value(iterator, column_num, value)
-#        print "node %s has been updated on path %s" %(node_id,str(path))
+#        print "update node has been called : %s times" %self.count
 
     def reorder_nodes(self, node_id, path, neworder):
         """ Reorder nodes.
