@@ -136,7 +136,9 @@ class MainTree:
 
     def _callback(self, event, node_id):
         """ Inform others about the event """
-        for func in self.__cllbcks.get(event, {}).itervalues():
+        #We copy the dict to not loop on it while it could be modified
+        dic = dict(self.__cllbcks.get(event, {}))
+        for func in dic.itervalues():
             func(node_id)
 
 ####### INTERFACE FOR HANDLING REQUESTS #######################################
@@ -177,7 +179,6 @@ class MainTree:
     def refresh_all(self):
         """ Refresh all nodes """
         for node_id in self.nodes.keys():
-            print "refreshing %s" %node_id
             self.modify_node(node_id)
 
 ####### IMPLEMENTATION OF HANDLING REQUESTS ###################################

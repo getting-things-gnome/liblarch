@@ -582,7 +582,10 @@ class FilteredTree():
             return 0
         if recursive:
             total = 0
-            for cid in self.nodes[node_id]['children']:
+            #We avoid recursion in a loop
+            #because the dict might be updated in the meantime
+            cids = list(self.nodes[node_id]['children'])   
+            for cid in cids: 
                 total += self.node_n_children(cid,recursive=True)
                 total += 1 #we count the node itself ofcourse
             return total  
