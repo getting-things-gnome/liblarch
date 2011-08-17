@@ -576,6 +576,8 @@ class FilteredTree():
         return len(self.nodes[node_id]['children']) > 0
 
     def node_n_children(self, node_id, recursive=False):
+        if not self.nodes.has_key(node_id):
+            return 0
         if recursive:
             total = 0
             for cid in self.nodes[node_id]['children']:
