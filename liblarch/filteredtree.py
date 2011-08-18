@@ -157,41 +157,30 @@ class FilteredTree():
             remove_from = list(set(current_parents) - set(new_parents))
             add_to = list(set(new_parents) - set(current_parents))
             stay = list(set(new_parents) - set(add_to))
-            #We add to the root if there's no parent at all
-#            if len(stay)+len(add_to) == 0:
-#                add_to.append(self.root_id)
 
             #If we are updating a node at the root, we should take care
             #of the root too
             if direction == "down" and self.root_id in add_to:
                 direction = "both"
-#                action = 'added'
-                
-#            print "The parents to remove: %s" %str(remove_from)
-#            print "The parents to add: %s" %str(add_to)
-#            print "The parents who stay: %s" %str(stay)
-#            print "action : %s" %action
 
             #We update the parents
-            if direction == "both" or direction == "up":
-                for parent_id in remove_from:
-                    self.send_remove_tree(node_id, parent_id)
-                    self.nodes[parent_id]['children'].remove(node_id)
-                    #Why should we not remove that?
-                    #self.nodes[node_id]['parents'].remove(parent_id)
+            
+            for parent_id in remove_from:
+                self.send_remove_tree(node_id, parent_id)
+                self.nodes[parent_id]['children'].remove(node_id)
+                if direction == "both" or direction == "up":
                     self.__update_node(parent_id,direction="up")
-                #there might be some optimization here
-                for parent_id in add_to:
-                    if parent_id in self.nodes:
-                        self.nodes[parent_id]['children'].append(node_id)
-                        #Why is the following line not valid?
-                        #self.nodes[node_id]['parents'].append(parent_id)
-#                        print "appending %s to parent %s" %(node_id,parent_id)
-                        self.send_add_tree(node_id, parent_id)
+            #there might be some optimization here
+            for parent_id in add_to:
+                if parent_id in self.nodes:
+                    self.nodes[parent_id]['children'].append(node_id)
+                    self.send_add_tree(node_id, parent_id)
+                    if direction == "both" or direction == "up":
                         self.__update_node(parent_id,direction="up")
-                    else:
-                        completely_updated = False
-                #We update all the other parents
+                else:
+                    completely_updated = False
+            #We update all the other parents
+            if direction == "both" or direction == "up":
                 for parent_id in stay:
                     self.__update_node(parent_id,direction="up")
             #We update the node itself     
@@ -201,38 +190,12 @@ class FilteredTree():
                     self.callback(action, node_id, path) 
             
             #We update the children
+            current_children = self.nodes[node_id]['children']
+            new_children = self.__node_children(node_id)
             if direction == "both" or direction == "down":
-                current_children = self.nodes[node_id]['children']
-                new_children = self.__node_children(node_id)
-#                print "node %s" %node_id
-#                print "   current children: %s" %str(current_children)
-#                print "   new children: %s" %str(new_children)
                 for cid in new_children:
-                    self.__update_node(cid,direction="both")
-            
-##            The following seems completely unneeded as it makes more test fail
-#            if action == 'added':
-#                if direction == "both" or direction == "down":
-#                    current_children = self.nodes[node_id]['children']
-#                    new_children = self.__node_children(node_id)
-#                    
-#                    remove_from = list(set(current_children) - set(new_children))
-#                    add_to = list(set(new_children) - set(current_children))
-#                    stay = list(set(new_children) - set(add_to))
-#                    for child_id in remove_from:
-#                        self.send_remove_tree(child_id,node_id)
-#                        self.nodes[child_id]['parents'].remove(node_id)
-#                        self.__update_node(child_id,direction="down")
-#                    for child_id in add_to:
-#                        if child_id in self.nodes:
-#                            self.nodes[child_id]['parents'].append(node_id)
-#                            self.send_add_tree(child_id,node_id)
-#                            self.__update_node(child_id,direction="down")
-#                        else:
-#    #                            print "** cannot add child %s **" %child_id
-#                            completely_updated = False
-#                    for child_id in stay:
-#                        self.__update_node(child_id,direction="down")
+                    if cid not in current_children:
+                        self.__update_node(cid,direction="down")
 
         elif action == 'deleted':
             paths = self.get_paths_for_node(node_id)
