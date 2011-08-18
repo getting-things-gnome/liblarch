@@ -40,6 +40,7 @@ class SyncQueue:
         Schedule its processing if it is not already.  
         """
         self._lock.acquire()
+#        print "pushing in the queue which is %s long" %len(self._queue)
         self._queue.append(element)
 
         if self._handler is None:

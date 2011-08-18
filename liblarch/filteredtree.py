@@ -114,76 +114,11 @@ class FilteredTree():
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
-#        self.__update_node(node_id,direction="both")
-        # First thing is to find all nodes to update
-#        print "####### external_modify called for %s" %node_id
-        need_update = [node_id]
-        visited = []
-        # Go up
-        queue = [node_id]
-        while queue != []:
-            node_id = queue.pop(0)
-            visited.append(node_id)
-
-            if node_id in self.nodes:
-                for parent_id in self.nodes[node_id]['parents']:
-                    if parent_id not in visited and not self.is_node_okay(parent_id):
-                        queue.append(parent_id)
-                        if parent_id not in need_update:
-                            need_update.insert(0, parent_id)
-
-            for parent_id in self.__node_parents(node_id):
-                if parent_id not in visited and not self.is_node_okay(parent_id):
-                    queue.append(parent_id)
-                    if parent_id not in need_update:
-                        need_update.insert(0, parent_id)
-                        
-        # Go down
-        queue = [node_id]
-        while queue != []:
-            node_id = queue.pop(0)
-            visited.append(node_id)
-
-            if node_id in self.nodes:
-                for child_id in self.nodes[node_id]['children']:
-                    if child_id not in visited and not self.is_node_okay(child_id):
-                        queue.append(child_id)
-                        if child_id not in need_update:
-                            need_update.append(child_id)
-
-            for child_id in self.__node_children(node_id):
-                if child_id not in visited and not self.is_node_okay(child_id):
-                    queue.append(child_id)
-                    if child_id not in need_update:
-                        need_update.append(child_id)
-
-        while need_update != []:
-            to_update = need_update
-            need_update = []
-            for node_id in to_update:
-                if not self.__update_node(node_id):
-                    need_update.append(node_id)
-
-        #self.test_validity()
-
-    def is_node_okay(self, node_id):
-        # Root is always okay :-)
-        if node_id == self.root_id:
-            return True
-
-        current_display = self.is_displayed(node_id)
-        new_display = self.__is_displayed(node_id)
-        if current_display and new_display:
-
-            current_parents = self.nodes[node_id]['parents']
-            new_parents = self.__node_parents(node_id)
-            return current_parents == new_parents
-        else:
-            return False
-
-        return current_parents == new_parents
+        return self.__update_node(node_id,direction="both")
         
-    def __update_node(self, node_id,direction=None):
+    def __update_node(self, node_id,direction='both'):
+        if node_id == self.root_id:
+            return None
         
         #Updating the node itself.
         current_display = self.is_displayed(node_id)
@@ -214,73 +149,46 @@ class FilteredTree():
 
             remove_from = list(set(current_parents) - set(new_parents))
             add_to = list(set(new_parents) - set(current_parents))
+            stay = list(set(new_parents) - set(add_to))
 
-            for parent_id in remove_from:
-                self.send_remove_tree(node_id, parent_id)
-                self.nodes[parent_id]['children'].remove(node_id)
-
-            #there might be some optimization here
-            for parent_id in add_to:
-                if parent_id in self.nodes:
-                    self.nodes[parent_id]['children'].append(node_id)
-                    self.send_add_tree(node_id, parent_id)
-                else:
-                    completely_updated = False
+            if direction == "both" or direction == "up" or direction == None:
+                for parent_id in remove_from:
+                    self.send_remove_tree(node_id, parent_id)
+                    self.nodes[parent_id]['children'].remove(node_id)
+                    self.__update_node(parent_id,direction="up")
+                #there might be some optimization here
+                for parent_id in add_to:
+                    if parent_id in self.nodes:
+                        self.nodes[parent_id]['children'].append(node_id)
+                        self.send_add_tree(node_id, parent_id)
+                        self.__update_node(parent_id,direction="up")
+                    else:
+                        completely_updated = False
+                for parent_id in stay:
+                    self.__update_node(parent_id,direction="up")
 
         elif action == 'deleted':
-            for child_id in reversed(self.nodes[node_id]['children']):
-                self.send_remove_tree(child_id, node_id)
-                self.nodes[child_id]['parents'].remove(node_id)
-
-        #there might be some optimization here
-        if action == 'modified':
-            for path in self.get_paths_for_node(node_id):
-                self.callback(action, node_id, path)
-
-# FIXME I must admit, this is a little bit awkward. When adding/removing
-# a node, we want to update parent later. But! We have to make sure parent
-# is okay because we need a place to put / remove children. Then we send
-# modified signal. When parents are solved, we do not have to care about
-# them and just care about the children. But when we finish dealing with
-# children, the parent is not update. In most case, this is not a problem.
-# But current GTG shows count of subtasks in the name of parent and we NEED
-# to update parent.
-#
-# I am not sure what can we do about it. Maybe design a new algorithm?
-# Maybe an optimization of signals could help. Top of my head, we can cache
-# the callbacks and reduce redundant 'modified' signals (a heuristic needed)
-#
-# Please, use profiler first - maybe it does not matter at all (in that case
-# feel free to remove this long comment)
-#
-# The algorithm should be updated to every time update every ancestor!
-#
-# (Izidor, 2011-08-07)
-
-# FIXME the order of following action must be proper => when deleted signal is sent,
-# the node must be already deleted => we must cache it locally and solve callback later
-        queue = list(self.nodes[node_id]['parents'])
-
-        if action == 'deleted':
+            if direction == "down" or direction == "both" or direction == None:
+                for child_id in reversed(self.nodes[node_id]['children']):
+    #                self.__update_node(child_id,direction=="down")
+                    self.send_remove_tree(child_id, node_id)
+                    self.nodes[child_id]['parents'].remove(node_id)
+                    self.__update_node(child_id,direction="down")
             paths = self.get_paths_for_node(node_id)
 
             # Remove node from cache
             for parent_id in self.nodes[node_id]['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
+                self.__update_node(parent_id,direction="up")
 
             del self.nodes[node_id]
             for path in paths:
                 self.callback(action, node_id, path)
 
-        while queue != []:
-            parent_id = queue.pop(0)
-            if parent_id == self.root_id:
-                continue
-            queue.extend(self.nodes[parent_id]['parents'])
-            
-            for path in self.get_paths_for_node(parent_id):
-#                print "sending modified for %s at path %s" %(parent_id,str(path))
-                self.callback('modified', parent_id, path)
+#        #there might be some optimization here
+        if action == 'modified':
+            for path in self.get_paths_for_node(node_id):
+                self.callback(action, node_id, path)
 
         return completely_updated
 
