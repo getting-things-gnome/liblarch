@@ -33,12 +33,15 @@ class SyncQueue:
         self._handler = None
         self._lock = threading.Lock()
         
+        self.count = 0
+        
     def process_queue(self):
         """ Process requests from queue """
         for action in self.process():
+#            import time
+#            time.sleep(0.01)
             func = action[0]
             func(*action[1:])
-#            gobject.idle_add(func,*action[1:])
 
         # return True to process other requests as well
         return True
@@ -50,12 +53,15 @@ class SyncQueue:
         """
         self._lock.acquire()
 #        print "pushing %s in the queue" %str(element)
-#        lon = len(self._queue)
+        lon = len(self._queue)
 #        if lon > 0:
 #            print "queue is %s long" %lon
-#        if element in self._queue:
-#            print "**** double work *** "
-        self._queue.append(element)
+        if element not in self._queue:
+#            print "**** avoid double work *** "
+            self._queue.append(element)
+#        else:
+#            self.count += 1
+#            print "%s operations saved" %self.count
 
         if self._handler is None:
             self._handler = gobject.idle_add(self.process_queue)

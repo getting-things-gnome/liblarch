@@ -105,16 +105,14 @@ class FilteredTree():
                 else:
                     raise Exception('%s is not displayed but %s was added' %(nid,node_id))
         func,nid,param = self.cllbcks.get(event, (None,None,None))
-        if event == "modified":
-                self.count += 1
-#                print "FT has sent modified %s times" %self.count
         if func:
             if neworder:
                 self._queue.push(func, node_id, path, neworder)
-#                func(node_id, path, neworder)
             else:
                 self._queue.push(func, node_id, path)
-#                func(node_id, path)
+            
+            #We manually run the queue. To play with an Async queue
+            #comment out the next line. The results are "interesting
             self._queue.process_queue()
 
 #### EXTERNAL MODIFICATION ####################################################
