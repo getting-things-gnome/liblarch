@@ -1235,9 +1235,7 @@ class TestLibLarch(unittest.TestCase):
         node.add_child('11')
         self.assertEqual(node.get_id(), "parent")
         self.assertFalse(view.is_displayed('parent'))
-        print "################"
         self.tree.add_node(node)
-        print "#$$$$$$$$$$$$$$"
         test.test_validity()
         self.assertEqual(view.node_n_children('parent'),6)
         self.assertEqual(node.get_id(), "parent")
