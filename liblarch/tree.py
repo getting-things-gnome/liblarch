@@ -19,70 +19,7 @@
 
 
 import threading
-import gobject
-
-class SyncQueue:
-    """ Synchronized queue for processing requests"""
-
-    def __init__(self, callback):
-        """ Initialize synchronized queue.
-
-        @param callback - function for processing requests"""
-        self._queue = []
-        self._vip_queue = []
-        self._handler = None
-        self.callback = callback
-        self._lock = threading.Lock()
-
-    def push(self, *element):
-        """ Add a new element to the queue.
-
-        Schedule its processing if it is not already.  
-        """
-        self._lock.acquire()
-#        print "pushing in the queue which is %s long" %len(self._queue)
-        self._queue.append(element)
-
-        if self._handler is None:
-            self._handler = gobject.idle_add(self.callback)
-        self._lock.release()
-        
-    def priority_push(self, *element):
-        """ Add a new element to the queue.
-
-        Schedule its processing if it is not already.  
-        vip element are in a priority queue. They will be processed first
-        (this comment was actually written in Berlin Airport, after having
-        to wait in an economy class queue)"""
-        self._lock.acquire()
-        self._vip_queue.append(element)
-
-        if self._handler is None:
-            self._handler = gobject.idle_add(self.callback)
-        self._lock.release()
-
-    def process(self):
-        """ Return elements to process
-        
-        At the moment, it returns just one element. In the future more
-        elements may be better to return (to speed it up).
-        
-        If there is no request left, disable processing. """
-
-        self._lock.acquire()
-        if len(self._vip_queue) > 0:
-            toreturn = [self._vip_queue.pop(0)]
-        elif len(self._queue) > 0:
-            toreturn = [self._queue.pop(0)]
-        else:
-            toreturn = []
-
-        if len(self._queue) == 0 and len(self._vip_queue) == 0 and\
-                                                self._handler is not None:
-            gobject.source_remove(self._handler)
-            self._handler = None
-        self._lock.release()
-        return toreturn
+import processqueue
 
 class MainTree:
     """ Tree which stores and handle all requests """
@@ -102,7 +39,7 @@ class MainTree:
         self.root = TreeNode(self.root_id)
         self.root.set_tree(self)
 
-        self._queue = SyncQueue(self._process_queue)
+        self._queue = processqueue.SyncQueue()
         self._origin_thread = threading.current_thread()
 
     def __str__(self):
@@ -166,16 +103,7 @@ class MainTree:
             self._queue.push(request_type, *args)
 
         if self._origin_thread == threading.current_thread():
-            self._process_queue()
-
-    def _process_queue(self):
-        """ Process requests from queue """
-        for action in self._queue.process():
-            func = action[0]
-            func(*action[1:])
-
-        # return True to process other requests as well
-        return True
+            self._queue.process_queue()
 
     def refresh_all(self):
         """ Refresh all nodes """

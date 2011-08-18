@@ -64,11 +64,16 @@ class TreeModel(gtk.TreeStore):
         root = self.my_get_iter(path[:-1])
         if root:
             iter = self.iter_children(root)
+            if not iter:
+                raise Exception("%s doesn't have any children" %str(root))
         else:
             iter = self.get_iter_first()
         while iter and self.get_value(iter,0) != nid:
             iter = self.iter_next(iter)
+        if not iter:
+            raise Exception('We have not found iter for %s'%str(path))
         self.cache_paths[path] = iter
+#        print "my_get_iter returns %s for %s" %(iter,str(path))
         return iter
 
     def print_tree(self):
@@ -140,11 +145,13 @@ class TreeModel(gtk.TreeStore):
         @param path: identification of position
         """
         self.count += 1
+#        print "update_task %s for path %s" %(node_id,str(path))
         node = self.tree.get_node(node_id)
         iterator = self.my_get_iter(path)
 
         for column_num, (python_type, access_method) in enumerate(self.types):
             value = access_method(node)
+#            print "set value of iter %s to %s" %(iterator,value)
             self.set_value(iterator, column_num, value)
 #        print "update node has been called : %s times" %self.count
 

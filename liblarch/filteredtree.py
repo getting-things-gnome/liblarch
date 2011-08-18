@@ -19,6 +19,7 @@ from __future__ import with_statement
 # -----------------------------------------------------------------------------
 #
 import gobject
+import processqueue
 
 class FilteredTree():
     # FIXME comment of class
@@ -36,6 +37,7 @@ class FilteredTree():
         """
 
         self.cllbcks = {}
+        self._queue = processqueue.SyncQueue()
 
         # Cache
         self.nodes = {}
@@ -108,9 +110,12 @@ class FilteredTree():
 #                print "FT has sent modified %s times" %self.count
         if func:
             if neworder:
-                func(node_id, path, neworder)
+                self._queue.push(func, node_id, path, neworder)
+#                func(node_id, path, neworder)
             else:
-                func(node_id, path)
+                self._queue.push(func, node_id, path)
+#                func(node_id, path)
+            self._queue.process_queue()
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
@@ -135,6 +140,8 @@ class FilteredTree():
             action = 'deleted'
         else:
             action = 'modified'
+            
+#        print "we are %s node %s to %s" %(action,node_id,direction)
 
         # Create node info for new node
         if action == 'added':
@@ -150,8 +157,23 @@ class FilteredTree():
             remove_from = list(set(current_parents) - set(new_parents))
             add_to = list(set(new_parents) - set(current_parents))
             stay = list(set(new_parents) - set(add_to))
+            #We add to the root if there's no parent at all
+#            if len(stay)+len(add_to) == 0:
+#                add_to.append(self.root_id)
 
-            if direction == "both" or direction == "up" or direction == None:
+            #If we are updating a node a the root, we should take care
+            #of the root too
+            if direction == "down" and self.root_id in add_to:
+                direction = "both"
+#                action = 'added'
+                
+#            print "The parents to remove: %s" %str(remove_from)
+#            print "The parents to add: %s" %str(add_to)
+#            print "The parents who stay: %s" %str(stay)
+#            print "action : %s" %action
+
+            #We update the parents
+            if direction == "both" or direction == "up":
                 for parent_id in remove_from:
                     self.send_remove_tree(node_id, parent_id)
                     self.nodes[parent_id]['children'].remove(node_id)
@@ -160,34 +182,63 @@ class FilteredTree():
                 for parent_id in add_to:
                     if parent_id in self.nodes:
                         self.nodes[parent_id]['children'].append(node_id)
+#                        print "appending %s to parent %s" %(node_id,parent_id)
                         self.send_add_tree(node_id, parent_id)
                         self.__update_node(parent_id,direction="up")
                     else:
+                        print "*** not completely udpated ** "
                         completely_updated = False
+                #We update all the other parents
                 for parent_id in stay:
                     self.__update_node(parent_id,direction="up")
+            #We update the node itself
+            
+            #Why should we call the callback only for modify?
+            if action == 'modified':
+                for path in self.get_paths_for_node(node_id):
+                    self.callback(action, node_id, path) 
+            #We update the children
+            #The following seems completely unneeded as it makes more test fail
+#            if action == 'added':
+#                if direction == "both" or direction == "down":
+#                    current_children = self.nodes[node_id]['children']
+#                    new_children = self.__node_children(node_id)
+#                    
+#                    remove_from = list(set(current_children) - set(new_children))
+#                    add_to = list(set(new_children) - set(current_children))
+#                    stay = list(set(new_children) - set(add_to))
+#                    for child_id in remove_from:
+#                        self.send_remove_tree(child_id,node_id)
+#                        self.nodes[child_id]['parents'].remove(node_id)
+#                        self.__update_node(child_id,direction="down")
+#                    for child_id in add_to:
+#                        if child_id in self.nodes:
+#                            self.nodes[child_id]['parents'].append(node_id)
+#                            self.send_add_tree(child_id,node_id)
+#                            self.__update_node(child_id,direction="down")
+#                        else:
+#    #                            print "** cannot add child %s **" %child_id
+#                            completely_updated = False
+#                    for child_id in stay:
+#                        self.__update_node(child_id,direction="down")
 
         elif action == 'deleted':
-            if direction == "down" or direction == "both" or direction == None:
-                for child_id in reversed(self.nodes[node_id]['children']):
-    #                self.__update_node(child_id,direction=="down")
-                    self.send_remove_tree(child_id, node_id)
-                    self.nodes[child_id]['parents'].remove(node_id)
-                    self.__update_node(child_id,direction="down")
             paths = self.get_paths_for_node(node_id)
-
+            children = list(reversed(self.nodes[node_id]['children']))
+            for child_id in children:
+                self.send_remove_tree(child_id, node_id)
+                self.nodes[child_id]['parents'].remove(node_id)
             # Remove node from cache
             for parent_id in self.nodes[node_id]['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
                 self.__update_node(parent_id,direction="up")
 
             del self.nodes[node_id]
-            for path in paths:
-                self.callback(action, node_id, path)
 
-#        #there might be some optimization here
-        if action == 'modified':
-            for path in self.get_paths_for_node(node_id):
+            for child_id in children:
+                self.__update_node(child_id,direction="down")
+            
+            for path in paths:
                 self.callback(action, node_id, path)
 
         return completely_updated
@@ -338,7 +389,7 @@ class FilteredTree():
                 if parent_id not in self.nodes:
                     raise Exception("Parent %s does not exists" % parent_id)
                 if node_id not in self.nodes[parent_id]['children']:
-                    raise Exception("%s is not children of %s" % (node_id, parent_id))
+                    raise Exception("%s is not children of %s\n%s" % (node_id, parent_id,str(self.nodes)))
 
                 for parent_path in self.get_paths_for_node(parent_id):
                     mypath = parent_path + (node_id,)
