@@ -34,7 +34,7 @@ import threading
 import gobject
 
 # Constants
-LOAD_MANY_TASKS_COUNT = 2000
+LOAD_MANY_TASKS_COUNT = 1000
 ADD_MANY_TASKS_TO_EXISTING_TASKS = True
 SLEEP_BETWEEN_TASKS = 0
 
@@ -153,8 +153,10 @@ class LiblarchDemo:
         self.tree.add_filter("odd",self.odd_filter)
         self.tree.add_filter("flat",self.flat_filter,{"flat": True})
         self.view_tree = self.tree.get_viewtree()
+        self.mod_counter = 0
         
         self.view_tree.register_cllbck('node-added-inview',self._update_title)
+        self.view_tree.register_cllbck('node-modified-inview',self._modified_count)
         self.view_tree.register_cllbck('node-deleted-inview',self._update_title)
 
         desc = {}
@@ -195,11 +197,16 @@ class LiblarchDemo:
     def flat_filter(self,node,parameters=None):
         return True
         
-    def _update_title(self,sender,a):
+    def _modified_count(self,sender,nid):
+        self.mod_counter += 1
+        
+    def _update_title(self,sender,nid):
         count = self.view_tree.get_n_nodes()
         if count >= LOAD_MANY_TASKS_COUNT and self.start_time > 0:
             stop_time = time() - self.start_time
-            print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)         
+            print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)
+            mean = self.mod_counter * 1.0 / LOAD_MANY_TASKS_COUNT
+            print "%s modified signals were received (%s per task)" %(self.mod_counter, mean)      
         self.window.set_title('Liblarch demo: %s nodes' %count)
         
 

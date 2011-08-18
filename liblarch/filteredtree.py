@@ -114,6 +114,7 @@ class FilteredTree():
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
+#        self.__update_node(node_id,direction="both")
         # First thing is to find all nodes to update
 #        print "####### external_modify called for %s" %node_id
         need_update = [node_id]
@@ -160,7 +161,7 @@ class FilteredTree():
             to_update = need_update
             need_update = []
             for node_id in to_update:
-                if not self.update_node(node_id):
+                if not self.__update_node(node_id):
                     need_update.append(node_id)
 
         #self.test_validity()
@@ -182,7 +183,9 @@ class FilteredTree():
 
         return current_parents == new_parents
         
-    def update_node(self, node_id):
+    def __update_node(self, node_id,direction=None):
+        
+        #Updating the node itself.
         current_display = self.is_displayed(node_id)
         new_display = self.__is_displayed(node_id)
 
@@ -348,7 +351,7 @@ class FilteredTree():
 
         while queue != []:
             node_id = queue.pop(0)
-            self.update_node(node_id)
+            self.__update_node(node_id)
 
             node = self.tree.get_node(node_id)
             for child_id in node.get_children():
