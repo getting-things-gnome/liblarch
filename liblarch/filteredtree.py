@@ -161,7 +161,7 @@ class FilteredTree():
 #            if len(stay)+len(add_to) == 0:
 #                add_to.append(self.root_id)
 
-            #If we are updating a node a the root, we should take care
+            #If we are updating a node at the root, we should take care
             #of the root too
             if direction == "down" and self.root_id in add_to:
                 direction = "both"
@@ -177,28 +177,40 @@ class FilteredTree():
                 for parent_id in remove_from:
                     self.send_remove_tree(node_id, parent_id)
                     self.nodes[parent_id]['children'].remove(node_id)
+                    #Why should we not remove that?
+                    #self.nodes[node_id]['parents'].remove(parent_id)
                     self.__update_node(parent_id,direction="up")
                 #there might be some optimization here
                 for parent_id in add_to:
                     if parent_id in self.nodes:
                         self.nodes[parent_id]['children'].append(node_id)
+                        #Why is the following line not valid?
+                        #self.nodes[node_id]['parents'].append(parent_id)
 #                        print "appending %s to parent %s" %(node_id,parent_id)
                         self.send_add_tree(node_id, parent_id)
                         self.__update_node(parent_id,direction="up")
                     else:
-                        print "*** not completely udpated ** "
                         completely_updated = False
                 #We update all the other parents
                 for parent_id in stay:
                     self.__update_node(parent_id,direction="up")
-            #We update the node itself
-            
+            #We update the node itself     
             #Why should we call the callback only for modify?
             if action == 'modified':
                 for path in self.get_paths_for_node(node_id):
                     self.callback(action, node_id, path) 
+            
             #We update the children
-            #The following seems completely unneeded as it makes more test fail
+            if direction == "both" or direction == "down":
+                current_children = self.nodes[node_id]['children']
+                new_children = self.__node_children(node_id)
+#                print "node %s" %node_id
+#                print "   current children: %s" %str(current_children)
+#                print "   new children: %s" %str(new_children)
+                for cid in new_children:
+                    self.__update_node(cid,direction="both")
+            
+##            The following seems completely unneeded as it makes more test fail
 #            if action == 'added':
 #                if direction == "both" or direction == "down":
 #                    current_children = self.nodes[node_id]['children']

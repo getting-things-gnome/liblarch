@@ -370,7 +370,6 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(len(view.node_parents('child')),0)
         self.assertNotEqual(view.get_paths_for_node('child'),[('0','child')])
         node2.add_color('red')
-        view.print_tree()
         self.assertTrue('0' in view.node_parents('child'))
         
     def test_multiple_children(self):
@@ -1243,6 +1242,7 @@ class TestLibLarch(unittest.TestCase):
         test.test_validity()
         self.assertEqual(node.get_id(), "parent")
         self.assertFalse(view.is_displayed('parent'))
+        print "###########################"
         node.add_color('blue')
         test.test_validity()
         self.assertTrue(view.is_displayed('parent'))
