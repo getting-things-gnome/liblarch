@@ -153,6 +153,9 @@ class LiblarchDemo:
         self.tree.add_filter("odd",self.odd_filter)
         self.tree.add_filter("flat",self.flat_filter,{"flat": True})
         self.view_tree = self.tree.get_viewtree()
+        
+        self.view_tree.register_cllbck('node-added-inview',self._update_title)
+        self.view_tree.register_cllbck('node-deleted-inview',self._update_title)
 
         desc = {}
 
@@ -191,6 +194,13 @@ class LiblarchDemo:
         
     def flat_filter(self,node,parameters=None):
         return True
+        
+    def _update_title(self,sender,a):
+        count = self.view_tree.get_n_nodes()
+        if count >= LOAD_MANY_TASKS_COUNT and self.start_time > 0:
+            stop_time = time() - self.start_time
+            print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)         
+        self.window.set_title('Liblarch demo: %s nodes' %count)
         
 
     def __init__(self):
@@ -531,9 +541,6 @@ class LiblarchDemo:
 
     def finish(self, widget):
         self.should_finish.set()
-        if self.start_time > 0:
-            stop_time = time() - self.start_time
-            print "Time since many tasks were loaded: %s" %stop_time
         gtk.main_quit()
 
     def run(self):
