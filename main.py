@@ -29,13 +29,14 @@ import sys
 from random import randint, choice, shuffle
 import re
 import logging
-from time import sleep
+from time import sleep, time
 import threading
 import gobject
 
 # Constants
-LOAD_MANY_TASKS_COUNT = 1000
+LOAD_MANY_TASKS_COUNT = 2000
 ADD_MANY_TASKS_TO_EXISTING_TASKS = True
+SLEEP_BETWEEN_TASKS = 0
 
 # Useful for experimenting with the tree
 BACKUP_OPERATIONS = False
@@ -203,6 +204,8 @@ class LiblarchDemo:
         self.liblarch_widget = self._build_tree_view()
         scrolled_window = gtk.ScrolledWindow()
         scrolled_window.add_with_viewport(self.liblarch_widget)
+        
+        self.start_time = 0
 
         # Buttons 
         action_panel = gtk.HBox()
@@ -442,6 +445,7 @@ class LiblarchDemo:
 
 
     def many_tasks(self, widget):
+        self.start_time = time()
         def _many_tasks():
             tasks_ids = []
             prefix = "%d_" % randint(0, 1000)
@@ -460,7 +464,7 @@ class LiblarchDemo:
                 tasks_ids.append(t_id)
 
                 # Sleep 0.01 second to create illusion of real tasks
-                sleep(0.01)
+                sleep(SLEEP_BETWEEN_TASKS)
 
             print "end of _many_tasks thread"
         t = threading.Thread(target=_many_tasks)
@@ -527,6 +531,9 @@ class LiblarchDemo:
 
     def finish(self, widget):
         self.should_finish.set()
+        if self.start_time > 0:
+            stop_time = time() - self.start_time
+            print "Time since many tasks were loaded: %s" %stop_time
         gtk.main_quit()
 
     def run(self):
