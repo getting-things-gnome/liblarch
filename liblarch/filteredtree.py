@@ -119,7 +119,9 @@ class FilteredTree():
     def __external_modify(self, node_id):
         return self.__update_node(node_id,direction="both")
         
-    def __update_node(self, node_id,direction='both'):
+    def __update_node(self, node_id,direction):
+        '''update the node node_id and propagate the 
+        change in direction (up|down|both) '''
         if node_id == self.root_id:
             return None
         
@@ -283,7 +285,8 @@ class FilteredTree():
 
         while queue != []:
             node_id = queue.pop(0)
-            self.__update_node(node_id)
+            #FIXME: decide which is the best direction
+            self.__update_node(node_id,direction="both")
 
             node = self.tree.get_node(node_id)
             for child_id in node.get_children():

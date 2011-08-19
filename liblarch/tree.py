@@ -102,6 +102,8 @@ class MainTree:
         else:
             self._queue.push(request_type, *args)
 
+        #I'm really wondering what is this line about
+        #It doesn't seem right nor useful, except for unit tests.
         if self._origin_thread == threading.current_thread():
             self._queue.process_queue()
 

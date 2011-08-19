@@ -205,7 +205,8 @@ class LiblarchDemo:
         if count >= LOAD_MANY_TASKS_COUNT and self.start_time > 0:
             stop_time = time() - self.start_time
             print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)
-            mean = self.mod_counter * 1.0 / LOAD_MANY_TASKS_COUNT
+#        if count > 0:
+            mean = self.mod_counter * 1.0 / count
             print "%s modified signals were received (%s per task)" %(self.mod_counter, mean)     
         self.window.set_title('Liblarch demo: %s nodes' %count)
         
