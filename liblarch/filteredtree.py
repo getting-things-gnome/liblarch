@@ -21,6 +21,8 @@ from __future__ import with_statement
 import gobject
 import processqueue
 
+ASYNC_QUEUE = False
+
 class FilteredTree():
     # FIXME comment of class
     # describe cache and Virtual Root
@@ -37,7 +39,8 @@ class FilteredTree():
         """
 
         self.cllbcks = {}
-        self._queue = processqueue.SyncQueue()
+        if ASYNC_QUEUE:
+            self._queue = processqueue.SyncQueue()
 
         # Cache
         self.nodes = {}
@@ -107,13 +110,16 @@ class FilteredTree():
         func,nid,param = self.cllbcks.get(event, (None,None,None))
         if func:
             if neworder:
-                self._queue.push(func, node_id, path, neworder)
+                if ASYNC_QUEUE:
+                    self._queue.push(func, node_id, path, neworder)
+                else:
+                    func(node_id,path,neworder)
             else:
-                self._queue.push(func, node_id, path)
+                if ASYNC_QUEUE:
+                    self._queue.push(func, node_id, path)
+                else:
+                    func(node_id,path)
             
-            #We manually run the queue. To play with an Async queue
-            #comment out the next line. The results are "interesting
-            self._queue.process_queue()
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
@@ -165,12 +171,14 @@ class FilteredTree():
                 direction = "both"
 
             #We update the parents
-            if self.__flat:
-                #If we have a flat filter, we have to update the
+            if action == 'added':
+                #This check is for "phantom parents", for example
+                #If we have a flat or leave-only filter, we have to update the
                 #real parents!
                 node = self.tree.get_node(node_id)
                 for parent in node.get_parents():
-                    self.__update_node(parent,direction="up")
+                    if parent not in new_parents and parent not in current_parents:
+                        self.__update_node(parent,direction="up")
             for parent_id in remove_from:
                 self.send_remove_tree(node_id, parent_id)
                 self.nodes[parent_id]['children'].remove(node_id)

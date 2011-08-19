@@ -1120,7 +1120,7 @@ class TestLibLarch(unittest.TestCase):
         #Now, we add a new node
         node = DummyNode('temp')
         node.add_color('green')
-        self.tree.add_node(node,parent_id=nid)
+        self.tree.add_node(node,parent_id='14')
         self.assertEqual(1,view.get_n_nodes())
         nid = view.get_node_for_path(('temp',))
         self.assertEqual('temp',nid)
