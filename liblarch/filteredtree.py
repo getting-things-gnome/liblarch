@@ -117,6 +117,7 @@ class FilteredTree():
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
+#        print "    external modify : %s" %node_id
         return self.__update_node(node_id,direction="both")
         
     def __update_node(self, node_id,direction):
@@ -164,7 +165,12 @@ class FilteredTree():
                 direction = "both"
 
             #We update the parents
-            
+            if self.__flat:
+                #If we have a flat filter, we have to update the
+                #real parents!
+                node = self.tree.get_node(node_id)
+                for parent in node.get_parents():
+                    self.__update_node(parent,direction="up")
             for parent_id in remove_from:
                 self.send_remove_tree(node_id, parent_id)
                 self.nodes[parent_id]['children'].remove(node_id)

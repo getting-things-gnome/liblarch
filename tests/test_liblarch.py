@@ -1700,6 +1700,36 @@ class TestLibLarch(unittest.TestCase):
         #test value should be 2 + 1 + 3 = 6
         self.assertEqual(self.testvalue,6)
         
+        
+    def test_recursive_count(self):
+        self.value = 0
+        self.view = self.tree.get_viewtree()
+        def update(x,path):
+            if x == '0':
+                self.value = self.view.node_n_children(x,recursive=True)
+        self.view.register_cllbck('node-modified-inview',update)
+        a = DummyNode('a')
+        b = DummyNode('b')
+        c = DummyNode('c')
+        d = DummyNode('d')
+        d.add_color('blue')
+        zero = self.tree.get_node('0')
+        zero.add_color('blue')
+        self.assertEqual(self.value,0)
+        self.tree.add_node(a,'0')
+        self.assertEqual(self.value,1)
+        self.tree.add_node(b,'a')
+        self.assertEqual(self.value,2)
+        self.tree.add_node(c,'b')
+        self.assertEqual(self.value,3)
+        self.tree.add_node(d,'0')
+        self.assertEqual(self.value,4)
+        self.tree.del_node('b')
+        self.assertEqual(self.value,2)
+        self.view.apply_filter('blue')
+        self.assertEqual(self.value,1)     
+        
+        
 
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(__name__)

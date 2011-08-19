@@ -224,19 +224,19 @@ class MainTree:
             self.root.children.append(node_id)
 
         # Send callbacks
-
-        #FIXME: this callback is very slow with treemodelsort
-        for parent_id in parents_to_refresh:
-            self._callback("node-modified", parent_id)
-
-        #FIXME: this callback is very slow with treemodelsort
+        #updating the parent and the children is handled by the FT
         self._callback("node-added", node_id)
+        
+#        #The following callback is only needed in case we have a
+#        #Flat filter applied.
+#        for parent_id in parents_to_refresh:
+#            self._callback("node-modified", parent_id)
 
         #this callback is really fast. No problem
-        for child_id in children_to_refresh:
-            #FIXME: why parent_id? this should be a bug!
-            #removing this doesn't affect the tests. Why is it useful?
-            self._callback("node-modified", child_id)
+#        for child_id in children_to_refresh:
+#            #FIXME: why parent_id? this should be a bug!
+#            #removing this doesn't affect the tests. Why is it useful?
+#            self._callback("node-modified", child_id)
 
     def _remove_node(self, node_id, recursive=False):
         """ Remove node from tree """
