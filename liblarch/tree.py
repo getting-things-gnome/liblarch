@@ -438,9 +438,6 @@ class MainTree:
 
 class TreeNode:
     """ Object just for a single node in Tree """
-# FIXME maybe add a lock which prevents changing root at the wrong moment,
-# updating children, etc
-
     def __init__(self, node_id, parent=None):
         """ Initializes node
 

@@ -222,24 +222,11 @@ class ViewTree:
         """ Get a node from MainTree """
         return self.__maintree.get_node(node_id)
         
-    #FIXME WTF?
-    def __get_static_node(self,node_id):
-        toreturn = None
-        if self.static:
-            if not node_id or node_id == 'root':
-                toreturn = self.__maintree.get_root()
-            else:
-                toreturn = self.__maintree.get_node(node_id)
-        else:
-            raise Exception("You should not get a static node"+\
-                            " in a viewtree")
-        return toreturn
-
-    #FIXME WTF?
+    #FIXME Remove this method from public interface
     def get_root(self):
         return self.__maintree.get_root()
 
-    #FIXME WTF?
+    #FIXME Remove this method from public interface
     def refresh_all(self):
         self.__maintree.refresh_all()
 
@@ -277,14 +264,12 @@ class ViewTree:
         return self.__ft.get_n_nodes(withfilters=withfilters,\
                                     include_transparent=include_transparent)
 
-    # FIXME WTF? do wee need it?
     def get_node_for_path(self, path):
         """ Convert path to node_id.
 
         I am not sure what this is for... """
         return self._tree.get_node_for_path(path)
 
-    # FIXME WTF? do wee need it?
     def get_paths_for_node(self, node_id=None):
         """ If node_id is none, return root path
 
@@ -293,7 +278,6 @@ class ViewTree:
         """
         return self._tree.get_paths_for_node(node_id)
 
-    # FIXME WTF? do wee need it?
     # FIXME change pid => parent_id
     def next_node(self, node_id, pid=None):
         """ Return the next node to node_id.
@@ -304,27 +288,21 @@ class ViewTree:
         return self._tree.next_node(node_id, pid)
         
     def node_has_child(self, node_id):
-        """ FIXME desc """
-        # FIXME use the same interface
-
+        """ Has the node at least one child? """
         if self.static:
-            toreturn = self.__maintree.get_node(node_id).has_child()
+            return self.__maintree.get_node(node_id).has_child()
         else:
-            toreturn = self.__ft.node_has_child(node_id)
-        return toreturn
+            return self.__ft.node_has_child(node_id)
 
     def node_all_children(self, node_id=None):
-        """ FIXME desc """
-        # FIXME use the same interface
-        # FIXME name? returns really all children? recursive?
+        """ Return children of a node """
         if self.static:
             if not node_id or self.__maintree.has_node(node_id):
-                toreturn = self.__maintree.get_node(node_id).get_children()
+                return self.__maintree.get_node(node_id).get_children()
             else:
-                toreturn = []
+                return []
         else:
-            toreturn = self._tree.node_all_children(node_id)
-        return toreturn
+            return self._tree.node_all_children(node_id)
 
     def node_n_children(self, node_id=None, recursive=False):
         """ Return quantity of children of node_id.
@@ -336,27 +314,21 @@ class ViewTree:
 
     def node_nth_child(self, node_id, n):
         """ Return nth child of the node. """
-        # FIXME the same interface
-
-        toreturn = None
         if self.static:
-            # FIXME  Shouldnt be solved in MainTree?
             if not node_id or node_id == 'root':
                 node = self.__maintree.get_root()
             else:
                 node = self.__maintree.get_node(node_id)
 
             if node and node.get_n_children() > n:
-                toreturn = node.get_nth_child(n)
+                return node.get_nth_child(n)
             else:
                 raise ValueError("node %s has less than %s nodes" %(node_id, n))
         else:
-            # FIXME  Shouldnt be solved in FilteredTree?
             realn = self.__ft.node_n_children(node_id)
             if realn <= n:
                 raise ValueError("viewtree has %s nodes, no node %s" %(realn, n))
-            toreturn = self.__ft.node_nth_child(node_id, n)
-        return toreturn
+            return self.__ft.node_nth_child(node_id, n)
         
     def node_has_parent(self, node_id):
         """ Has node parents? Is it child of root? """
@@ -369,16 +341,13 @@ class ViewTree:
         Doesn't check wheter node node_id is displayed or not. (we only care about
         parents)
         """
-        # FIXME the same interface
         if self.static:
-            toreturn = self.__maintree.get_node(node_id).get_parents()
+            return self.__maintree.get_node(node_id).get_parents()
         else:
-            toreturn = self.__ft.node_parents(node_id)
-        return toreturn
+            return self.__ft.node_parents(node_id)
 
     def is_displayed(self, node_id):
         """ Is the node displayed? """
-# FIXME is node 
         if self.static:
             return self.__maintree.has_node(node_id)
         else:

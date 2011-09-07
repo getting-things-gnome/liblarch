@@ -614,10 +614,8 @@ class TestLibLarch(unittest.TestCase):
         node3 = self.tree.get_node('3')
         node.add_parent('9')
         node.add_parent('10')
-#        self.mainview.print_tree(string=False)
         self.tree.del_node('3')
         self.assertFalse(self.tree.has_node('3'))
-#        self.mainview.print_tree(string=False)
         self.tree.add_node(node3,parent_id='13')
         self.assertEqual(len(view.get_paths_for_node('3')),3)
         self.tree.del_node('3')
@@ -637,14 +635,10 @@ class TestLibLarch(unittest.TestCase):
         all_nodes = self.view.get_all_nodes()
         self.assertTrue('0' in all_nodes)
         self.assertTrue('temp' in all_nodes)
-#        print "nothing before the deletion", self.recorded_signals['node-deleted-inview']
         self.assertSignal(self.view, \
                           'node-deleted-inview', \
                           self.tree.del_node, 1)('0', recursive = True)
-#        print "A lot of deleted signals", self.recorded_signals['node-deleted-inview']
         self.assertTrue(('temp',('0', 'temp')) in self.recorded_signals['node-deleted-inview'])
-        #FIXME : the deleted path is not necesarly the one given
-#        self.assertTrue(('0',(0,)) in self.recorded_signals['node-deleted-inview'])
         all_nodes = self.view.get_all_nodes()
         self.assertFalse('0' in all_nodes)
         self.assertFalse('temp' in all_nodes)
@@ -1242,7 +1236,6 @@ class TestLibLarch(unittest.TestCase):
         test.test_validity()
         self.assertEqual(node.get_id(), "parent")
         self.assertFalse(view.is_displayed('parent'))
-        print "###########################"
         node.add_color('blue')
         test.test_validity()
         self.assertTrue(view.is_displayed('parent'))
@@ -1728,7 +1721,6 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(self.value,2)
         self.view.apply_filter('blue')
         self.assertEqual(self.value,1)     
-        
         
 
 def test_suite():

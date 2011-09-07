@@ -24,8 +24,19 @@ import processqueue
 ASYNC_QUEUE = False
 
 class FilteredTree():
-    # FIXME comment of class
-    # describe cache and Virtual Root
+    """ FilteredTree is the most important and also the most buggy part of
+    LibLarch.
+
+    FilteredTree transforms general changes in tree like creating/removing 
+    relationships between nodes and adding/updating/removing nodes into a serie
+    of simple steps which can be for instance by GTK Widget.
+
+    FilteredTree allows filtering - hiding certain nodes defined by a predicate.
+
+    The reason of most bugs is that FilteredTree is request to update a node.
+    FilteredTree must update its ancestors and also decestors. You cann't do that
+    by a simple recursion.
+    """
 
     def __init__(self, tree, filtersbank, refresh=True):
         """ Construct a layer where filters could by applied
@@ -45,8 +56,6 @@ class FilteredTree():
         # Cache
         self.nodes = {}
         self.root_id = None
-#FIXME: this is just for printing
-        self.root_id = 'root'
         self.nodes[self.root_id] = {'parents': [], 'children': []}
 
         # Connect to signals from MainTree
@@ -60,9 +69,6 @@ class FilteredTree():
         self.applied_filters = []
         self.fbank = filtersbank
         
-        #DEBUG
-        self.count = 0
-
         if refresh:
             self.refilter()
 
@@ -123,7 +129,6 @@ class FilteredTree():
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
-#        print "    external modify : %s" %node_id
         return self.__update_node(node_id,direction="both")
         
     def __update_node(self, node_id,direction):
@@ -148,8 +153,6 @@ class FilteredTree():
         else:
             action = 'modified'
             
-#        print "we are %s node %s to %s" %(action,node_id,direction)
-
         # Create node info for new node
         if action == 'added':
             self.nodes[node_id] = {'parents':[], 'children':[]}
@@ -292,15 +295,13 @@ class FilteredTree():
         self.nodes[self.root_id] = {'parents': [], 'children': []}
 
         # Build tree again
-# FIXME do not ignore __flat
         root_node = self.tree.get_root()
         queue = root_node.get_children()
-#FIXME special call
 
         while queue != []:
             node_id = queue.pop(0)
             #FIXME: decide which is the best direction
-            self.__update_node(node_id,direction="both")
+            self.__update_node(node_id, direction="both")
 
             node = self.tree.get_node(node_id)
             for child_id in node.get_children():
@@ -349,22 +350,19 @@ class FilteredTree():
         return toreturn
 
     def __node_parents(self, node_id):
-        """ Returns parents of the given node, or [] if there is no 
-        parent (such as if the node is a child of the virtual root),
-        or if the parent is not displayable.
+        """ Returns parents of the given node. If node has no parent or 
+        no displyed parent, return the virtual root.
         """
-        # FIXME comment
         if node_id == self.root_id:
             raise ValueError("Requested a parent of the root node")
 
         parents_nodes = []
         #we return only parents that are not root and displayed
-        if not self.__flat :
-            if self.tree.has_node(node_id):
-                node = self.tree.get_node(node_id)
-                for parent_id in node.get_parents():
-                    if self.__is_displayed(parent_id):
-                        parents_nodes.append(parent_id)
+        if not self.__flat and self.tree.has_node(node_id):
+            node = self.tree.get_node(node_id)
+            for parent_id in node.get_parents():
+                if self.__is_displayed(parent_id):
+                    parents_nodes.append(parent_id)
 
         # Add to root if it is an orphan
         if parents_nodes == []:
@@ -428,9 +426,6 @@ class FilteredTree():
         If include_transparent=False, we only take into account the applied filters
         that doesn't have the transparent parameters.
         """
-#FIXME docstring
-# FIXME this implementation is the most naive
-
         if withfilters == [] and include_transparent:
             # Use current cache
             return len(self.nodes) - 1
@@ -469,7 +464,7 @@ class FilteredTree():
                     continue
 
                 # Skip transparent filters if needed
-                transparent = filt.get_parameters('transparent')
+                transparent = filt.is_transparent()
                 if not include_transparent and transparent:
                     continue
 
