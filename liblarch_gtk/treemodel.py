@@ -63,14 +63,10 @@ class TreeModel(gtk.TreeStore):
         root = self.my_get_iter(path[:-1])
         if root:
             iter = self.iter_children(root)
-            if not iter:
-                raise Exception("%s doesn't have any children" %str(root))
         else:
             iter = self.get_iter_first()
         while iter and self.get_value(iter,0) != nid:
             iter = self.iter_next(iter)
-        if not iter:
-            raise Exception('We have not found iter for %s'%str(path))
         self.cache_paths[path] = iter
         return iter
 
