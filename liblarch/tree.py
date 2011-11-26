@@ -86,8 +86,8 @@ class MainTree:
     def remove_node(self, node_id, recursive=False):
         self._external_request(self._remove_node, True, node_id, recursive)
 
-    def modify_node(self, node_id):
-        self._external_request(self._modify_node, False, node_id)
+    def modify_node(self, node_id, high_priority=False):
+        self._external_request(self._modify_node, high_priority, node_id)
 
     def new_relationship(self, parent_id, child_id):
         self._external_request(self._new_relationship, False, parent_id, child_id)

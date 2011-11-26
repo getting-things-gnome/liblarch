@@ -54,9 +54,9 @@ class Tree:
         """ Remove node from tree and return whether it was successful or not """
         return self.__tree.remove_node(node_id, recursive)
 
-    def refresh_node(self, node_id):
+    def refresh_node(self, node_id, high_priority=False):
         """ Send a request for updating the node """
-        self.__tree.modify_node(node_id)
+        self.__tree.modify_node(node_id, high_priority)
 
     def refresh_all(self):
         """ Refresh all nodes """
