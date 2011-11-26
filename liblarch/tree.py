@@ -462,10 +462,10 @@ class TreeNode:
         """ Return node_id """
         return self.node_id
         
-    def modified(self):
+    def modified(self,high_priority=False):
         """ Force to update node (because it has changed) """
         if self.tree:
-            self.tree.modify_node(self.node_id)
+            self.tree.modify_node(self.node_id,high_priority)
 
     def set_tree(self, tree):
         """ Set tree which is should contain this node.
