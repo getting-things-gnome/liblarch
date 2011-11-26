@@ -504,6 +504,8 @@ class TreeNode:
         if self.parents_enabled and parent_id not in self.parents:
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
+            elif not self.tree.has_node(parent_id):
+                self.tree.pending_relationships.append((parent_id, self.get_id()))
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
@@ -514,8 +516,12 @@ class TreeNode:
         """ Remove other parents and set this parent as only parent """
         if self.parents_enabled:
             is_already_parent_flag = False
+            #FIXME that second part of the if fails on some test
+            #don't know why
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
+#            elif not self.tree.has_node(parent_id):
+#                self.tree.pending_relationships.append((parent_id, self.get_id()))
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
@@ -573,6 +579,8 @@ class TreeNode:
             if child_id not in self.children:
                 if not self.tree:
                     self.pending_relationships.append((self.get_id(), child_id))
+                elif not self.tree.has_node(child_id):
+                    self.tree.pending_relationships.append((self.get_id(), child_id))
                 else:
                     child = self.tree.get_node(child_id)
                     if child.has_parents_enabled():
