@@ -45,18 +45,18 @@ class Tree:
         """ Does the node exists in this tree? """
         return self.__tree.has_node(node_id)
 
-    def add_node(self, node, parent_id=None, high_priority=False):
+    def add_node(self, node, parent_id=None, priority="low"):
         """ Add a node to tree. If parent_id is set, put the node as a child of
         this node, otherwise put it as a child of the root node."""
-        self.__tree.add_node(node, parent_id, high_priority)
+        self.__tree.add_node(node, parent_id, priority)
 
     def del_node(self, node_id, recursive=False):
         """ Remove node from tree and return whether it was successful or not """
         return self.__tree.remove_node(node_id, recursive)
 
-    def refresh_node(self, node_id, high_priority=False):
+    def refresh_node(self, node_id, priority="low"):
         """ Send a request for updating the node """
-        self.__tree.modify_node(node_id, high_priority)
+        self.__tree.modify_node(node_id, priority)
 
     def refresh_all(self):
         """ Refresh all nodes """

@@ -80,14 +80,14 @@ class MainTree:
             func(node_id)
 
 ####### INTERFACE FOR HANDLING REQUESTS #######################################
-    def add_node(self, node, parent_id=None, high_priority=False):
-        self._external_request(self._add_node, high_priority, node, parent_id)
+    def add_node(self, node, parent_id=None, priority="low"):
+        self._external_request(self._add_node, priority, node, parent_id)
 
     def remove_node(self, node_id, recursive=False):
         self._external_request(self._remove_node, True, node_id, recursive)
 
-    def modify_node(self, node_id, high_priority=False):
-        self._external_request(self._modify_node, high_priority, node_id)
+    def modify_node(self, node_id, priority="low"):
+        self._external_request(self._modify_node, priority, node_id)
 
     def new_relationship(self, parent_id, child_id):
         self._external_request(self._new_relationship, False, parent_id, child_id)
@@ -95,12 +95,14 @@ class MainTree:
     def break_relationship(self, parent_id, child_id):
         self._external_request(self._break_relationship, False, parent_id, child_id)
 
-    def _external_request(self, request_type, vip, *args):
+    def _external_request(self, request_type, priority, *args):
         """ Put the reqest into queue and in the main thread handle it """
-        if vip:
+        if priority == "high":
             self._queue.priority_push(request_type, *args)
-        else:
+        elif priority == "normal" or priority == "medium":
             self._queue.push(request_type, *args)
+        else:
+            self._queue.low_push(request_type, *args)
 
         #I'm really wondering what is this line about
         #It doesn't seem right nor useful, except for unit tests.
@@ -462,10 +464,10 @@ class TreeNode:
         """ Return node_id """
         return self.node_id
         
-    def modified(self,high_priority=False):
+    def modified(self,priority="low"):
         """ Force to update node (because it has changed) """
         if self.tree:
-            self.tree.modify_node(self.node_id,high_priority=high_priority)
+            self.tree.modify_node(self.node_id,priority=priority)
 
     def set_tree(self, tree):
         """ Set tree which is should contain this node.

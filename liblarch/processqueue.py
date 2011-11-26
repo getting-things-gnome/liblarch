@@ -28,6 +28,7 @@ class SyncQueue:
         """ Initialize synchronized queue.
 
         @param callback - function for processing requests"""
+        self._low_queue = []
         self._queue = []
         self._vip_queue = []
         self._handler = None
@@ -43,6 +44,20 @@ class SyncQueue:
 
         # return True to process other requests as well
         return True
+        
+    def low_push(self, *element):
+        """ Add a new element to the queue.
+
+        Schedule its processing if it is not already.  
+        vip element are in a priority queue. They will be processed first
+        (this comment was actually written in Berlin Airport, after having
+        to wait in an economy class queue)"""
+        self._lock.acquire()
+        self._low_queue.append(element)
+
+        if self._handler is None:
+            self._handler = gobject.idle_add(self.process_queue)
+        self._lock.release()
 
     def push(self, *element):
         """ Add a new element to the queue.
@@ -85,11 +100,14 @@ class SyncQueue:
             toreturn = [self._vip_queue.pop(0)]
         elif len(self._queue) > 0:
             toreturn = [self._queue.pop(0)]
+        elif len(self._low_queue) > 0:
+            toreturn = [self._low_queue.pop(0)]
         else:
             toreturn = []
 
         if len(self._queue) == 0 and len(self._vip_queue) == 0 and\
-                                                self._handler is not None:
+                                        len(self._low_queue) == 0 and\
+                                        self._handler is not None:
             gobject.source_remove(self._handler)
             self._handler = None
         self._lock.release()
