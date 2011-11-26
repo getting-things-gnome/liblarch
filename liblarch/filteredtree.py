@@ -134,7 +134,6 @@ class FilteredTree():
     def __update_node(self, node_id,direction):
         '''update the node node_id and propagate the 
         change in direction (up|down|both) '''
-        direction = None
         if node_id == self.root_id:
             return None
         

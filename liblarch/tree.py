@@ -495,24 +495,37 @@ class TreeNode:
             for p in self.get_parents():
                 self.remove_parent(p)
         self.parents_enabled = bol
+        
+    def has_parents_enabled(self):
+        return self.parents_enabled
 
     def add_parent(self, parent_id):
         """ Add a new parent """
         if self.parents_enabled and parent_id not in self.parents:
-            self.parents.append(parent_id)
-            self.new_relationship(parent_id, self.node_id)
+            if not self.tree:
+                self.pending_relationships.append((parent_id, self.get_id()))
+            else:
+                par = self.tree.get_node(parent_id)
+                if par.has_children_enabled():
+                    self.parents.append(parent_id)
+                    self.new_relationship(parent_id, self.node_id)
 
     def set_parent(self, parent_id):
         """ Remove other parents and set this parent as only parent """
         if self.parents_enabled:
             is_already_parent_flag = False
-            for node_id in self.parents:
-                if node_id != parent_id:
-                    self.remove_parent(node_id)
-                else:
-                    is_already_parent_flag = True
-            if parent_id and not is_already_parent_flag:
-                self.add_parent(parent_id)
+            if not self.tree:
+                self.pending_relationships.append((parent_id, self.get_id()))
+            else:
+                par = self.tree.get_node(parent_id)
+                if par.has_children_enabled():
+                    for node_id in self.parents:
+                        if node_id != parent_id:
+                            self.remove_parent(node_id)
+                        else:
+                            is_already_parent_flag = True
+                    if parent_id and not is_already_parent_flag:
+                        self.add_parent(parent_id)
 
     def remove_parent(self, parent_id):
         """ Remove parent """
@@ -551,12 +564,20 @@ class TreeNode:
                 self.tree.break_relationship(self.get_id(),c)
         self.children_enabled = bol
         
+    def has_children_enabled(self):
+        return self.children_enabled
+        
     def add_child(self, child_id):
         """ Add a children to node """
         if self.children_enabled:
             if child_id not in self.children:
-                self.children.append(child_id)
-                self.new_relationship(self.node_id, child_id)
+                if not self.tree:
+                    self.pending_relationships.append((self.get_id(), child_id))
+                else:
+                    child = self.tree.get_node(child_id)
+                    if child.has_parents_enabled():
+                        self.children.append(child_id)
+                        self.new_relationship(self.node_id, child_id)
             else:
                 print "%s was already in children of %s" % (child_id, self.node_id)
 
