@@ -466,9 +466,9 @@ class LiblarchDemo:
         self.start_time = time()
         def _many_tasks():
             tasks_ids = []
-            prefix = "%d_" % randint(0, 1000)
+            prefix = randint(1, 1000)* 100000
             for i in range(LOAD_MANY_TASKS_COUNT):
-                t_id = prefix + str(i)
+                t_id = str(prefix + i)
                 t_title = t_id
                 task = TaskNode(t_id, t_title,self.view_tree)
 
