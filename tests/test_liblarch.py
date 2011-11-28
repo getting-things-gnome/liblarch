@@ -1277,7 +1277,7 @@ class TestLibLarch(unittest.TestCase):
         acceptable
         '''
         self.tester.quit()
-        BIG_NUMBER = 200
+        BIG_NUMBER = 1000
         view = self.tree.get_viewtree(refresh = False)
         nodes_id = []
         start = time.time()

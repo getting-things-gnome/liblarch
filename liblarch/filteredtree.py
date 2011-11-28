@@ -50,6 +50,7 @@ class FilteredTree():
         """
 
         self.cllbcks = {}
+        self.callcount = {'up':0,'down':0,'both':0}
         if ASYNC_QUEUE:
             self._queue = processqueue.SyncQueue()
 
@@ -57,6 +58,7 @@ class FilteredTree():
         self.nodes = {}
         self.root_id = None
         self.nodes[self.root_id] = {'parents': [], 'children': []}
+        self.cache_paths = {}
 
         # Connect to signals from MainTree
         self.tree = tree
@@ -71,6 +73,7 @@ class FilteredTree():
         
         if refresh:
             self.refilter()
+            
 
     def set_callback(self, event, func,node_id=None, param=None):
         """ Register a callback for an event.
@@ -204,6 +207,8 @@ class FilteredTree():
             #We update the node itself     
             #Why should we call the callback only for modify?
             if action == 'modified':
+                self.callcount[direction] += 1
+#                print self.callcount
                 for path in self.get_paths_for_node(node_id):
                     self.callback(action, node_id, path) 
             
@@ -370,8 +375,39 @@ class FilteredTree():
             parents_nodes = [self.root_id]
 
         return parents_nodes
+        
+    #This is a crude hack which is more performant that other methods
+    def is_path_valid(self,p):
+#        print "is %s valid?" %str(p)
+        valid = True
+        i = 0
+        if len(p) == 1:
+            valid = False
+        else:
+            while valid and i < len(p) - 1:
+                child = p[i+1]
+                par = p[i]
+                if self.nodes.has_key(par):
+                    valid = (child in self.nodes[par]['children'])
+                else:
+                    valid = False
+                i += 1
+        return valid
 
     def get_paths_for_node(self, node_id):
+#        cached = self.cache_paths.get(node_id,None)
+        #The cache improves performance a lot for "stairs"
+        #FIXME : the cache cannot detect if a new path has been added
+#        validcache = False
+#        if cached:
+#            validcache = True
+#            for p in cached:
+#                validcache = validcache and self.is_path_valid(p)
+#            if validcache:
+##                print "the valid cache is : %s" %str(cached)
+#                return cached
+
+        
         if node_id == self.root_id or not self.is_displayed(node_id):
             return [()]
         else:
@@ -385,6 +421,10 @@ class FilteredTree():
                 for parent_path in self.get_paths_for_node(parent_id):
                     mypath = parent_path + (node_id,)
                     toreturn.append(mypath)
+#            #Testing the cache
+#            if validcache and toreturn != cached:
+#                print "We return %s but %s was cached" %(str(toreturn),str(cached))
+            self.cache_paths[node_id] = toreturn
             return toreturn
 
     def print_tree(self, string=False):
@@ -493,7 +533,9 @@ class FilteredTree():
         if not path or path == ():
             return None
         node_id = path[-1]
+        #Both "if" should be benchmarked
         if path in self.get_paths_for_node(node_id):
+#        if self.is_path_valid(path):
             return node_id
         else:
             return None

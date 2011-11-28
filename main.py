@@ -198,7 +198,7 @@ class LiblarchDemo:
         return True
         
     def _modified_count(self,nid,path):
-        print "Node %s has been modified" %nid
+#        print "Node %s has been modified" %nid
         self.mod_counter += 1
         
     def _update_title(self,sender,nid):
@@ -297,7 +297,8 @@ class LiblarchDemo:
         self.should_finish = threading.Event()
 
     def task_label_column(self, node):
-        return node.get_label()
+        newlabel = node.get_label()
+        return newlabel
 
     def print_tree(self, widget=None):
         print 
