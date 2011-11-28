@@ -108,9 +108,6 @@ class CallbackCatcher(object):
     
 
 class GobjectSignalsManager(object):
-
-    def __init__(self):
-        self.main_loop = None
     
 
     def init_signals(self):
@@ -130,6 +127,6 @@ class GobjectSignalsManager(object):
             time.sleep(0.1)
 
     def terminate_signals(self):
-        if self.main_loop:
-            self.main_loop.quit()
+#        if has_attr(self,'main_loop'):
+        self.main_loop.quit()
 

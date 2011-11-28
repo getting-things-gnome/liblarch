@@ -25,12 +25,16 @@ class TreeModel(gtk.TreeStore):
     def __init__(self, tree, types):
         """ Initializes parent and create list of columns. The first colum
         is node_id of node """
+        
+        self.count = 0
+        self.count2 = 0
 
         self.types = [[str, lambda node: node.get_id()]] + types
         only_types = [python_type for python_type, access_method in self.types]
 
         gtk.TreeStore.__init__(self, *only_types)
         self.cache_paths = {}
+        self.cache_position = {}
         self.tree = tree
 
     def connect_model(self):
@@ -56,19 +60,35 @@ class TreeModel(gtk.TreeStore):
         if path == ():
             return None
         nid = str(path[-1])
+        self.count += 1
         #We try to use the cache
         iter = self.cache_paths.get(path,None)
+        toreturn = None
         if iter and self.iter_is_valid(iter) and nid == self.get_value(iter,0):
-            return iter
-        root = self.my_get_iter(path[:-1])
-        if root:
-            iter = self.iter_children(root)
+            self.count2 += 1
+            toreturn = iter
         else:
-            iter = self.get_iter_first()
-        while iter and self.get_value(iter,0) != nid:
-            iter = self.iter_next(iter)
-        self.cache_paths[path] = iter
-        return iter
+            root = self.my_get_iter(path[:-1])
+            #This is a small ad-hoc optimisation.
+            #Instead of going through all the children nodes
+            #We go directly at the last known position.
+            pos = self.cache_position.get(path,None)
+            if pos:
+                iter = self.iter_nth_child(root,pos)
+                if iter and self.get_value(iter,0) == nid:
+                    toreturn = iter
+            if not toreturn:
+                if root:
+                    iter = self.iter_children(root)
+                else:
+                    iter = self.get_iter_first()
+                while iter and self.get_value(iter,0) != nid:
+                    iter = self.iter_next(iter)
+            self.cache_paths[path] = iter
+            toreturn = iter
+#        print "%s / %s" %(self.count2,self.count)
+#        print "my_get_iter %s : %s" %(nid,self.get_string_from_iter(toreturn))
+        return toreturn
 
     def print_tree(self):
         """ Print TreeStore as Tree into console """
@@ -112,6 +132,7 @@ class TreeModel(gtk.TreeStore):
         iter_path = path[:-1]
 
         iterator = self.my_get_iter(iter_path)
+        self.cache_position[path] = self.iter_n_children(iterator)
         it = self.insert(iterator, -1, row)
         
         # Show the new task if possible
@@ -129,6 +150,7 @@ class TreeModel(gtk.TreeStore):
         actual_node_id = self.get_value(it, 0)
         assert actual_node_id == node_id
         self.remove(it)
+        self.cache_position.pop(path)
 
     def update_task(self, node_id, path):
         """ Update instance of node by rebuilding the row.
@@ -137,6 +159,7 @@ class TreeModel(gtk.TreeStore):
         @param path: identification of position
         """
         node = self.tree.get_node(node_id)
+        #That call to my_get_iter is really slow!
         iterator = self.my_get_iter(path)
 
         for column_num, (python_type, access_method) in enumerate(self.types):
