@@ -100,6 +100,8 @@ class TreeNode:
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
             elif not self.tree.has_node(parent_id):
+                for p in self.get_parents():
+                    self.tree.break_relationship(p,self.get_id())
                 self.tree.pending_relationships.append((parent_id, self.get_id()))
             else:
                 par = self.tree.get_node(parent_id)
