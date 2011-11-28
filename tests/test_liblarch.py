@@ -905,6 +905,19 @@ class TestLibLarch(unittest.TestCase):
         self.tree.add_node(node,parent_id='0')
         self.assertTrue(view.node_has_child('0'))
         self.assertTrue(self.mainview.node_has_child('0'))
+        
+    def test_moving_to_future_parent(self):
+        view = self.tree.get_viewtree(refresh=True)
+        node = DummyNode('future_par')
+        node2 = DummyNode('child')
+        self.tree.add_node(node2,parent_id='0')
+        self.assertTrue('child' in view.node_all_children('0'))
+        node2.set_parent('future_par')
+        self.assertFalse('child' in view.node_all_children('0'))
+        self.assertFalse(node2.has_parent())
+        self.tree.add_node(node)
+        self.assertTrue('child' in view.node_all_children('future_par'))
+        self.assertTrue(node2.has_parent())
     
     def test_viewtree_node_all_children(self):
         view = self.tree.get_viewtree(refresh=True)

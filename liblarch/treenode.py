@@ -95,8 +95,6 @@ class TreeNode:
         """ Remove other parents and set this parent as only parent """
         if self.parents_enabled:
             is_already_parent_flag = False
-            #FIXME that second part of the if fails on some test
-            #don't know why
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
             elif not self.tree.has_node(parent_id):
