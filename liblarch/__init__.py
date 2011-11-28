@@ -211,8 +211,9 @@ class ViewTree:
         """ Handle a new event from MainTree or FilteredTree
         by passing it to other objects, e.g. TreeWidget """
         callbacks = dict(self.__cllbcks.get(event, {}))
-
+#        print "ViewTree __emit for %s" %str(node_id)
         for func in callbacks.itervalues():
+#            print "   -> func = %s - %s" %(func,str(path))
             if neworder:
                 func(node_id, path, neworder)
             else:

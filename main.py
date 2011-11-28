@@ -197,7 +197,8 @@ class LiblarchDemo:
     def flat_filter(self,node,parameters=None):
         return True
         
-    def _modified_count(self,sender,nid):
+    def _modified_count(self,nid,path):
+        print "Node %s has been modified" %nid
         self.mod_counter += 1
         
     def _update_title(self,sender,nid):
@@ -449,10 +450,7 @@ class LiblarchDemo:
         for node_id in self.liblarch_widget.get_selected_nodes():
             node = self.tree.get_node(node_id)
             node.label = "Ahoj"
-        self.tree.refresh_all()
-        for node_id in view.get_all_nodes():
-            node = self.tree.get_node(node_id)
-            print node.get_label()
+            node.modified()
 
     def backends(self, widget):
         print "Backends...."
