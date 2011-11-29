@@ -22,6 +22,7 @@ import gobject
 import processqueue
 
 ASYNC_QUEUE = False
+ASYNC_MODIFY = True
 
 class FilteredTree():
     """ FilteredTree is the most important and also the most buggy part of
@@ -51,8 +52,8 @@ class FilteredTree():
 
         self.cllbcks = {}
         self.callcount = {'up':0,'down':0,'both':0}
-        if ASYNC_QUEUE:
-            self._queue = processqueue.SyncQueue()
+#        if ASYNC_QUEUE:
+        self._queue = processqueue.SyncQueue()
 
         # Cache
         self.nodes = {}
@@ -95,7 +96,7 @@ class FilteredTree():
         else:
             self.cllbcks[event] = [func,node_id,param]
         
-    def callback(self, event, node_id, path, neworder=None):
+    def callback(self, event, node_id, path, neworder=None,async=False):
         """ Run a callback.
 
         To call callback, the object must be initialized and function exists.
@@ -119,15 +120,18 @@ class FilteredTree():
         func,nid,param = self.cllbcks.get(event, (None,None,None))
         if func:
             if neworder:
-                if ASYNC_QUEUE:
+                if ASYNC_QUEUE or async:
                     self._queue.push(func, node_id, path, neworder)
                 else:
                     func(node_id,path,neworder)
             else:
-                if ASYNC_QUEUE:
+                if ASYNC_QUEUE or async:
                     self._queue.push(func, node_id, path)
                 else:
                     func(node_id,path)
+                    
+    def flush(self):
+        return self._queue.flush()
             
 
 #### EXTERNAL MODIFICATION ####################################################
@@ -210,7 +214,7 @@ class FilteredTree():
                 self.callcount[direction] += 1
 #                print self.callcount
                 for path in self.get_paths_for_node(node_id):
-                    self.callback(action, node_id, path) 
+                    self.callback(action, node_id, path,async=ASYNC_MODIFY) 
             
             #We update the children
             current_children = self.nodes[node_id]['children']

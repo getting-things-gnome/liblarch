@@ -97,6 +97,8 @@ class TestLibLarch(unittest.TestCase):
                                error_code = error_code)\
                     as [signal_catched_event, signal_arguments]:
                 function(*args, **kws)
+                #Ensuring there's no async signal left
+                generator.flush()
                 signal_catched_event.wait()
                 self.recorded_signals[signal_name] += signal_arguments
             return None
@@ -449,7 +451,7 @@ class TestLibLarch(unittest.TestCase):
         node2.add_parent('1')
         self.assertEqual(len(view.node_parents('child')),2)
         view.apply_filter('blue')
-        
+
     def test_adding_to_late_parent_with_leaf_filter(self):
         '''Add a node to a parent not yet in the tree
         then add the parent later'''
@@ -471,7 +473,7 @@ class TestLibLarch(unittest.TestCase):
         view.reset_filters()
         self.assertTrue(view.is_displayed('futur'))
         self.assertTrue('futur' in view.node_parents('child'))
-        
+
     def test_updating_parent(self):
         node = DummyNode('child')
         node.add_color('red')
@@ -638,7 +640,8 @@ class TestLibLarch(unittest.TestCase):
         self.assertSignal(self.view, \
                           'node-deleted-inview', \
                           self.tree.del_node, 1)('0', recursive = True)
-        self.assertTrue(('temp',('0', 'temp')) in self.recorded_signals['node-deleted-inview'])
+        self.assertTrue(('temp',('0', 'temp')) in\
+                                 self.recorded_signals['node-deleted-inview'])
         all_nodes = self.view.get_all_nodes()
         self.assertFalse('0' in all_nodes)
         self.assertFalse('temp' in all_nodes)
@@ -1721,18 +1724,25 @@ class TestLibLarch(unittest.TestCase):
         d.add_color('blue')
         zero = self.tree.get_node('0')
         zero.add_color('blue')
+        self.view.flush()
         self.assertEqual(self.value,0)
         self.tree.add_node(a,'0')
+        self.view.flush()
         self.assertEqual(self.value,1)
         self.tree.add_node(b,'a')
+        self.view.flush()
         self.assertEqual(self.value,2)
         self.tree.add_node(c,'b')
+        self.view.flush()
         self.assertEqual(self.value,3)
         self.tree.add_node(d,'0')
+        self.view.flush()
         self.assertEqual(self.value,4)
         self.tree.del_node('b')
+        self.view.flush()
         self.assertEqual(self.value,2)
         self.view.apply_filter('blue')
+        self.view.flush()
         self.assertEqual(self.value,1)     
         
 

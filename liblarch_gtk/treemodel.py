@@ -158,13 +158,19 @@ class TreeModel(gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
-        node = self.tree.get_node(node_id)
-        #That call to my_get_iter is really slow!
-        iterator = self.my_get_iter(path)
-
-        for column_num, (python_type, access_method) in enumerate(self.types):
-            value = access_method(node)
-            self.set_value(iterator, column_num, value)
+        #We cannot assume that the node is in the tree because
+        #update is asynchronus
+        #Also, we should consider that missing an update is not critical
+        #and ignoring the case where there is no iterator
+        if self.tree.is_displayed(node_id):
+            node = self.tree.get_node(node_id)
+            #That call to my_get_iter is really slow!
+            iterator = self.my_get_iter(path)
+        
+            if iterator:
+                for column_num, (python_type, access_method) in enumerate(self.types):
+                    value = access_method(node)
+                    self.set_value(iterator, column_num, value)
 
     def reorder_nodes(self, node_id, path, neworder):
         """ Reorder nodes.

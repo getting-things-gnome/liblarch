@@ -41,7 +41,6 @@ class SyncQueue:
         for action in self.process():
             func = action[0]
             func(*action[1:])
-
         # return True to process other requests as well
         return True
         
@@ -86,6 +85,32 @@ class SyncQueue:
         if self._handler is None:
             self._handler = gobject.idle_add(self.process_queue)
         self._lock.release()
+        
+    def flush(self):
+        """Block until all elements of the queue are processed.
+        This is should be only used for testing purpose"""
+#        print gobject.main_depth(),self.running
+        while len(self._queue) > 0 or len(self._vip_queue) > 0 or\
+                                        len(self._low_queue) > 0 :
+#            print "flush acquire: "
+            self._lock.acquire()
+#            if self._handler is None:
+#                self.process_queue
+#                self._hanler = "flush"
+#            print "flush release"
+            self._lock.release()
+#            self._lock.acquire()
+
+#            if self._handler is None:
+#                self._handler = gobject.idle_add(self.process_queue)
+#            self._lock.release()
+#            self._lock.acquire()
+#            self._handler = None
+#            self._lock.release()
+#        self.running.acquire()
+#        print self._handler,self._queue,self._low_queue,self._vip_queue
+#        self.running.release()
+        return True
 
     def process(self):
         """ Return elements to process
