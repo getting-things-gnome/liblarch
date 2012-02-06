@@ -80,7 +80,8 @@ class TreeNode:
 
     def add_parent(self, parent_id):
         """ Add a new parent """
-        if self.parents_enabled and parent_id not in self.parents:
+        if parent_id != self.get_id() and self.parents_enabled \
+                                      and parent_id not in self.parents:
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
             elif not self.tree.has_node(parent_id):
@@ -93,7 +94,7 @@ class TreeNode:
 
     def set_parent(self, parent_id):
         """ Remove other parents and set this parent as only parent """
-        if self.parents_enabled:
+        if parent_id != self.get_id() and self.parents_enabled:
             is_already_parent_flag = False
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))

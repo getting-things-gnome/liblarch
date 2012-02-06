@@ -374,6 +374,16 @@ class TestLibLarch(unittest.TestCase):
         node2.add_color('red')
         self.assertTrue('0' in view.node_parents('child'))
         
+    def test_adding_self_parent(self):
+        '''A node cannot be its own parent'''
+        view = self.tree.get_viewtree(refresh=True)
+        node = view.get_node('0')
+        node.add_parent('0')
+        self.assertEqual(len(node.get_parents()),0)
+        node.set_parent('0')
+        self.assertEqual(len(node.get_parents()),0)
+        
+        
     def test_multiple_children(self):
         '''We test a node with two children.'''
         view = self.tree.get_viewtree(refresh=True)
