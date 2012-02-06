@@ -155,7 +155,7 @@ class TreeNode:
         
     def add_child(self, child_id):
         """ Add a children to node """
-        if self.children_enabled:
+        if self.children_enabled and child_id != self.get_id():
             if child_id not in self.children:
                 if not self.tree:
                     self.pending_relationships.append((self.get_id(), child_id))

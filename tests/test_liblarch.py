@@ -380,8 +380,13 @@ class TestLibLarch(unittest.TestCase):
         node = view.get_node('0')
         node.add_parent('0')
         self.assertEqual(len(node.get_parents()),0)
+        self.assertEqual(len(node.get_children()),0)
         node.set_parent('0')
         self.assertEqual(len(node.get_parents()),0)
+        self.assertEqual(len(node.get_children()),0)
+        node.add_child('0')
+        self.assertEqual(len(node.get_parents()),0)
+        self.assertEqual(len(node.get_children()),0)
         
         
     def test_multiple_children(self):
