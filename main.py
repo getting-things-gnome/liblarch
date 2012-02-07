@@ -152,6 +152,7 @@ class LiblarchDemo:
         self.tree.add_filter("even",self.even_filter)
         self.tree.add_filter("odd",self.odd_filter)
         self.tree.add_filter("flat",self.flat_filter,{"flat": True})
+        self.tree.add_filter("leaf",self.leaf_filter)
         self.view_tree = self.tree.get_viewtree()
         self.mod_counter = 0
         
@@ -197,13 +198,16 @@ class LiblarchDemo:
     def flat_filter(self,node,parameters=None):
         return True
         
+    def leaf_filter(self,node):
+        return not node.has_child()
+        
     def _modified_count(self,nid,path):
 #        print "Node %s has been modified" %nid
         self.mod_counter += 1
         
     def _update_title(self,sender,nid):
         count = self.view_tree.get_n_nodes()
-        if count >= LOAD_MANY_TASKS_COUNT and self.start_time > 0:
+        if count == LOAD_MANY_TASKS_COUNT and self.start_time > 0:
             stop_time = time() - self.start_time
             print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)
 #        if count > 0:
@@ -343,6 +347,8 @@ class LiblarchDemo:
 
     @save_backup
     def tree_high_3(self, widget):
+        ''' We add the leaf nodes before the root, in order to test
+        if it works fine even in this configuration'''
         print 'Adding a tree of height 3'
 
         selected = self.liblarch_widget.get_selected_nodes()
@@ -351,16 +357,23 @@ class LiblarchDemo:
             parent = selected[0]
         else:
             parent = None
+            
+        t_id = random_id()
+        t_title = random_task_title(t_id)
+        roottask = TaskNode(t_id, t_title,self.view_tree)
+        local_parent = t_id
 
-        for i in range(3):
+        for i in range(2):
             t_id = random_id()
             t_title = random_task_title(t_id)
             task = TaskNode(t_id, t_title,self.view_tree)
 
-            self.tree.add_node(task, parent_id = parent)
+            self.tree.add_node(task, parent_id = local_parent)
 
             # Task becomes a parent for new task
-            parent = t_id
+            local_parent = t_id
+            
+        self.tree.add_node(roottask, parent_id = parent)
 
     @save_backup
     def tree_high_3_backwards(self, widget):
