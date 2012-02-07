@@ -21,7 +21,6 @@ from __future__ import with_statement
 import gobject
 import processqueue
 
-ASYNC_QUEUE = False
 ASYNC_MODIFY = True
 
 class FilteredTree():
@@ -52,7 +51,6 @@ class FilteredTree():
 
         self.cllbcks = {}
         self.callcount = {'up':0,'down':0,'both':0}
-#        if ASYNC_QUEUE:
         self._queue = processqueue.SyncQueue()
 
         # Cache
@@ -120,12 +118,12 @@ class FilteredTree():
         func,nid,param = self.cllbcks.get(event, (None,None,None))
         if func:
             if neworder:
-                if ASYNC_QUEUE or async:
+                if async:
                     self._queue.push(func, node_id, path, neworder)
                 else:
                     func(node_id,path,neworder)
             else:
-                if ASYNC_QUEUE or async:
+                if async:
                     self._queue.push(func, node_id, path)
                 else:
                     func(node_id,path)
