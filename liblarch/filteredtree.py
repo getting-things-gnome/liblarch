@@ -151,6 +151,9 @@ class FilteredTree():
 
         if not current_display and not new_display:
             # Nothing to do
+            node = self.tree.get_node(node_id)
+            for parent in node.get_parents():
+                self.__update_node(parent,"up")
             return completely_updated
         elif not current_display and new_display:
             action = 'added'
