@@ -61,13 +61,6 @@ class _Node:
         """ Return associated tree with this node """
         return self.tree
 
-    def new_relationship(self, parent_id, child_id):
-        """ Create new relationship or save it for later if there is no tree """
-        if self.tree:
-            self.tree.new_relationship(parent_id, child_id)
-        else:
-            self.pending_relationships.append((parent_id, child_id))
-
 ####### Parents ###############################################################
     def set_parents_enabled(self,bol):
         if not bol:
