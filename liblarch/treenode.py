@@ -17,7 +17,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-class TreeNode:
+class _Node:
     """ Object just for a single node in Tree """
     def __init__(self, node_id, parent=None):
         """ Initializes node
@@ -50,7 +50,7 @@ class TreeNode:
         if self.tree:
             self.tree.modify_node(self.node_id,priority=priority)
 
-    def set_tree(self, tree):
+    def _set_tree(self, tree):
         """ Set tree which is should contain this node.
         
         This method should be called only from MainTree. It is not

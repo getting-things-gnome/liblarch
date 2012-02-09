@@ -19,6 +19,7 @@
 import functools
 
 from liblarch.tree import MainTree
+from liblarch.treenode import _Node
 from liblarch.filteredtree import FilteredTree
 from liblarch.filters_bank import FiltersBank
 
@@ -28,12 +29,21 @@ from liblarch.filters_bank import FiltersBank
 #
 #The minor number is incremented when a method is added to the API
 #The major number is incremented if an existing method is removed or modified
-api="0.1"
+api="1.0"
 
 def is_compatible(request):
     major,minor=request.split(".")
     current_ma,current_mi=api.split(".")
     return (major == current_ma and minor <= current_mi)
+    
+class TreeNode(_Node):
+    """ The public interface for TreeNode
+    """
+    def __init__(self, node_id, parent=None):
+        _Node.__init__(self,node_id,parent)
+        
+    def _set_tree(tree):
+        print "_set_tree is not part of the API"
 
 class Tree:
     """ A thin wrapper to MainTree that adds filtering capabilities.
@@ -44,8 +54,8 @@ class Tree:
         """ Creates MainTree which wraps and a main view without filters """
         self.__tree = MainTree()
         self.__fbank = FiltersBank(self.__tree)
-        self.views = {}
-        self.views['main'] = ViewTree(self, self.__tree, self.__fbank, static=True)
+        self.__views = {}
+        self.__views['main'] = ViewTree(self, self.__tree, self.__fbank, static=True)
 
 ##### HANDLE NODES ############################################################
 
@@ -101,7 +111,7 @@ class Tree:
 ##### VIEWS ###################################################################
     def get_main_view(self):
         """ Return the special view "main" which is without any filters on it."""
-        return self.views['main']
+        return self.__views['main']
 
     def get_viewtree(self, name=None, refresh=True):
         """ Returns a viewtree by the name:
@@ -113,12 +123,12 @@ class Tree:
         an optimization if you plan to apply a filter.
         """
 
-        if name is not None and self.views.has_key(name):
-            view_tree = self.views[name]
+        if name is not None and self.__views.has_key(name):
+            view_tree = self.__views[name]
         else:
             view_tree = ViewTree(self,self.__tree,self.__fbank,refresh=refresh)
             if name is not None:
-                self.views[name] = view_tree
+                self.__views[name] = view_tree
         return view_tree
 
 ##### FILTERS ##################################################################

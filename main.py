@@ -20,7 +20,7 @@
 import gtk
 
 from liblarch import Tree
-from liblarch.tree import TreeNode
+from liblarch import TreeNode
 from liblarch_gtk import TreeView
 
 import os

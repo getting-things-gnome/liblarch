@@ -28,7 +28,7 @@ import time
 import random
 
 from liblarch import Tree
-from liblarch.tree import TreeNode
+from liblarch import TreeNode
 from liblarch_gtk import TreeView
 from tests.signals_testing import SignalCatcher, CallbackCatcher, GobjectSignalsManager
 from tests.tree_testing import TreeTester

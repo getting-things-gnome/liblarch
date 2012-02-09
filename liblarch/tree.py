@@ -19,7 +19,7 @@
 
 import threading
 import processqueue
-from liblarch.treenode import TreeNode
+from liblarch.treenode import _Node
 
 class MainTree:
     """ Tree which stores and handle all requests """
@@ -36,8 +36,8 @@ class MainTree:
         self.__cllbcks = {}
 
         self.root_id = 'root'
-        self.root = TreeNode(self.root_id)
-        self.root.set_tree(self)
+        self.root = _Node(self.root_id)
+        _Node._set_tree(self.root,self)
 
         self._queue = processqueue.SyncQueue()
         self._origin_thread = threading.current_thread()
@@ -174,7 +174,7 @@ class MainTree:
             print "Error: Node '%s' already exists" % node_id
             return False
 
-        node.set_tree(self)
+        _Node._set_tree(node,self)
         for relationship in node.pending_relationships:
             if relationship not in self.pending_relationships:
                 self.pending_relationships.append(relationship)
