@@ -22,6 +22,19 @@ from liblarch.tree import MainTree
 from liblarch.filteredtree import FilteredTree
 from liblarch.filters_bank import FiltersBank
 
+#API version of liblarch. 
+#Your application is compatible if the major version number match liblarch's one
+#and if your minor version number is inferior to liblarch's one.
+#
+#The minor number is incremented when a method is added to the API
+#The major number is incremented if an existing method is removed or modified
+api="0.1"
+
+def is_compatible(request):
+    major,minor=request.split(".")
+    current_ma,current_mi=api.split(".")
+    return (major == current_ma and minor <= current_mi)
+
 class Tree:
     """ A thin wrapper to MainTree that adds filtering capabilities.
     It also provides a few methods to operate complex operation on the

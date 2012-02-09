@@ -15,7 +15,7 @@ class DummyNode(TreeNode):
         
 tree = Tree()
 view = tree.get_viewtree()
-view = tree.get_viewtree(refresh = False)
+#view = tree.get_viewtree(refresh = False)
 nodes_id = []
 ################now testing the GTK treeview ##################
 #The columns description:
@@ -28,7 +28,7 @@ def get_node_name(node):
     return node.get_id()
 col['value'] = [str,get_node_name]
 desc['titles'] = col
-treeview = TreeView(view,desc)
+#treeview = TreeView(view,desc)
 
 
 
