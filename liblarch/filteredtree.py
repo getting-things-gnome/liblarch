@@ -55,7 +55,9 @@ class FilteredTree():
 
         # Cache
         self.nodes = {}
-        self.root_id = None
+        #Trying to have an unique string here.
+        #Note that it was "None" before 
+        self.root_id = "root*90124810293810238*!@ébpo@@+épboébpon/*»«%«»(+-¡a"
         self.nodes[self.root_id] = {'parents': [], 'children': []}
         self.cache_paths = {}
 
@@ -139,7 +141,6 @@ class FilteredTree():
     def __update_node(self, node_id,direction):
         '''update the node node_id and propagate the 
         change in direction (up|down|both) '''
-#        print "update %s in %s" %(node_id,direction)
         if node_id == self.root_id:
             return None
         
@@ -172,8 +173,14 @@ class FilteredTree():
         # Make sure parents are okay if we adding or updating
         if action == 'added' or action == 'modified':
             current_parents = self.nodes[node_id]['parents']
-            new_parents = self.__node_parents(node_id)
-            self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents 
+            
+#            new_parents = self.__node_parents(node_id)
+            new_parents = []
+            for pp in self.__node_parents(node_id):
+                if pp in self.nodes:
+                    new_parents.append(pp)
+                    
+            self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents
                 if parent_id in self.nodes]
 
             remove_from = list(set(current_parents) - set(new_parents))
@@ -208,6 +215,7 @@ class FilteredTree():
                         self.__update_node(parent_id,direction="up")
                 else:
                     completely_updated = False
+                    raise Exception("We have a parent not in the ViewTree")
             #We update all the other parents
             if direction == "both" or direction == "up":
                 for parent_id in stay:
@@ -216,7 +224,6 @@ class FilteredTree():
             #Why should we call the callback only for modify?
             if action == 'modified':
                 self.callcount[direction] += 1
-#                print self.callcount
                 for path in self.get_paths_for_node(node_id):
                     self.callback(action, node_id, path,async=ASYNC_MODIFY) 
             
@@ -246,7 +253,7 @@ class FilteredTree():
             
             for path in paths:
                 self.callback(action, node_id, path)
-
+                
         return completely_updated
 
     def send_add_tree(self, node_id, parent_id):
@@ -375,7 +382,7 @@ class FilteredTree():
         if not self.__flat and self.tree.has_node(node_id):
             node = self.tree.get_node(node_id)
             for parent_id in node.get_parents():
-                if self.__is_displayed(parent_id):
+                if parent_id in self.nodes and self.__is_displayed(parent_id):
                     parents_nodes.append(parent_id)
 
         # Add to root if it is an orphan
