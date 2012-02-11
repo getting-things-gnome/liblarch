@@ -83,7 +83,7 @@ class _Node:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
                     self.parents.append(parent_id)
-                    self.new_relationship(parent_id, self.node_id)
+                    self.tree.new_relationship(parent_id, self.node_id)
 
     def set_parent(self, parent_id):
         """ Remove other parents and set this parent as only parent """
@@ -158,7 +158,7 @@ class _Node:
                     child = self.tree.get_node(child_id)
                     if child.has_parents_enabled():
                         self.children.append(child_id)
-                        self.new_relationship(self.node_id, child_id)
+                        self.tree.new_relationship(self.node_id, child_id)
             else:
                 print "%s was already in children of %s" % (child_id, self.node_id)
 
