@@ -1149,6 +1149,14 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(1,view.get_n_nodes())
         nid = view.get_node_for_path(('temp',))
         self.assertEqual('temp',nid)
+        #Only one node should be there
+        self.assertEqual(1,view.get_n_nodes())
+        #14 should not be there
+        self.assertFalse(view.is_displayed('14'))
+        #Now we remove 'temp' from the view
+        node.remove_color('green')
+        self.assertEqual(1,view.get_n_nodes())
+        self.assert_(view.is_displayed('14'))
         test.test_validity()
 
     #we copy/paste the test
