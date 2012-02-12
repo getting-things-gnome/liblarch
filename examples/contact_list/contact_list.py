@@ -48,12 +48,14 @@ class NodeContact(TreeNode):
         
     def set_status(self,status):
         self.status = status
+        self.modified()
         
     def get_status(self):
         return self.status
         
     def set_nick(self,nick):
         self.nick = nick
+        self.modified()
         
     def get_nick(self):
         return self.nick
@@ -119,6 +121,7 @@ class contact_list_window():
         box.append_text("Busy")
         box.append_text("Offline")
         box.set_active(0)
+        box.connect('changed',self.status_changed)
         vbox.pack_start(box,False, True, 10)
         self.window.add(vbox)
         self.window.show_all()
@@ -196,6 +199,9 @@ class contact_list_window():
     #and teams that have at least one contact displayed
     def is_node_online(self,node):
         if node.get_type() == "contact":
+            #Always show myself
+            if node.get_id() == 'me@myself.com': 
+                return True
             status = node.get_status()
             if status == "online" or status == "busy":
                 return True
@@ -221,6 +227,13 @@ class contact_list_window():
         else:
             self.view.apply_filter('online')
             self.offline = False
+            
+    def status_changed(self,widget):
+        new = widget.get_active_text()
+        node = self.tree.get_node('me@myself.com')
+        if new == 'Busy': node.set_status('busy')
+        elif new == 'Offline': node.set_status('offline')
+        else: node.set_status('online')
         
     def search(self,widget,position,char,nchar=None):
         search_string = widget.get_text()
