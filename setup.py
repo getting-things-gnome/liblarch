@@ -7,7 +7,7 @@ standalone_packages = ['liblarch', 'liblarch_gtk']
 
 for package in standalone_packages:
     setup(
-      version = '0.1',
+      version = '0.0.1',
       url = 'https://live.gnome.org/liblarch',
       author = 'Liblarch team',
       author_email = 'gtg-contributors@lists.launchpad.net',

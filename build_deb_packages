@@ -1,7 +1,12 @@
-#!/bin/bash -xv
+#!/bin/bash
 #
 # Author: Izidor Matušov <izidor.matusov@gmail.com>
 # Date:   12.02.2012
+
+# PPA where to push changes
+PPA="gtg-daily"
+# For which distribution we want to build it
+DISTRIBUTION="oneiric"
 
 if ! which py2dsc > /dev/null
 then
@@ -10,6 +15,13 @@ then
     echo "Install missing package:" >&2
     echo "sudo apt-get install python-stdeb" >&2
     exit 1
+fi
+
+if [ ! $# -eq 1 -o \( "$1" != "local" -a "$1" != "remote" \) ]; then
+    echo "usage: $0 <local|remote>"
+    exit 1
+else
+    usage="$1"
 fi
 
 build_package() {
@@ -34,17 +46,21 @@ build_package() {
     tar cfz $tarfile $dirname
     rm -r $dirname
 
-    py2dsc $tarfile
+    py2dsc --suite $DISTRIBUTION $tarfile
     # From this moment we use '-' instead of '_'
     dirname=${dirname/_/-}
 
     cd deb_dist/$dirname
     debuild -S -sa -us -us || exit $?
 
-    # this part might be changed to just upload to a server
-    dpkg-buildpackage -rfakeroot
-    cd ..
-    mv -v *.deb ../../dist/
+    if [ "$usage" == "local" ]; then
+        dpkg-buildpackage -rfakeroot
+        cd ..
+        mv -v *.deb ../../dist/
+    else
+        cd ..
+        dput $PPA *.changes
+    fi
 
     popd
     rm -rf build
