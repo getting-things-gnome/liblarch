@@ -5,6 +5,8 @@
 #If you have some basic PyGTK experience, the code should be straightforward. 
 
 import sys, gtk
+#for the CellRenderer
+import cairo, gobject
 
 #First, we import this liblarch
 sys.path.append("../../../liblarch")
@@ -56,6 +58,15 @@ class NodeContact(TreeNode):
     def get_nick(self):
         return self.nick
         
+    def get_label(self):
+        #The label is the nickname in bold followed by the XMPP address (small)
+        if self.status == "offline":
+            label = "<b><span color='#888'>%s</span></b>" %self.nick
+        else:
+            label = "<b>%s</b>" %self.nick
+        label += " <small><span color='#888'>(%s)</span></small>" %(self.get_id())
+        return label
+        
 #Each team is also a node
 class NodeTeam(TreeNode):
     def __init__(self,node_id):
@@ -67,8 +78,11 @@ class NodeTeam(TreeNode):
     def get_type(self):
         return "team"
         
-    def get_nick(self):
+    def get_label(self):
         return self.get_id()
+        
+    def get_status(self):
+        return None
         
 
 
@@ -106,8 +120,6 @@ class contact_list_window():
         box.append_text("Offline")
         box.set_active(0)
         vbox.pack_start(box,False, True, 10)
-        
-        
         self.window.add(vbox)
         self.window.show_all()
         
@@ -143,6 +155,8 @@ class contact_list_window():
         self.view = self.tree.get_viewtree()
         #We also create a filter that will allow us to hide offline people
         self.tree.add_filter("online",self.is_node_online)
+        self.offline = False
+        self.tree.add_filter("search",self.search_filter)
         #And we apply this filter by default
         self.view.apply_filter("online")
         
@@ -158,10 +172,18 @@ class contact_list_window():
         col['order'] = 0
         columns['XMPP'] = col
         #The second column is the status
-        
+        col = {}
+        render_tags = CellRendererTags()
+        render_tags.set_property('xalign', 0.0)
+        col['renderer'] = ['status',render_tags]
+        col['value'] = [gobject.TYPE_PYOBJECT,lambda node: node.get_status()]
+        col['expandable'] = False
+        col['resizable'] = False
+        col['order'] = 1
+        columns['status'] = col
         #the third column is the nickname
         col = {}
-        col['value'] = [str, lambda node: node.get_nick()]
+        col['value'] = [str, lambda node: node.get_label()]
         col['visible'] = True
         col['order'] = 2
         columns['nick'] = col
@@ -194,16 +216,110 @@ class contact_list_window():
         #We should remove the filter to show offline contacts
         if widget.get_active():
             self.view.unapply_filter('online')
+            self.offline = True
         #else we apply the "online" filter, showing only online/busy people
         else:
             self.view.apply_filter('online')
+            self.offline = False
         
     def search(self,widget,position,char,nchar=None):
-        print "searching for : %s" %widget.get_text()
+        search_string = widget.get_text()
+        if len(search_string) > 0:
+            #First, we remove the old filter
+            #note the "refresh=False", because we know we will apply
+            #another filter just afterwards
+            #We also remove the online filter to search through offline contacts
+            if not self.offline:
+                self.view.unapply_filter('online',refresh=False)
+            self.view.unapply_filter('search',refresh=False)
+            self.view.apply_filter('search',parameters={'search':search_string})
+        else:
+            if not self.offline:
+                self.view.apply_filter('online')
+            self.view.unapply_filter('search')
+        
+    def search_filter(self,node,parameters=None):
+        string = parameters['search']
+        if node.get_type() == "contact":
+            if string in node.get_id() or string in node.get_nick():
+                return True
+            else:
+                return False
+        else:
+            return False
         
     def quit(self, widget):
         gtk.main_quit()
 
+
+#The following is a custom CellRenderer that will make a coloured circle
+#This is aboslutely not needed for liblarch.
+#The purpose of using it is to show that liblarch works with 
+#complex cellrenderer too
+class CellRendererTags(gtk.GenericCellRenderer):
+    __gproperties__ = {
+        'status': (gobject.TYPE_PYOBJECT, "Status",\
+             "Status", gobject.PARAM_READWRITE),
+    }
+
+    # Class methods
+    def __init__(self): #pylint: disable-msg=W0231
+        self.__gobject_init__()
+        self.status = None
+        self.xpad     = 1
+        self.ypad     = 1
+        self.PADDING  = 1
+
+    def do_set_property(self, pspec, value):
+        if pspec.name == "status":
+            self.status = value
+        else:
+            setattr(self, pspec.name, value)
+
+    def do_get_property(self, pspec):
+        if pspec.name == "status":
+            return self.status
+        else:
+            return getattr(self, pspec.name)
+
+    def on_render(\
+        self, window, widget, background_area, cell_area, expose_area, flags):
+        # Drawing context
+        cr         = window.cairo_create()
+        gdkcontext = gtk.gdk.CairoContext(cr)
+        gdkcontext.set_antialias(cairo.ANTIALIAS_NONE)
+        # Coordinates of the origin point
+        x_align = self.get_property("xalign")
+        y_align = self.get_property("yalign")
+        rect_x  = cell_area.x
+        rect_y  = cell_area.y + int((cell_area.height - 16) * y_align)
+        colours = { "online": "#0FDD28", "busy": "#E81110", "offline": "#777"}
+        if self.status:
+            color = colours[self.status]
+            # Draw circle
+            radius = 7
+            my_color = gtk.gdk.color_parse(color)
+            gdkcontext.set_source_color(my_color)
+            gdkcontext.arc(rect_x,rect_y+8,radius,90,180)
+            gdkcontext.fill()
+
+            # Outer line
+            gdkcontext.set_source_rgba(0, 0, 0, 0.20)
+            gdkcontext.set_line_width(1.0)
+            gdkcontext.arc(rect_x,rect_y+8,radius,90,180)
+            gdkcontext.stroke()
+
+
+    def on_get_size(self, widget, cell_area=None): #pylint: disable-msg=W0613
+
+        if self.status:
+            return (self.xpad, self.ypad, self.xpad*2 + 16 +\
+                 2*self.PADDING, 16 + 2*self.ypad)
+        else:
+            return (0,0,0,0)
+
+gobject.type_register(CellRendererTags)
+##### End of the cell renderer
 
 
 #We launch the GTK main_loop
