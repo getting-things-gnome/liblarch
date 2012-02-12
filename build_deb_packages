@@ -1,0 +1,61 @@
+#!/bin/bash -xv
+#
+# Author: Izidor Matušov <izidor.matusov@gmail.com>
+# Date:   12.02.2012
+
+if ! which py2dsc > /dev/null
+then
+    echo "py2dsc is missing" >&2
+    echo >&2
+    echo "Install missing package:" >&2
+    echo "sudo apt-get install python-stdeb" >&2
+    exit 1
+fi
+
+build_package() {
+    name="$1"
+
+    echo "Building package $name"
+
+    rm -rf build
+    mkdir build
+
+    tarfile=$(basename dist/$name-*)
+    dirname=${tarfile%.tar.gz}
+    
+    mv dist/$tarfile build
+
+    pushd build
+
+    # Build just one package
+    tar xf $tarfile
+    rm $tarfile
+    sed -i -e 's:standalone_packages = \[.*\]:standalone_packages = ["'$name'"]:' $dirname/setup.py
+    tar cfz $tarfile $dirname
+    rm -r $dirname
+
+    py2dsc $tarfile
+    # From this moment we use '-' instead of '_'
+    dirname=${dirname/_/-}
+
+    cd deb_dist/$dirname
+    debuild -S -sa -us -us || exit $?
+
+    # this part might be changed to just upload to a server
+    dpkg-buildpackage -rfakeroot
+    cd ..
+    mv -v *.deb ../../dist/
+
+    popd
+    rm -rf build
+}
+
+rm -rf dist/
+echo "Creating source distribution"
+python setup.py sdist > /dev/null
+
+build_package "liblarch"
+build_package "liblarch_gtk"
+
+# cleaning
+rm -rf build
