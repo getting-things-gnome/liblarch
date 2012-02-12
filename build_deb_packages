@@ -7,6 +7,8 @@
 PPA="gtg-daily"
 # For which distribution we want to build it
 DISTRIBUTION="oneiric"
+# Who is the maintainer? Whose GPG key should be used to sign the package?
+MAINTAINER="Izidor Matušov <izidor.matusov@gmail.com>"
 
 if ! which py2dsc > /dev/null
 then
@@ -46,7 +48,7 @@ build_package() {
     tar cfz $tarfile $dirname
     rm -r $dirname
 
-    py2dsc --suite $DISTRIBUTION $tarfile
+    py2dsc --suite "$DISTRIBUTION" --maintainer "$MAINTAINER" $tarfile
     # From this moment we use '-' instead of '_'
     dirname=${dirname/_/-}
 
