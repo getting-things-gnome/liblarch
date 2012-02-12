@@ -1153,7 +1153,40 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(1,view.get_n_nodes())
         #14 should not be there
         self.assertFalse(view.is_displayed('14'))
-        #Now we remove 'temp' from the view
+        #Now we remove 'temp' from the tree
+        self.tree.del_node('temp')
+        self.assertEqual(1,view.get_n_nodes())
+        self.assert_(view.is_displayed('14'))
+        test.test_validity()
+        
+    def test_green_leaf(self):
+        """We apply a green and leaf filter then we remove the green
+        from one of the leaf node and the green parent should be displayed"""
+        def green_leaf(node):
+            #We return False if one child is green
+            for c in node.get_children():
+                cnode = self.tree.get_node(c)
+                if cnode.has_color('green'):
+                    return False
+            return node.has_color('green')
+        self.tree.add_filter('green_leaf',green_leaf)
+        view = self.tree.get_viewtree(refresh=False)
+        test = TreeTester(view)
+        view.apply_filter('green_leaf')
+        self.assertEqual(1,view.get_n_nodes())
+        nid = view.get_node_for_path(('14',))
+        #Now, we add a new node
+        node = DummyNode('temp')
+        node.add_color('green')
+        self.tree.add_node(node,parent_id='14')
+        self.assertEqual(1,view.get_n_nodes())
+        nid = view.get_node_for_path(('temp',))
+        self.assertEqual('temp',nid)
+        #Only one node should be there
+        self.assertEqual(1,view.get_n_nodes())
+        #14 should not be there
+        self.assertFalse(view.is_displayed('14'))
+        #Now we remove 'temp' from the tree
         node.remove_color('green')
         self.assertEqual(1,view.get_n_nodes())
         self.assert_(view.is_displayed('14'))

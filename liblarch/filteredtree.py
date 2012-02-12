@@ -174,11 +174,11 @@ class FilteredTree():
         if action == 'added' or action == 'modified':
             current_parents = self.nodes[node_id]['parents']
             
-#            new_parents = self.__node_parents(node_id)
-            new_parents = []
-            for pp in self.__node_parents(node_id):
-                if pp in self.nodes:
-                    new_parents.append(pp)
+            new_parents = self.__node_parents(node_id)
+#            new_parents = []
+#            for pp in self.__node_parents(node_id):
+#                if pp in self.nodes:
+#                    new_parents.append(pp)
                     
             self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents
                 if parent_id in self.nodes]
@@ -253,6 +253,14 @@ class FilteredTree():
             
             for path in paths:
                 self.callback(action, node_id, path)
+                
+            #We update parents who are not displayed
+            #If the node is only hidden and still exists in the tree
+            if self.tree.has_node(node_id):
+                node = self.tree.get_node(node_id)
+                for parent in node.get_parents():
+                    if parent not in self.nodes:
+                        self.tree.modify_node(parent)
                 
         return completely_updated
 
