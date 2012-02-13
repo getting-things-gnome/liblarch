@@ -89,7 +89,7 @@ build_package() {
 
 rm -rf dist/
 echo "Creating source distribution"
-python setup.py sdist > /dev/null
+python setup.py -q sdist
 cd dist/
 
 build_package "liblarch"
