@@ -4,9 +4,6 @@ from __future__ import with_statement
 # Liblarch - a library to handle directed acyclic graphs
 # Copyright (c) 2011-2012 - Lionel Dricot & Izidor Matušov
 #
-# This code is based on a part of Getting Things GNOME! code published
-# under GNU GPLv3 - https://launchpad.net/gtg
-#
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option) any
