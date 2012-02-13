@@ -24,8 +24,15 @@
 test:
 	./run-tests
 
+sdist:
+	./build_packages sdist
+
+ppa:
+	./build_packages remote-deb
+
 # Remove .pyc files
 clean:
 	find -type f -iname '*.pyc' -exec rm {} \;
 	find -type f -iname '*.~*~' -exec rm {} \;
 	rm -f *.bak
+	rm -rf dist/

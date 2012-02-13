@@ -36,11 +36,15 @@ then
     exit 1
 fi
 
-if [ ! $# -eq 1 -o \( "$1" != "local" -a "$1" != "remote" \) ]; then
-    echo "usage: $0 <local|remote>"
-    exit 1
+if [ $# -eq 1 -a "$1" = "local-deb" ] ; then
+    usage="local"
+elif [ $# -eq 1 -a "$1" = "remote-deb" ] ; then
+    usage="remote"
+elif [ $# -eq 1 -a "$1" = "sdist" ] ; then
+    usage="sdist"
 else
-    usage="$1"
+    echo "usage: $0 <local-deb|remote-deb|sdist>"
+    exit 1
 fi
 
 build_package() {
@@ -48,16 +52,9 @@ build_package() {
 
     echo "Building package $name"
 
-    rm -rf build
-    mkdir build
-
-    tarfile=$(basename dist/$name-*)
+    tarfile=$(basename $name-*)
     dirname=${tarfile%.tar.gz}
     
-    mv dist/$tarfile build
-
-    pushd build
-
     # Build just one package
     tar xf $tarfile
     rm $tarfile
@@ -65,32 +62,35 @@ build_package() {
     tar cfz $tarfile $dirname
     rm -r $dirname
 
-    py2dsc --suite "$DISTRIBUTION" --maintainer "$MAINTAINER" $tarfile
-    # From this moment we use '-' instead of '_'
-    dirname=${dirname/_/-}
+    if [ "$usage" = "local" -o "$usage" = "remote" ] ; then
+        rm -rf deb_dist/
+        py2dsc --suite "$DISTRIBUTION" --maintainer "$MAINTAINER" $tarfile
+        # From this moment we use '-' instead of '_'
+        dirname=${dirname/_/-}
 
-    cd deb_dist/$dirname
-    debuild -S -sa -us -us || exit $?
+        cd deb_dist/$dirname
+        debuild -S -sa -us -us || exit $?
 
-    if [ "$usage" == "local" ]; then
-        dpkg-buildpackage -rfakeroot
+        if [ "$usage" == "local" ]; then
+            dpkg-buildpackage -rfakeroot
+            cd ..
+            mv -v *.deb ..
+        else
+            cd ..
+            dput $PPA *.changes
+        fi
         cd ..
-        mv -v *.deb ../../dist/
-    else
-        cd ..
-        dput $PPA *.changes
+
+        # Cleaning
+        rm -r deb_dist
+        rm $tarfile
     fi
-
-    popd
-    rm -rf build
 }
 
 rm -rf dist/
 echo "Creating source distribution"
 python setup.py sdist > /dev/null
+cd dist/
 
 build_package "liblarch"
 build_package "liblarch_gtk"
-
-# cleaning
-rm -rf build
