@@ -1,3 +1,25 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Liblarch - a library to handle directed acyclic graphs
+# Copyright (c) 2011-2012 - Lionel Dricot & Izidor Matušov
+#
+# This code is based on a part of Getting Things GNOME! code published
+# under GNU GPLv3 - https://launchpad.net/gtg
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# -----------------------------------------------------------------------------
+
 import unittest
 import gobject
 import uuid
@@ -25,15 +47,15 @@ class TestSignalTesting(unittest.TestCase):
         one_signal_arguments = signal_arguments[0]
         self.assertEqual(arg, one_signal_arguments[0])
 
-    @unittest.skip("It is slow and do not affect the current code")
-    def test_signal_missing(self):
-        generator = FakeGobject()
-        arg = str(uuid.uuid4())
-        with SignalCatcher(self, generator, 'two', False, error_code = None) \
-                as [signal_catched_event, signal_arguments]:
-            generator.emit_signal('one', arg)
-            signal_catched_event.wait()
-        self.assertEqual(len(signal_arguments), 0)
+#    @unittest.skip("It is slow and do not affect the current code")
+#    def test_signal_missing(self):
+#        generator = FakeGobject()
+#        arg = str(uuid.uuid4())
+#        with SignalCatcher(self, generator, 'two', False, error_code = None) \
+#                as [signal_catched_event, signal_arguments]:
+#            generator.emit_signal('one', arg)
+#            signal_catched_event.wait()
+#        self.assertEqual(len(signal_arguments), 0)
 
 
 class FakeGobject(gobject.GObject):
