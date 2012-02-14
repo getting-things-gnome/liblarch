@@ -124,6 +124,7 @@ class contact_list_window():
         vbox.pack_start(show_offline,False, True, 10)
         #The search through contacts
         search = gtk.Entry()
+        search.set_icon_from_icon_name(0, "search")
         search.get_buffer().connect("inserted-text",self.search)
         search.get_buffer().connect("deleted-text",self.search)
         vbox.pack_start(search,False, True, 10)
