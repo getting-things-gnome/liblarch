@@ -109,25 +109,25 @@ class contact_list_window():
 
     
     def __init__(self):
-        #First we do all the GTK stuffs
+        # First we do all the GTK stuff
         # This is not interesting from a liblarch perspective
         self.window = gtk.Window()
-        self.window.set_size_request(200, 600)
-        self.window.set_position(gtk.WIN_POS_CENTER)
-        self.window.set_border_width(2)
+        self.window.set_size_request(300, 600)
+        self.window.set_border_width(12)
         self.window.set_title('Liblarch contact-list')
         self.window.connect('destroy', self.quit)
         vbox = gtk.VBox()
+        vbox.set_spacing(6)
         #A check button to show/hide offline contacts
         show_offline = gtk.CheckButton("Show offline contacts")
         show_offline.connect("toggled",self.show_offline_contacts)
-        vbox.pack_start(show_offline,False, True, 10)
+        vbox.pack_start(show_offline, False, True)
         #The search through contacts
         search = gtk.Entry()
         search.set_icon_from_icon_name(0, "search")
         search.get_buffer().connect("inserted-text",self.search)
         search.get_buffer().connect("deleted-text",self.search)
-        vbox.pack_start(search,False, True, 10)
+        vbox.pack_start(search, False, True)
         #The contact list, build with liblarch
         scrolled_window = gtk.ScrolledWindow()
         scrolled_window.add_with_viewport(self.make_contact_list())
@@ -140,7 +140,7 @@ class contact_list_window():
         box.append_text("Offline")
         box.set_active(0)
         box.connect('changed',self.status_changed)
-        vbox.pack_start(box,False, True, 10)
+        vbox.pack_start(box, False, True)
         self.window.add(vbox)
         self.window.show_all()
         
