@@ -260,7 +260,7 @@ class FilteredTree():
                 node = self.tree.get_node(node_id)
                 for parent in node.get_parents():
                     if parent not in self.nodes:
-                        self.tree.modify_node(parent)
+                        self.__update_node(parent, direction="up")
                 
         return completely_updated
 
