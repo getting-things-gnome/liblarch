@@ -38,7 +38,7 @@ class FilteredTree():
     by a simple recursion.
     """
 
-    def __init__(self, tree, filtersbank, refresh=True):
+    def __init__(self, tree, filtersbank, name=None, refresh=True):
         """ Construct a layer where filters could by applied
 
         @param tree: Original tree to filter.
@@ -55,9 +55,12 @@ class FilteredTree():
 
         # Cache
         self.nodes = {}
-        #Trying to have an unique string here.
-        #Note that it was "None" before 
-        self.root_id = "root*90124810293810238*!@ébpo@@+épboébpon/*»«%«»(+-¡a"
+        # Set root_id by the name of FilteredTree
+        if name is None:
+            self.root_id = "anonymous_root"
+        else:
+            self.root_id = "root_%s" % name
+
         self.nodes[self.root_id] = {'parents': [], 'children': []}
         self.cache_paths = {}
 
@@ -165,7 +168,7 @@ class FilteredTree():
             action = 'deleted'
         else:
             action = 'modified'
-            
+
         # Create node info for new node
         if action == 'added':
             self.nodes[node_id] = {'parents':[], 'children':[]}
@@ -298,13 +301,13 @@ class FilteredTree():
     def test_validity(self):
         for node_id in self.nodes:
             for parent_id in self.nodes[node_id]['parents']:
-                assert node_id in self.nodes[parent_id]['children']
+                assert node_id in self.nodes[parent_id]['children'], "Node '%s' is not in children of '%s'" % (node_id, parent_id)
 
             if self.nodes[node_id]['parents'] == []:
-                assert node_id == self.root_id
+                assert node_id == self.root_id, "Node '%s' does not have parents" % (node_id)
 
             for parent_id in self.nodes[node_id]['children']:
-                assert node_id in self.nodes[parent_id]['parents']
+                assert node_id in self.nodes[parent_id]['parents'], "Node '%s' is not in parents of '%s'" % (node_id, parent_id)
 
 
 #### OTHER ####################################################################
@@ -439,7 +442,13 @@ class FilteredTree():
                 if parent_id not in self.nodes:
                     raise Exception("Parent %s does not exists" % parent_id)
                 if node_id not in self.nodes[parent_id]['children']:
-                    raise Exception("%s is not children of %s\n%s" % (node_id, parent_id,str(self.nodes)))
+                    # Dump also state of FilteredTree => useful for debugging
+                    s = "\nCurrent tree:\n"
+                    for key in self.nodes:
+                        s += key + "\n"
+                        s += "\t parents" + str(self.nodes[key]['parents']) + "\n"
+                        s += "\t children" + str(self.nodes[key]['children']) + "\n"
+                    raise Exception("%s is not children of %s\n%s" % (node_id, parent_id, s))
 
                 for parent_path in self.get_paths_for_node(parent_id):
                     mypath = parent_path + (node_id,)
