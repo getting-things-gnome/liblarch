@@ -127,7 +127,7 @@ class Tree:
         if name is not None and self.__views.has_key(name):
             view_tree = self.__views[name]
         else:
-            view_tree = ViewTree(self,self.__tree,self.__fbank,refresh=refresh)
+            view_tree = ViewTree(self,self.__tree,self.__fbank, name = name, refresh = refresh)
             if name is not None:
                 self.__views[name] = view_tree
         return view_tree
@@ -158,6 +158,7 @@ class Tree:
 # There are many conditions, and also we would prevent unallowed modes
 class ViewTree:
     def __init__(self, maininterface, maintree, filters_bank,\
+                                name = None,
                                              refresh = True, static = False):
         """A ViewTree is the interface that should be used to display Tree(s).
 
@@ -191,7 +192,7 @@ class ViewTree:
             self.__maintree.register_callback('node-modified', \
                         functools.partial(self.__emit, 'node-modified'))
         else:
-            self.__ft = FilteredTree(maintree, filters_bank, refresh = refresh)
+            self.__ft = FilteredTree(maintree, filters_bank, name = name, refresh = refresh)
             self._tree = self.__ft
             self.__ft.set_callback('added', \
                         functools.partial(self.__emit, 'node-added-inview'))
