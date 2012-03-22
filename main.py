@@ -173,7 +173,8 @@ class LiblarchDemo:
         col['order'] = 0
         desc[col_name] = col
 
-        tree_view = TreeView(self.view_tree, desc)
+        tree_view = TreeView(desc)
+        tree_view.set_tree(self.view_tree)
 
         # Polish TreeView
         def on_row_activate(sender,a,b):

@@ -193,7 +193,8 @@ class TestLibLarch(unittest.TestCase):
             return node.get_id()
         col['value'] = [str,get_node_name]
         desc['titles'] = col
-        treeview = TreeView(self.view,desc)
+        treeview = TreeView(desc)
+        treeview.set_tree(self.view)
         #initalize gobject signaling system
         self.gobject_signal_manager = GobjectSignalsManager()
         self.gobject_signal_manager.init_signals()
