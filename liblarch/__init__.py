@@ -30,7 +30,7 @@ from liblarch.filters_bank import FiltersBank
 #
 #The minor number is incremented when a method is added to the API
 #The major number is incremented if an existing method is removed or modified
-api="2.0"
+api="1.0"
 
 def is_compatible(request):
     major,minor=request.split(".")
