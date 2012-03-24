@@ -47,8 +47,8 @@ def get_node_name(node):
     return node.get_id()
 col['value'] = [str,get_node_name]
 desc['titles'] = col
-#treeview = TreeView(desc)
-#treeview.set_tree(view)
+#treeview = TreeView(view,desc)
+
 
 
 start = time.time()

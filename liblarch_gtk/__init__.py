@@ -44,9 +44,10 @@ class TreeView(gtk.TreeView):
                     'node-collapsed': __string_signal__, \
                     }
 
-    def __init__(self, description):
+    def __init__(self, tree, description):
         """ Build the widget
 
+        @param  tree - LibLarch FilteredTree
         @param  description - definition of columns.
 
         Parameters of description dictionary for a column:
@@ -79,7 +80,7 @@ class TreeView(gtk.TreeView):
 
         self.dnd_internal_target = ''
         self.dnd_external_targets = {}
-
+        
         # Sort columns
         self.order_of_column = []
         last = 9999
@@ -128,7 +129,7 @@ class TreeView(gtk.TreeView):
 
             # Allow to set background color
             col.set_cell_data_func(renderer, self._celldatafunction)
-
+            
             if newcol:
                 self.append_column(col)
             self.columns[col_name] = (col_num, col)
@@ -143,28 +144,9 @@ class TreeView(gtk.TreeView):
                     # Use special funcion for comparing, e.g. dates
                     sorting_func.append((col_num, col, desc['sorting_func']))
 
-        # FIXME: is this wasteful?  We store the column_types and sorting_func, but only use them until set_model()
-        # Maybe we should null them there so they get GC-ed
-        self.column_types = types
-        self.sorting_func = sorting_func
-
-        self.basetree = None
-        self.basetreemodel = None
-        self.treemodel = None
-
-        self.show()
-
-        self.collapsed_paths = []
-        self.connect('row-expanded', self.__emit, 'expanded')
-        self.connect('row-collapsed', self.__emit, 'collapsed')
-
-    def set_tree(self, tree):
-        """ Sets a FilteredTree as the tree model """
-        assert (self.basetree is None)
-
         self.basetree = tree
         # Build the model around LibLarch tree
-        self.basetreemodel = TreeModel(tree, self.column_types)
+        self.basetreemodel = TreeModel(tree, types)
         #Applying an intermediate treemodelfilter, for debugging purpose
         if USE_TREEMODELFILTER:
             treemodelfilter = self.basetreemodel.filter_new()
@@ -174,7 +156,7 @@ class TreeView(gtk.TreeView):
         if ENABLE_SORTING:
 #            self.treemodel = gtk.TreeModelSort(treemodelfilter)
             self.treemodel = self.basetreemodel
-            for col_num, col, sort_func in self.sorting_func:
+            for col_num, col, sort_func in sorting_func:
                 self.treemodel.set_sort_func(col_num,
                     self._sort_func, sort_func)
                 col.set_sort_column_id(col_num)
@@ -184,8 +166,13 @@ class TreeView(gtk.TreeView):
         self.set_model(self.treemodel)
 
         self.expand_all()
+        self.show()
+        
+        
+        self.collapsed_paths = []
+        self.connect('row-expanded', self.__emit, 'expanded')
+        self.connect('row-collapsed', self.__emit, 'collapsed')
         self.treemodel.connect('row-has-child-toggled', self.on_child_toggled)
-        self.basetreemodel.connect_model()
 
     def __emit(self, sender, iter, path, data):
         """ Emitt expanded/collapsed signal """
@@ -247,6 +234,7 @@ class TreeView(gtk.TreeView):
     def show(self):
         """ Shows the TreeView and connect basetreemodel to LibLarch """
         gtk.TreeView.show(self)
+        self.basetreemodel.connect_model()
 
     def get_columns(self):
         """ Return the list of columns name """
