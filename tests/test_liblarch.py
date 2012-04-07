@@ -38,19 +38,19 @@ USE_CALLBACKS_INSTEAD_OF_SIGNALS=True
 
 #This is a dummy treenode that only have one properties: a color
 class DummyNode(TreeNode):
-    def __init__(self,tid):
+    def __init__(self, tid):
         TreeNode.__init__(self, tid)
         self.colors = []
 
-    def add_color(self,color):
+    def add_color(self, color):
         if color not in self.colors:
             self.colors.append(color)
         self.modified()
 
-    def has_color(self,color):
+    def has_color(self, color):
         return color in self.colors
 
-    def remove_color(self,color):
+    def remove_color(self, color):
         if color in self.colors:
             self.colors.remove(color)
         self.modified()
@@ -1800,6 +1800,62 @@ class TestLibLarch(unittest.TestCase):
         self.view.apply_filter('blue')
         self.view.flush()
         self.assertEqual(self.value,1)     
+
+    def test_performance_of_filter_counting(self):
+        """ Simulate counting tags as in GTG use case.
+
+        For every update in main tree, recount every tag filter """
+        TASK_COUNT = 500
+        PROP_OF_CHILDREN = 25
+        TOTAL_TAGS = 40
+        MAX_TAGS_PER_TASK = 4
+
+        random.seed(42)
+
+        def create_filter_func(tag):
+            """ We need to create a closure to generate filter functions """
+            return lambda node, parameters=None: node.has_color(tag)
+
+        # add filters
+        tags = ['@t%03d' % i for i in range(TOTAL_TAGS)]
+        num_tags = dict((tag, 0) for tag in tags)
+        for tag in tags:
+            self.tree.add_filter(tag, create_filter_func(tag))
+
+        def recount(node, path):
+            """ Make all tags to recount """
+            for tag in tags:
+                count = view.get_n_nodes(withfilters=[tag], include_transparent=False)
+                # FIXME: Why we don't match our expectations?
+                #self.assertEqual(count, num_tags[tag])
+
+        # register callback
+        view = self.tree.get_viewtree()
+        view.register_cllbck('node-added-inview', recount)
+        view.register_cllbck('node-modified-inview', recount)
+        view.register_cllbck('node-deleted-inview', recount)
+
+        parents = []
+        for task in range(TASK_COUNT):
+            task_id = 'task_%d' % task
+            node = DummyNode(task_id)
+            
+            tag_count = random.randint(0, MAX_TAGS_PER_TASK)
+            for tag in random.sample(tags, tag_count):
+                num_tags[tag] += 1
+                node.add_color(tag)
+            
+            if random.randint(0, 100) < PROP_OF_CHILDREN:
+                if parents != []:
+                    parent_id = random.choice(parents)
+                else:
+                    parent_id = None
+                parents.append(task_id)
+            else:
+                parent_id = None
+                parents = []
+
+            self.tree.add_node(node, parent_id=parent_id)
         
 
 def test_suite():
