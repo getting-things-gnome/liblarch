@@ -377,7 +377,7 @@ class FilteredTree():
     def __is_displayed_by_transparency(self, node_id):
         """ Should be node displayed regardless of its current status? """
         if node_id is None or not self.tree.has_node(node_id):
-            return False
+            return False, False
 
         all_filters = True
         intransparent_filters = True
@@ -574,9 +574,9 @@ class FilteredTree():
         else:
             # Recompute every node
             build_cache = len(withfilters) == 1
-            ffname = withfilters[0]
 
             if build_cache:
+                ffname = withfilters[0]
                 self.filter_cache[ffname] = {'count': 0, 'nodes': set()}
 
             # 1st step: build list of filters
