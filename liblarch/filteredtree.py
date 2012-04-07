@@ -64,6 +64,8 @@ class FilteredTree():
 
         self.nodes[self.root_id] = {'parents': [], 'children': []}
         self.cache_paths = {}
+        #FIXME fix all side cases
+        self.filter_cache = {}
 
         # Connect to signals from MainTree
         self.tree = tree
@@ -150,7 +152,24 @@ class FilteredTree():
         
         #Updating the node itself.
         current_display = self.is_displayed(node_id)
-        new_display = self.__is_displayed(node_id)
+        new_display, intransparent_display = self.__is_displayed_by_transparency(node_id)
+
+        # Update counting cache
+        if intransparent_display:
+            for fcname in self.filter_cache:
+                filt = self.fbank.get_filter(fcname)
+                if filt and filt.is_displayed(node_id):
+                    self.filter_cache[fcname]['nodes'].add(node_id)
+                elif node_id in self.filter_cache[fcname]['nodes']:
+                    self.filter_cache[fcname]['nodes'].remove(node_id)
+                self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
+        else:
+            for fcname in self.filter_cache:
+                if node_id in self.filter_cache[fcname]['nodes']:
+                    self.filter_cache[fcname]['nodes'].remove(node_id)
+                    self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
+            
+
 
         completely_updated = True
 
@@ -355,6 +374,28 @@ class FilteredTree():
         else:
             return False
 
+    def __is_displayed_by_transparency(self, node_id):
+        """ Should be node displayed regardless of its current status? """
+        if node_id is None or not self.tree.has_node(node_id):
+            return False
+
+        all_filters = True
+        intransparent_filters = True
+
+        for filter_name in self.applied_filters:
+            filt = self.fbank.get_filter(filter_name)
+            if filt:
+                can_be_displayed = filt.is_displayed(node_id)
+                if not can_be_displayed:
+                    all_filters = False
+                    if not filt.is_transparent():
+                        intransparent_filters = False
+            else:
+                # Missing filters => not showed at all
+                return False, False
+
+        return all_filters, intransparent_filters
+
     def is_displayed(self, node_id):
         """ Is the node displayed at the moment? """
 
@@ -527,8 +568,16 @@ class FilteredTree():
                     total_count += 1
 
             return total_count
+        #FIXME maybe allow caching multiple withfilters...
+        elif len(withfilters) == 1 and withfilters[0] in self.filter_cache:
+            return self.filter_cache[withfilters[0]]['count']
         else:
             # Recompute every node
+            build_cache = len(withfilters) == 1
+            ffname = withfilters[0]
+
+            if build_cache:
+                self.filter_cache[ffname] = {'count': 0, 'nodes': set()}
 
             # 1st step: build list of filters
             filters = []
@@ -556,9 +605,14 @@ class FilteredTree():
                     displayed = filt.is_displayed(node_id)
                     if not displayed:
                         break
+                    if build_cache:
+                        self.filter_cache[ffname]['nodes'].add(node_id)
                 
                 if displayed:
                     total_count += 1
+
+            if build_cache:
+                self.filter_cache[ffname]['count'] = total_count
 
             return total_count
 
