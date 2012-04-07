@@ -1836,8 +1836,7 @@ class TestLibLarch(unittest.TestCase):
             """ Make all tags to recount """
             for tag in tags:
                 count = view.get_n_nodes(withfilters=[tag], include_transparent=False)
-                # FIXME: Why we don't match our expectations?
-                #self.assertEqual(count, num_tags[tag])
+                self.assertEqual(count, num_tags[tag])
 
         # register callback
         view = self.tree.get_viewtree()

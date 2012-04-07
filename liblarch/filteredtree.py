@@ -21,7 +21,8 @@ from __future__ import with_statement
 import gobject
 import processqueue
 
-ASYNC_MODIFY = True
+#FIXME why do we have ASYNC_MODIFY => get rid of it
+ASYNC_MODIFY = False
 
 class FilteredTree():
     """ FilteredTree is the most important and also the most buggy part of

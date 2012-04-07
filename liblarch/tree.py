@@ -97,17 +97,18 @@ class MainTree:
 
     def _external_request(self, request_type, priority, *args):
         """ Put the reqest into queue and in the main thread handle it """
-        if priority == "high":
-            self._queue.priority_push(request_type, *args)
-        elif priority == "normal" or priority == "medium":
-            self._queue.push(request_type, *args)
-        else:
-            self._queue.low_push(request_type, *args)
-
+        #FIXME better document this function
         #I'm really wondering what is this line about
         #It doesn't seem right nor useful, except for unit tests.
         if self._origin_thread == threading.current_thread():
-            self._queue.process_queue()
+            request_type(*args)
+        else:
+            if priority == "high":
+                self._queue.priority_push(request_type, *args)
+            elif priority == "normal" or priority == "medium":
+                self._queue.push(request_type, *args)
+            else:
+                self._queue.low_push(request_type, *args)
 
     def refresh_all(self):
         """ Refresh all nodes """
