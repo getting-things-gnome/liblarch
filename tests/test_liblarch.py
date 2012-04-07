@@ -1805,7 +1805,17 @@ class TestLibLarch(unittest.TestCase):
         """ Simulate counting tags as in GTG use case.
 
         For every update in main tree, recount every tag filter """
+        # FIXME
+        # Super exterme task count
+        # Optimal time is 0.917s
+        TASK_COUNT = 2000
+
+        # Optimal time (with return 0) is 0.321s
         TASK_COUNT = 500
+        # FIXME I had to lower task count
+        # Optimal time is 0.084s
+        TASK_COUNT = 200
+
         PROP_OF_CHILDREN = 25
         TOTAL_TAGS = 40
         MAX_TAGS_PER_TASK = 4
