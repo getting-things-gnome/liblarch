@@ -74,7 +74,6 @@ class TreeView(gtk.TreeView):
         """
         gtk.TreeView.__init__(self)
         self.columns = {}
-        self.bg_color_func = None
         self.bg_color_column = None
         self.separator_func = None
 
@@ -270,12 +269,26 @@ class TreeView(gtk.TreeView):
         col.set_resizable(resizable)
 
     def set_bg_color(self, color_func, color_column):
-        """ Set which column and function for generating background color """
+        """ Set which column and function for generating background color
+
+        Function should be in format func(node, default_color)
+        """
+
+        def closure_default_color(func, column):
+            """ Set default color to the function.
+
+            Transform function from func(node, default_color) into func(node).
+            Default color is computed based on some GTK style magic. """
+            default = column.get_tree_view().get_style().base[gtk.STATE_NORMAL]
+            return lambda node: func(node, default)
+            
         if self.columns.has_key(color_column):
-            self.bg_color_column = self.columns[color_column][0]
-            self.bg_color_func = color_func
+            self.bg_color_column, column = self.columns[color_column]
+            func = closure_default_color(color_func, column)
+            self.treemodel.set_column_function(self.bg_color_column, func)
         else:
-            raise ValueError("There is no colum %s to use to set color" % color_column)
+            raise ValueError("There is no colum %s to use to set color" % \
+                color_column)
 
     def _sort_func(self, model, iter1, iter2, func=None):
         """ Sort two iterators by function which gets node objects.
@@ -293,27 +306,21 @@ class TreeView(gtk.TreeView):
             sort = -1
         return sort
 
-    def _celldatafunction(self, column, cell, model, iter):
+    def _celldatafunction(self, column, cell, model, myiter):
         """ Determine background color for cell
         
-        Requirements: self.bg_color_func and self.bg_color_column must be set
+        Requirements: self.bg_color_column must be set
         (see self.set_bg_color())
-        
-        We need:
-            * the standard color for a cell (it depends on GTK theme).
-            * value of column which the background is generated from
-              (e.g. list of tags)
 
-        Then the function for calculating background color is called.
-        Result is set as background of cell.
+        Set background color based on a certain column value.
         """
-        color = None
-        if self.bg_color_func and self.bg_color_column:
-            bgcolor = column.get_tree_view().get_style().base[gtk.STATE_NORMAL]
-            if iter and model.iter_is_valid(iter):
-                value = model.get_value(iter, self.bg_color_column)
-                if value:
-                    color = self.bg_color_func(value, bgcolor)
+        if self.bg_color_column is None:
+            return
+
+        if myiter and model.iter_is_valid(myiter):
+            color = model.get_value(myiter, self.bg_color_column)
+        else:
+            color = None
         cell.set_property("cell-background", color)
 
     ######### DRAG-N-DROP functions #####################################

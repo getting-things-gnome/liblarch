@@ -37,6 +37,18 @@ class TreeModel(gtk.TreeStore):
         self.cache_position = {}
         self.tree = tree
 
+    def set_column_function(self, column_num, column_func):
+        """ Replace function for generating certain column.
+
+        Original use case was changing method of generating background
+        color during runtime - background by tags or due date """
+
+        if column_num < len(self.types):
+            self.types[column_num][1] = column_func
+            return True
+        else:
+            return False
+
     def connect_model(self):
         """ Register "signals", callbacks from liblarch.
         
