@@ -97,8 +97,6 @@ class TestLibLarch(unittest.TestCase):
                                error_code = error_code)\
                     as [signal_catched_event, signal_arguments]:
                 function(*args, **kws)
-                #Ensuring there's no async signal left
-                generator.flush()
                 signal_catched_event.wait()
                 self.recorded_signals[signal_name] += signal_arguments
             return None
@@ -1780,25 +1778,18 @@ class TestLibLarch(unittest.TestCase):
         d.add_color('blue')
         zero = self.tree.get_node('0')
         zero.add_color('blue')
-        self.view.flush()
         self.assertEqual(self.value,0)
         self.tree.add_node(a,'0')
-        self.view.flush()
         self.assertEqual(self.value,1)
         self.tree.add_node(b,'a')
-        self.view.flush()
         self.assertEqual(self.value,2)
         self.tree.add_node(c,'b')
-        self.view.flush()
         self.assertEqual(self.value,3)
         self.tree.add_node(d,'0')
-        self.view.flush()
         self.assertEqual(self.value,4)
         self.tree.del_node('b')
-        self.view.flush()
         self.assertEqual(self.value,2)
         self.view.apply_filter('blue')
-        self.view.flush()
         self.assertEqual(self.value,1)     
 
     def test_performance_of_filter_counting(self):

@@ -85,15 +85,6 @@ class SyncQueue:
             self._handler = gobject.idle_add(self.process_queue)
         self._lock.release()
         
-    def flush(self):
-        """Block until all elements of the queue are processed.
-        This is should be only used for testing purpose"""
-        while len(self._queue) > 0 or len(self._vip_queue) > 0 or\
-                                        len(self._low_queue) > 0 :
-            self._lock.acquire()
-            self._lock.release()
-        return True
-
     def process(self):
         """ Return elements to process
         

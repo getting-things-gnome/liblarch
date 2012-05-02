@@ -21,9 +21,6 @@ from __future__ import with_statement
 import gobject
 import processqueue
 
-#FIXME why do we have ASYNC_MODIFY => get rid of it
-ASYNC_MODIFY = False
-
 class FilteredTree():
     """ FilteredTree is the most important and also the most buggy part of
     LibLarch.
@@ -52,7 +49,6 @@ class FilteredTree():
 
         self.cllbcks = {}
         self.callcount = {'up':0,'down':0,'both':0}
-        self._queue = processqueue.SyncQueue()
 
         # Cache
         self.nodes = {}
@@ -102,7 +98,7 @@ class FilteredTree():
         else:
             self.cllbcks[event] = [func,node_id,param]
         
-    def callback(self, event, node_id, path, neworder=None,async=False):
+    def callback(self, event, node_id, path, neworder=None):
         """ Run a callback.
 
         To call callback, the object must be initialized and function exists.
@@ -126,19 +122,10 @@ class FilteredTree():
         func,nid,param = self.cllbcks.get(event, (None,None,None))
         if func:
             if neworder:
-                if async:
-                    self._queue.push(func, node_id, path, neworder)
-                else:
-                    func(node_id,path,neworder)
+                func(node_id,path,neworder)
             else:
-                if async:
-                    self._queue.push(func, node_id, path)
-                else:
-                    func(node_id,path)
+                func(node_id,path)
                     
-    def flush(self):
-        return self._queue.flush()
-            
 
 #### EXTERNAL MODIFICATION ####################################################
     def __external_modify(self, node_id):
@@ -248,7 +235,7 @@ class FilteredTree():
             if action == 'modified':
                 self.callcount[direction] += 1
                 for path in self.get_paths_for_node(node_id):
-                    self.callback(action, node_id, path,async=ASYNC_MODIFY) 
+                    self.callback(action, node_id, path) 
             
             #We update the children
             current_children = self.nodes[node_id]['children']

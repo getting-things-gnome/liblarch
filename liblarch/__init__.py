@@ -206,10 +206,6 @@ class ViewTree:
     def queue_action(self, node_id,func,param=None):
         self.__ft.set_callback('runonce',func,node_id=node_id,param=param)
         
-    #Ensure that there's no Async callbacks left. Should be only used for testing
-    def flush(self):
-        return self.__ft.flush()
-                        
     def get_basetree(self):
         """ Return Tree object """
         return self.maininterface
