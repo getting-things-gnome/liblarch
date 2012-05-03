@@ -589,11 +589,11 @@ class FilteredTree():
                     displayed = filt.is_displayed(node_id)
                     if not displayed:
                         break
-                    if build_cache:
-                        self.filter_cache[ffname]['nodes'].add(node_id)
                 
                 if displayed:
                     total_count += 1
+                    if build_cache:
+                        self.filter_cache[ffname]['nodes'].add(node_id)
 
             if build_cache:
                 self.filter_cache[ffname]['count'] = total_count
