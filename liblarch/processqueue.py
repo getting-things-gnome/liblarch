@@ -32,6 +32,7 @@ class SyncQueue:
         self._vip_queue = []
         self._handler = None
         self._lock = threading.Lock()
+        self._origin_thread = threading.current_thread()
         
         self.count = 0
         
@@ -43,46 +44,42 @@ class SyncQueue:
         # return True to process other requests as well
         return True
         
-    def low_push(self, *element):
+    def push(self, *element, **kwargs):
         """ Add a new element to the queue.
 
-        Schedule its processing if it is not already.  
-        vip element are in a priority queue. They will be processed first
-        (this comment was actually written in Berlin Airport, after having
-        to wait in an economy class queue)"""
-        self._lock.acquire()
-        self._low_queue.append(element)
+        Process actions from the same thread as the thread which created
+        this queue immediately. What does it mean? When I use liblarch
+        without threads, all actions are processed immediately. In GTG,
+        this queue is created by the main thread which process GUI. When
+        GUI callback is triggered, process those actions immediately because
+        no protection is needed. However, requests from synchronization
+        services are put in the queue.
 
-        if self._handler is None:
-            self._handler = gobject.idle_add(self.process_queue)
-        self._lock.release()
-
-    def push(self, *element):
-        """ Add a new element to the queue.
-
-        Schedule its processing if it is not already.  
+        Application can choose which kind of priority should have an update.
+        If the request is not in the queue of selected priority, add it and
+        setup callback.
         """
+
+        if self._origin_thread == threading.current_thread():
+            func = element[0]
+            func(*element[1:])
+            return
+
+        priority = kwargs.get('priority')
+        if priority == 'low':
+            queue = self._low_queue
+        elif priority == 'high':
+            queue = self._vip_queue
+        else:
+            queue = self._queue
+
         self._lock.acquire()
-        lon = len(self._queue)
-        if element not in self._queue:
-            self._queue.append(element)
+        print "push", priority, element
+        if element not in queue:
+            queue.append(element)
+            if self._handler is None:
+                self._handler = gobject.idle_add(self.process_queue)
 
-        if self._handler is None:
-            self._handler = gobject.idle_add(self.process_queue)
-        self._lock.release()
-        
-    def priority_push(self, *element):
-        """ Add a new element to the queue.
-
-        Schedule its processing if it is not already.  
-        vip element are in a priority queue. They will be processed first
-        (this comment was actually written in Berlin Airport, after having
-        to wait in an economy class queue)"""
-        self._lock.acquire()
-        self._vip_queue.append(element)
-
-        if self._handler is None:
-            self._handler = gobject.idle_add(self.process_queue)
         self._lock.release()
         
     def process(self):
