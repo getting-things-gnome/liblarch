@@ -74,7 +74,6 @@ class SyncQueue:
             queue = self._queue
 
         self._lock.acquire()
-        print "push", priority, element
         if element not in queue:
             queue.append(element)
             if self._handler is None:
