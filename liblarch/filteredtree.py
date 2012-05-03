@@ -1,4 +1,3 @@
-from __future__ import with_statement
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
 # Liblarch - a library to handle directed acyclic graphs
@@ -19,7 +18,6 @@ from __future__ import with_statement
 # -----------------------------------------------------------------------------
 
 import gobject
-import processqueue
 
 class FilteredTree():
     """ FilteredTree is the most important and also the most buggy part of
@@ -60,7 +58,6 @@ class FilteredTree():
 
         self.nodes[self.root_id] = {'parents': [], 'children': []}
         self.cache_paths = {}
-        #FIXME fix all side cases
         self.filter_cache = {}
 
         # Connect to signals from MainTree
@@ -110,6 +107,7 @@ class FilteredTree():
         
         The runonce event is actually only run once, when a given task appears.
         """
+
         
         if event == 'added':
             for func,nid,param in self.cllbcks.get(node_id,[]):
@@ -131,13 +129,13 @@ class FilteredTree():
     def __external_modify(self, node_id):
         return self.__update_node(node_id,direction="both")
         
-    def __update_node(self, node_id,direction):
+    def __update_node(self, node_id, direction):
         '''update the node node_id and propagate the 
         change in direction (up|down|both) '''
+
         if node_id == self.root_id:
             return None
-        
-        #Updating the node itself.
+
         current_display = self.is_displayed(node_id)
         new_display, intransparent_display = self.__is_displayed_by_transparency(node_id)
 
@@ -155,8 +153,6 @@ class FilteredTree():
                 if node_id in self.filter_cache[fcname]['nodes']:
                     self.filter_cache[fcname]['nodes'].remove(node_id)
                     self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
-            
-
 
         completely_updated = True
 
@@ -320,6 +316,7 @@ class FilteredTree():
 #### OTHER ####################################################################
     def refilter(self):
         # Find out it there is at least one flat filter
+        self.filter_cache = {}
         self.__flat = False
         for filter_name in self.applied_filters:
             filt = self.fbank.get_filter(filter_name)
@@ -339,7 +336,7 @@ class FilteredTree():
 
         while queue != []:
             node_id = queue.pop(0)
-            #FIXME: decide which is the best direction
+            # FIXME: decide which is the best direction
             self.__update_node(node_id, direction="both")
 
             node = self.tree.get_node(node_id)

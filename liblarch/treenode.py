@@ -45,10 +45,10 @@ class _Node:
         """ Return node_id """
         return self.node_id
         
-    def modified(self,priority="low"):
+    def modified(self, priority="low"):
         """ Force to update node (because it has changed) """
         if self.tree:
-            self.tree.modify_node(self.node_id,priority=priority)
+            self.tree.modify_node(self.node_id, priority=priority)
 
     def _set_tree(self, tree):
         """ Set tree which is should contain this node.
