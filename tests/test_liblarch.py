@@ -733,9 +733,9 @@ class TestLibLarch(unittest.TestCase):
         self.assertTrue('1' in self.mainview.node_parents('0'))
         self.assertTrue('0' in self.mainview.node_parents('temp'))
         #direct circular relationship
-        self.assertRaises(Exception,self.tree.add_parent,'0','temp')
+        self.assertRaises(Exception, self.tree.add_parent, '0', 'temp')
         #More complex circular relationship
-        self.assertRaises(Exception,self.tree.add_parent,'1','temp')
+        self.assertRaises(Exception, self.tree.add_parent, '1', 'temp')
         # And then printing => if it stops, nothing ciruclar stays there
         view.print_tree(True)
         
