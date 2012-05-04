@@ -17,7 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import threading
 import processqueue
 from liblarch.treenode import _Node
 
@@ -40,7 +39,6 @@ class MainTree:
         _Node._set_tree(self.root,self)
 
         self._queue = processqueue.SyncQueue()
-        self._origin_thread = threading.current_thread()
 
     def __str__(self):
         return "<Tree: root = '%s'>" % self.root
@@ -81,34 +79,19 @@ class MainTree:
 
 ####### INTERFACE FOR HANDLING REQUESTS #######################################
     def add_node(self, node, parent_id=None, priority="low"):
-        self._external_request(self._add_node, priority, node, parent_id)
+        self._queue.push(self._add_node, node, parent_id, priority=priority)
 
     def remove_node(self, node_id, recursive=False):
-        self._external_request(self._remove_node, True, node_id, recursive)
+        self._queue.push(self._remove_node, node_id, recursive)
 
     def modify_node(self, node_id, priority="low"):
-        self._external_request(self._modify_node, priority, node_id)
+        self._queue.push(self._modify_node, node_id, priority=priority)
 
     def new_relationship(self, parent_id, child_id):
-        self._external_request(self._new_relationship, False, parent_id, child_id)
+        self._queue.push(self._new_relationship, parent_id, child_id)
 
     def break_relationship(self, parent_id, child_id):
-        self._external_request(self._break_relationship, False, parent_id, child_id)
-
-    def _external_request(self, request_type, priority, *args):
-        """ Put the reqest into queue and in the main thread handle it """
-        #FIXME better document this function
-        #I'm really wondering what is this line about
-        #It doesn't seem right nor useful, except for unit tests.
-        if self._origin_thread == threading.current_thread():
-            request_type(*args)
-        else:
-            if priority == "high":
-                self._queue.priority_push(request_type, *args)
-            elif priority == "normal" or priority == "medium":
-                self._queue.push(request_type, *args)
-            else:
-                self._queue.low_push(request_type, *args)
+        self._queue.push(self._break_relationship, parent_id, child_id)
 
     def refresh_all(self):
         """ Refresh all nodes """
