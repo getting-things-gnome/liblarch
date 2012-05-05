@@ -525,9 +525,22 @@ class FilteredTree():
         If include_transparent=False, we only take into account the applied filters
         that doesn't have the transparent parameters.
         """
+        return len(self.get_nodes(withfilters=withfilters, \
+                                  include_transparent= include_transparent))
+
+    def get_nodes(self, withfilters=[], include_transparent=True):
+        """
+        returns quantity of displayed nodes in this tree
+        if the withfilters is set, returns the quantity of nodes
+        that will be displayed if we apply those filters to the current
+        tree. It means that the currently applied filters are also taken into
+        account.
+        If include_transparent=False, we only take into account the applied filters
+        that doesn't have the transparent parameters.
+        """
         if withfilters == [] and include_transparent:
             # Use current cache
-            return len(self.nodes) - 1
+            return self.get_all_nodes()
         elif withfilters != [] and include_transparent:
             # Filter on the current nodes
 
@@ -537,7 +550,7 @@ class FilteredTree():
                 if filt:
                     filters.append(filt)
 
-            total_count = 0
+            nodes = []
             for node_id in self.nodes:
                 if node_id == self.root_id:
                     continue
@@ -549,12 +562,12 @@ class FilteredTree():
                         break
                 
                 if displayed:
-                    total_count += 1
+                    nodes.append(node_id)
 
-            return total_count
+            return nodes
         #FIXME maybe allow caching multiple withfilters...
         elif len(withfilters) == 1 and withfilters[0] in self.filter_cache:
-            return self.filter_cache[withfilters[0]]['count']
+            return self.filter_cache[withfilters[0]]['nodes']
         else:
             # Recompute every node
             build_cache = len(withfilters) == 1
@@ -582,6 +595,7 @@ class FilteredTree():
                 if filt:
                     filters.append(filt)
 
+            nodes = []
             total_count = 0
             for node_id in self.tree.get_all_nodes():
                 displayed = True
@@ -591,14 +605,14 @@ class FilteredTree():
                         break
                 
                 if displayed:
+                    nodes.append(node_id)
                     total_count += 1
-                    if build_cache:
-                        self.filter_cache[ffname]['nodes'].add(node_id)
 
             if build_cache:
                 self.filter_cache[ffname]['count'] = total_count
+                self.filter_cache[ffname]['nodes'] = set(nodes)
 
-            return total_count
+            return nodes
 
     def get_node_for_path(self, path):
         if not path or path == ():
