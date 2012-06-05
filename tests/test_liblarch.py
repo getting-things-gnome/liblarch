@@ -1856,7 +1856,42 @@ class TestLibLarch(unittest.TestCase):
                 parents = []
 
             self.tree.add_node(node, parent_id=parent_id)
-        
+
+    def test_modifying_child_of_removed_node(self):
+        """ Removing tasks with a recursive filter throws a traceback, see
+        this bug report: https://bugs.launchpad.net/gtg/+bug/932405 """
+
+        def is_there_purple_somewhere(node, parameters=None):
+            if node.has_color('purple'):
+                return True
+
+            for child_id in node.get_children():
+                child = self.tree.get_node(child_id)
+                if is_there_purple_somewhere(child):
+                    return True
+
+            return False
+
+        self.tree.add_filter('is_there_purple_somewhere', is_there_purple_somewhere)
+        self.view.apply_filter('is_there_purple_somewhere')
+
+        parent = DummyNode('parent')
+        self.tree.add_node(parent)
+        child = DummyNode('child')
+        child.add_color('purple')
+        self.tree.add_node(child, 'parent')
+
+        # FIXME there is another bug
+        print "FIXME this is another bug..."
+        parent.modified()
+        child.modified()
+
+        self.view.print_tree()
+        self.assertEqual(self.view.node_all_children('parent'), ['child'])
+
+        child.remove_color('purple')
+        self.view.print_tree()
+
 
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(__name__)
