@@ -28,6 +28,24 @@ from liblarch_gtk.treemodel import TreeModel
 ENABLE_SORTING = True
 USE_TREEMODELFILTER = False
 
+
+BRITGHTNESS_CACHE = {}
+
+def brightness(color_str):
+    """ Compute brightness of a color on scale 0-1
+
+    Courtesy to
+    http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+    """
+    global BRITGHTNESS_CACHE
+
+    if color_str not in BRITGHTNESS_CACHE:
+        c = gtk.gdk.color_parse(color_str)
+        brightness = (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
+        BRITGHTNESS_CACHE[color_str] = brightness
+    return BRITGHTNESS_CACHE[color_str]
+
+
 class TreeView(gtk.TreeView):
     """ Widget which display LibLarch FilteredTree.
 
@@ -322,14 +340,12 @@ class TreeView(gtk.TreeView):
         else:
             color = None
 
-        def brightness(color_str):
-            c = gtk.gdk.color_parse(color_str)
-            return (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
-        
-        if color:
-            fg_color = '#FFFFFF' if brightness(color)<0.5 else '#000000'
-            if isinstance(cell, gtk.CellRendererText):
-                cell.set_property("foreground", fg_color)
+        if isinstance(cell, gtk.CellRendererText):
+            if color is not None and brightness(color) < 0.5:
+                fg_color = '#FFFFFF'
+            else:
+                fg_color = '#000000'
+            cell.set_property("foreground", fg_color)
        
         cell.set_property("cell-background", color)
 
