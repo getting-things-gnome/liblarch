@@ -321,6 +321,16 @@ class TreeView(gtk.TreeView):
             color = model.get_value(myiter, self.bg_color_column)
         else:
             color = None
+
+        def brightness(color_str):
+            c = gtk.gdk.color_parse(color_str)
+            return (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
+        
+        if color:
+            fg_color = '#FFFFFF' if brightness(color)<0.5 else '#000000'
+            if isinstance(cell, gtk.CellRendererText):
+                cell.set_property("foreground", fg_color)
+       
         cell.set_property("cell-background", color)
 
     ######### DRAG-N-DROP functions #####################################
