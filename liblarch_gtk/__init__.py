@@ -225,28 +225,30 @@ class TreeView(gtk.TreeView):
         
         This method is needed for "rember collapsed nodes" feature of GTG.
         Transform node_id into paths and those paths collapse. By default all
-        children are expanded (see self.expand_all())"""
+        children are expanded (see self.expand_all())
+        
+        @parameter llpath - LibLarch path to the node. Node_id is extracted
+            as the last parameter and then all instances of that node are
+            collapsed. For retro-compatibility, we take llpath instead of
+            node_id directly"""
         node_id = llpath[-1].strip("'")
         if not node_id:
-            raise Exception('pas de node_id pour %s' %str(llpath))
-        if not self.basetree.is_displayed(node_id):
-            self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-        else:
-            iter = self.basetreemodel.my_get_iter(llpath)
-            if iter:
-                target_path = self.basetreemodel.get_path(iter)
-                if self.basetreemodel.get_value(iter,0) == node_id:
-                    self.collapse_row(target_path)
-                    self.collapsed_paths.append(llpath)
-                    it = self.basetreemodel.get_iter(target_path)
-                    newid = self.basetreemodel.get_value(it,0)
-                else:
-                    self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-            else:
-                #if we don't have iter, it is probably because the TreeModel
-                #is not loaded yet. Let just wait one more time
-                self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-                        
+            raise Exception('Missing node_id in path %s' % str(llpath))
+
+        schedule_next = True
+        for path in self.basetree.get_paths_for_node(node_id):
+            iter = self.basetreemodel.my_get_iter(path)
+            if iter is None:
+                continue
+
+            target_path = self.basetreemodel.get_path(iter)
+            if self.basetreemodel.get_value(iter, 0) == node_id:
+                self.collapse_row(target_path)
+                self.collapsed_paths.append(path)
+                schedule_next = False
+
+        if schedule_next:
+            self.basetree.queue_action(node_id, self.collapse_node, param=llpath)
 
     def show(self):
         """ Shows the TreeView and connect basetreemodel to LibLarch """
