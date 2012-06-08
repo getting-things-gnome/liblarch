@@ -20,7 +20,7 @@
 # PPA where to push changes
 PPA="gtg-daily"
 # For which distribution we want to build it
-DISTRIBUTION="oneiric"
+DISTRIBUTION="precise"
 # Who is the maintainer? Whose GPG key should be used to sign the package?
 MAINTAINER="Izidor Matušov <izidor.matusov@gmail.com>"
 
