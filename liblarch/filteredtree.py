@@ -46,7 +46,6 @@ class FilteredTree():
         """
 
         self.cllbcks = {}
-        self.callcount = {'up':0,'down':0,'both':0}
 
         # Cache
         self.nodes = {}
@@ -229,7 +228,6 @@ class FilteredTree():
             #We update the node itself     
             #Why should we call the callback only for modify?
             if action == 'modified':
-                self.callcount[direction] += 1
                 for path in self.get_paths_for_node(node_id):
                     self.callback(action, node_id, path) 
             
