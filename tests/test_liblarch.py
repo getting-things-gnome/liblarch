@@ -1881,16 +1881,12 @@ class TestLibLarch(unittest.TestCase):
         child.add_color('purple')
         self.tree.add_node(child, 'parent')
 
-        # FIXME there is another bug
-        print "FIXME this is another bug..."
-        parent.modified()
         child.modified()
 
-        self.view.print_tree()
         self.assertEqual(self.view.node_all_children('parent'), ['child'])
 
+        # During this call, there should be no traceback
         child.remove_color('purple')
-        self.view.print_tree()
 
     def test_late_add_recursive_filter(self):
         """ Nodes sometimes could be just meta nodes. Think about tags in GTG
@@ -1922,7 +1918,7 @@ class TestLibLarch(unittest.TestCase):
 
         self.tree.add_filter('has_something_pink', has_something_pink)
 
-        view = self.tree.get_viewtree()
+        view = self.tree.get_viewtree('pinktree')
         view.apply_filter('has_something_pink')
         b.add_color('pink')
 

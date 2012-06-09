@@ -243,21 +243,20 @@ class FilteredTree():
             for child_id in children:
                 self.send_remove_tree(child_id, node_id)
                 self.nodes[child_id]['parents'].remove(node_id)
+                self.__update_node(child_id,direction="down")
+
+            for path in paths:
+                self.callback(action, node_id, path)
+
             # Remove node from cache
             for parent_id in self.nodes[node_id]['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
                 self.__update_node(parent_id,direction="up")
 
-            del self.nodes[node_id]
+            self.nodes.pop(node_id)
 
-            for child_id in children:
-                self.__update_node(child_id,direction="down")
-            
-            for path in paths:
-                self.callback(action, node_id, path)
-                
-            #We update parents who are not displayed
-            #If the node is only hidden and still exists in the tree
+            # We update parents who are not displayed
+            # If the node is only hidden and still exists in the tree
             if self.tree.has_node(node_id):
                 node = self.tree.get_node(node_id)
                 for parent in node.get_parents():
