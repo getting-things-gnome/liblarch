@@ -1856,7 +1856,76 @@ class TestLibLarch(unittest.TestCase):
                 parents = []
 
             self.tree.add_node(node, parent_id=parent_id)
-        
+
+    def test_modifying_child_of_removed_node(self):
+        """ Removing tasks with a recursive filter throws a traceback, see
+        this bug report: https://bugs.launchpad.net/gtg/+bug/932405 """
+
+        def is_there_purple_somewhere(node, parameters=None):
+            if node.has_color('purple'):
+                return True
+
+            for child_id in node.get_children():
+                child = self.tree.get_node(child_id)
+                if is_there_purple_somewhere(child):
+                    return True
+
+            return False
+
+        self.tree.add_filter('is_there_purple_somewhere', is_there_purple_somewhere)
+        self.view.apply_filter('is_there_purple_somewhere')
+
+        parent = DummyNode('parent')
+        self.tree.add_node(parent)
+        child = DummyNode('child')
+        child.add_color('purple')
+        self.tree.add_node(child, 'parent')
+
+        child.modified()
+
+        self.assertEqual(self.view.node_all_children('parent'), ['child'])
+
+        # During this call, there should be no traceback
+        child.remove_color('purple')
+
+    def test_late_add_recursive_filter(self):
+        """ Nodes sometimes could be just meta nodes. Think about tags in GTG
+        which have just sub-tags and have no actual tasks. They should be still
+        shown and their task count is counted as a count of all tasks
+        associated with any subtask.
+
+        This test have simple tree where @a is a node and @b its subnode.
+        The view shows only pink nodes or nodes which have a pink ancestor.
+        After the view is created, we add "pink" to @b and it should show tree
+        @a -> @b. At the writing of this test, there was a bug where you get
+        @a, @b instead. Calling additional b.modified() solved the situation.
+        """
+
+        def has_something_pink(node, parameters=None):
+            if node.has_color('pink'):
+                return True
+            else:
+                for child_id in node.get_children():
+                    child = self.tree.get_node(child_id)
+                    if has_something_pink(child, parameters):
+                        return True
+                return False
+
+        a = DummyNode('@a')
+        self.tree.add_node(a)
+        b = DummyNode('@b')
+        self.tree.add_node(b, '@a')
+
+        self.tree.add_filter('has_something_pink', has_something_pink)
+
+        view = self.tree.get_viewtree('pinktree')
+        view.apply_filter('has_something_pink')
+        b.add_color('pink')
+
+        self.assertEqual(set(view.get_all_nodes()), set(['@a', '@b']))
+        self.assertEqual(view.node_all_children(), ['@a'])
+        self.assertEqual(view.node_all_children('@a'), ['@b'])
+
 
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(__name__)

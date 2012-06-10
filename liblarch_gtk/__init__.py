@@ -28,6 +28,24 @@ from liblarch_gtk.treemodel import TreeModel
 ENABLE_SORTING = True
 USE_TREEMODELFILTER = False
 
+
+BRITGHTNESS_CACHE = {}
+
+def brightness(color_str):
+    """ Compute brightness of a color on scale 0-1
+
+    Courtesy to
+    http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+    """
+    global BRITGHTNESS_CACHE
+
+    if color_str not in BRITGHTNESS_CACHE:
+        c = gtk.gdk.color_parse(color_str)
+        brightness = (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
+        BRITGHTNESS_CACHE[color_str] = brightness
+    return BRITGHTNESS_CACHE[color_str]
+
+
 class TreeView(gtk.TreeView):
     """ Widget which display LibLarch FilteredTree.
 
@@ -207,28 +225,30 @@ class TreeView(gtk.TreeView):
         
         This method is needed for "rember collapsed nodes" feature of GTG.
         Transform node_id into paths and those paths collapse. By default all
-        children are expanded (see self.expand_all())"""
+        children are expanded (see self.expand_all())
+        
+        @parameter llpath - LibLarch path to the node. Node_id is extracted
+            as the last parameter and then all instances of that node are
+            collapsed. For retro-compatibility, we take llpath instead of
+            node_id directly"""
         node_id = llpath[-1].strip("'")
         if not node_id:
-            raise Exception('pas de node_id pour %s' %str(llpath))
-        if not self.basetree.is_displayed(node_id):
-            self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-        else:
-            iter = self.basetreemodel.my_get_iter(llpath)
-            if iter:
-                target_path = self.basetreemodel.get_path(iter)
-                if self.basetreemodel.get_value(iter,0) == node_id:
-                    self.collapse_row(target_path)
-                    self.collapsed_paths.append(llpath)
-                    it = self.basetreemodel.get_iter(target_path)
-                    newid = self.basetreemodel.get_value(it,0)
-                else:
-                    self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-            else:
-                #if we don't have iter, it is probably because the TreeModel
-                #is not loaded yet. Let just wait one more time
-                self.basetree.queue_action(node_id,self.collapse_node,param=llpath)
-                        
+            raise Exception('Missing node_id in path %s' % str(llpath))
+
+        schedule_next = True
+        for path in self.basetree.get_paths_for_node(node_id):
+            iter = self.basetreemodel.my_get_iter(path)
+            if iter is None:
+                continue
+
+            target_path = self.basetreemodel.get_path(iter)
+            if self.basetreemodel.get_value(iter, 0) == node_id:
+                self.collapse_row(target_path)
+                self.collapsed_paths.append(path)
+                schedule_next = False
+
+        if schedule_next:
+            self.basetree.queue_action(node_id, self.collapse_node, param=llpath)
 
     def show(self):
         """ Shows the TreeView and connect basetreemodel to LibLarch """
@@ -321,6 +341,14 @@ class TreeView(gtk.TreeView):
             color = model.get_value(myiter, self.bg_color_column)
         else:
             color = None
+
+        if isinstance(cell, gtk.CellRendererText):
+            if color is not None and brightness(color) < 0.5:
+                fg_color = '#FFFFFF'
+            else:
+                fg_color = '#000000'
+            cell.set_property("foreground", fg_color)
+       
         cell.set_property("cell-background", color)
 
     ######### DRAG-N-DROP functions #####################################

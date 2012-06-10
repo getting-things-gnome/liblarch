@@ -24,18 +24,19 @@ from liblarch.treenode import _Node
 from liblarch.filteredtree import FilteredTree
 from liblarch.filters_bank import FiltersBank
 
-#API version of liblarch. 
-#Your application is compatible if the major version number match liblarch's one
-#and if your minor version number is inferior to liblarch's one.
+# API version of liblarch. 
+# Your application is compatible if the major version number match liblarch's
+# one and if your minor version number is inferior to liblarch's one.
 #
-#The minor number is incremented when a method is added to the API
-#The major number is incremented if an existing method is removed or modified
-api="1.1"
+# The major number is incremented if an existing method is removed or modified
+# The minor number is incremented when a method is added to the API
+API = "1.1"
+
 
 def is_compatible(request):
-    major,minor=request.split(".")
-    current_ma,current_mi=api.split(".")
-    return (major == current_ma and minor <= current_mi)
+    major, minor = [int(i) for i in request.split(".")]
+    current_ma, current_mi = [int(i) for i in API.split(".")]
+    return major == current_ma and minor <= current_mi
     
 class TreeNode(_Node):
     """ The public interface for TreeNode

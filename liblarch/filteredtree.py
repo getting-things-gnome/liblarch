@@ -46,7 +46,6 @@ class FilteredTree():
         """
 
         self.cllbcks = {}
-        self.callcount = {'up':0,'down':0,'both':0}
 
         # Cache
         self.nodes = {}
@@ -179,12 +178,19 @@ class FilteredTree():
         # Make sure parents are okay if we adding or updating
         if action == 'added' or action == 'modified':
             current_parents = self.nodes[node_id]['parents']
-            
             new_parents = self.__node_parents(node_id)
-#            new_parents = []
-#            for pp in self.__node_parents(node_id):
-#                if pp in self.nodes:
-#                    new_parents.append(pp)
+
+            # When using flat filter or a recursive filter, FilteredTree
+            # might not recognize a parent correctly, make sure to check them
+            if action == 'added':
+                node = self.tree.get_node(node_id)
+                for parent_id in node.get_parents():
+                    if parent_id not in new_parents and parent_id not in current_parents:
+                        self.__update_node(parent_id, direction="up")
+
+            # Refresh list of parents after doing checkup once again
+            current_parents = self.nodes[node_id]['parents']
+            new_parents = self.__node_parents(node_id)
                     
             self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents
                 if parent_id in self.nodes]
@@ -198,15 +204,6 @@ class FilteredTree():
             if direction == "down" and self.root_id in add_to:
                 direction = "both"
 
-            #We update the parents
-            if action == 'added':
-                #This check is for "phantom parents", for example
-                #If we have a flat or leave-only filter, we have to update the
-                #real parents!
-                node = self.tree.get_node(node_id)
-                for parent in node.get_parents():
-                    if parent not in new_parents and parent not in current_parents:
-                        self.__update_node(parent,direction="up")
             for parent_id in remove_from:
                 self.send_remove_tree(node_id, parent_id)
                 self.nodes[parent_id]['children'].remove(node_id)
@@ -229,7 +226,6 @@ class FilteredTree():
             #We update the node itself     
             #Why should we call the callback only for modify?
             if action == 'modified':
-                self.callcount[direction] += 1
                 for path in self.get_paths_for_node(node_id):
                     self.callback(action, node_id, path) 
             
@@ -247,21 +243,20 @@ class FilteredTree():
             for child_id in children:
                 self.send_remove_tree(child_id, node_id)
                 self.nodes[child_id]['parents'].remove(node_id)
+                self.__update_node(child_id,direction="down")
+
+            for path in paths:
+                self.callback(action, node_id, path)
+
             # Remove node from cache
             for parent_id in self.nodes[node_id]['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
                 self.__update_node(parent_id,direction="up")
 
-            del self.nodes[node_id]
+            self.nodes.pop(node_id)
 
-            for child_id in children:
-                self.__update_node(child_id,direction="down")
-            
-            for path in paths:
-                self.callback(action, node_id, path)
-                
-            #We update parents who are not displayed
-            #If the node is only hidden and still exists in the tree
+            # We update parents who are not displayed
+            # If the node is only hidden and still exists in the tree
             if self.tree.has_node(node_id):
                 node = self.tree.get_node(node_id)
                 for parent in node.get_parents():
