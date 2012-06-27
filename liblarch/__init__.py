@@ -291,6 +291,21 @@ class ViewTree:
         return self.__ft.get_n_nodes(withfilters=withfilters,\
                                     include_transparent=include_transparent)
 
+    def get_nodes(self, withfilters=[], include_transparent=True):
+        """ Returns displayed nodes in this tree
+
+        @withfilters => Additional filters are applied before counting,
+        i.e. the currently applied filters are also taken into account
+
+        @inclde_transparent => if it is False, filters which don't have
+        the transparent parameters are skipped, not takend into account
+        """
+
+        if not self.__ft:
+            self.__ft = FilteredTree(self.__maintree, self.__fbank, refresh = True)
+        return self.__ft.get_nodes(withfilters=withfilters,\
+                                    include_transparent=include_transparent)
+
     def get_node_for_path(self, path):
         """ Convert path to node_id.
 
