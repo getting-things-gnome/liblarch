@@ -535,9 +535,7 @@ class FilteredTree():
         """
         if withfilters == [] and include_transparent:
             # Use current cache
-            nodes = list(self.get_all_nodes())
-            nodes.remove(self.root_node)
-            return nodes
+            return self.get_all_nodes()
         elif withfilters != [] and include_transparent:
             # Filter on the current nodes
 
