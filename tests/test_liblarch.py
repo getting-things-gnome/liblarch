@@ -1612,6 +1612,47 @@ class TestLibLarch(unittest.TestCase):
 
         # Check root => there should be no nodes but master
         self.assertEqual([master_id], tree_root.get_children())
+        
+    def test_node_count_update(self):
+        """this is for the @t @ta @tag bug"""
+        def filter_func(node):
+            #we display a color in tagtree only if
+            #this color has at least one node in self.tree
+            color = node.get_id()
+            view = self.tree.get_viewtree()
+            view.apply_filter(color)
+#            print "%s %s nodes" %(view.get_n_nodes(),color)
+            return view.get_n_nodes() > 0
+        #self.tree is where we will store "tasks" (here colors)
+#        print self.tree.get_viewtree().print_tree(True)
+        #the main tree will be the tag tree.
+        tagtree = Tree()
+        blue_tag = DummyNode("blue")
+        tagtree.add_node(blue_tag)
+        green_tag = DummyNode("green")
+        tagtree.add_node(green_tag)
+        red_tag = DummyNode("red")
+        tagtree.add_node(red_tag)
+        tagtree.add_filter("color_exists", filter_func)
+        view = tagtree.get_viewtree()
+        view.apply_filter("color_exists")
+        self.assert_(view.is_displayed("red"))
+        self.assert_(view.is_displayed("blue"))
+        self.assert_(view.is_displayed("green"))
+#        print view.print_tree(True)
+        self.tree.del_node('14')
+        self.tree.del_node('13')
+        self.tree.del_node('12')
+        self.tree.del_node('11')
+        self.tree.del_node('10')
+        self.tree.del_node('9')
+        self.tree.del_node('8')
+        self.assert_(view.is_displayed("red"))
+        self.assert_(view.is_displayed("blue"))
+        #there are no remaining green nodes
+        self.assertFalse(view.is_displayed("green"))
+#        print self.tree.get_viewtree().print_tree(True)
+#        print view.print_tree(True)
 
     def test_maintree_print_tree(self):
         """ Test MainTree's print_tree() to string """
