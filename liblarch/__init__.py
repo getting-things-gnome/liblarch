@@ -24,6 +24,7 @@ from liblarch.treenode import _Node
 from liblarch.filteredtree import FilteredTree
 from liblarch.filters_bank import FiltersBank
 from liblarch.viewtree import ViewTree
+from liblarch.viewcount import ViewCount
 
 # API version of liblarch. 
 # Your application is compatible if the major version number match liblarch's
@@ -58,6 +59,7 @@ class Tree:
         self.__tree = MainTree()
         self.__fbank = FiltersBank(self.__tree)
         self.__views = {}
+        self.__viewscount = {}
         self.__views['main'] = ViewTree(self, self.__tree, self.__fbank, static=True)
 
 ##### HANDLE NODES ############################################################
@@ -133,6 +135,17 @@ class Tree:
             if name is not None:
                 self.__views[name] = view_tree
         return view_tree
+        
+    def get_viewcount(self,name=None, refresh=True):
+        if name is not None and self.__viewscount.has_key(name):
+            view_count = self.__viewscount[name]
+        else:
+            view_count = ViewCount(self.__tree,self.__fbank, name = name, refresh = refresh)
+            if name is not None:
+                self.__viewscount[name] = view_count
+        return view_count
+        
+        
 
 ##### FILTERS ##################################################################
     def list_filters(self):
