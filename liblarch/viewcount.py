@@ -46,8 +46,10 @@ class ViewCount:
             print "There's no filter called %s" %filter_name
             
     def unapply_filter(self,filter_name):
-        #TODO
-        print "please implement unapply_filter in viewcount"
+        if filter_name in self.applied_filters:
+            self.applied_filters.remove(filter_name)
+            for node in self.tree.get_all_nodes():
+                self.__modify(node)
     
     #there's only one callback: "modified"
     def register_cllbck(self, func):
