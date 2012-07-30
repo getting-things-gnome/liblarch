@@ -87,6 +87,10 @@ class FiltersBank:
             return self.custom_filters[filter_name]
         else:
             return None
+            
+    def has_filter(self,filter_name):
+        return self.available_filters.has_key(filter_name) \
+            or self.custom_filters.has_key(filter_name)
     
     def list_filters(self):
         """ List, by name, all available filters """

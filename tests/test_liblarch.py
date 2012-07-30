@@ -1629,9 +1629,9 @@ class TestLibLarch(unittest.TestCase):
             #we display a color in tagtree only if
             #this color has at least one node in self.tree
             color = node.get_id()
-            viewcount = self.tree.get_viewcount(name=color)
+            viewcount = self.tree.get_viewcount(name=color,refresh=True)
             count = viewcount.get_n_nodes()
-            print "%s %s nodes" %(count,color)
+#            print "%s %s nodes" %(count,color)
             return count > 0
         #self.tree is where we will store "tasks" (here colors)
         print self.tree.get_viewtree().print_tree(True)
@@ -1657,6 +1657,7 @@ class TestLibLarch(unittest.TestCase):
         self.tree.del_node('10')
         self.tree.del_node('9')
         self.tree.del_node('8')
+        print "**** after deletion"
         self.assert_(view.is_displayed("red"))
         self.assert_(view.is_displayed("blue"))
         #there are no remaining green nodes
