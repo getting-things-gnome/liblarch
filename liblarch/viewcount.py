@@ -39,11 +39,11 @@ class ViewCount:
         if self.fbank.has_filter(filter_name):
             if filter_name not in self.applied_filters:
                 self.applied_filters.append(filter_name)
+                for n in list(self.nodes):
+                    self.__modify(n)
         else:
             #FIXME: raise proper error
             print "There's no filter called %s" %filter_name
-        for n in self.nodes:
-            self.__modify(n)
     
     #there's only one callback: "modified"
     def register_cllbck(self, func):
@@ -55,11 +55,9 @@ class ViewCount:
         
     def __modify(self,nid):
         displayed = True
-        print " modifying %s : filters are %s" %(nid,self.applied_filters)
         for filtname in self.applied_filters:
             filt = self.fbank.get_filter(filtname)
             displayed &= filt.is_displayed(nid)
-            print "   answer is %s" %displayed
         if displayed:
             self.__add(nid)
         else:
