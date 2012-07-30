@@ -44,11 +44,19 @@ class ViewCount:
         else:
             #FIXME: raise proper error
             print "There's no filter called %s" %filter_name
+            
+    def unapply_filter(self,filter_name):
+        #TODO
+        print "please implement unapply_filter in viewcount"
     
     #there's only one callback: "modified"
     def register_cllbck(self, func):
         if func not in self.cllbcks:
             self.cllbcks.append(func)
+            
+    def unregister_cllbck(self,func):
+        #TODO
+        print "please implement unregister_cllbck in viewcount"
     
     def get_n_nodes(self):
         return len(self.nodes)
