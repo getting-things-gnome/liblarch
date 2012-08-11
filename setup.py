@@ -20,29 +20,15 @@
 
 from distutils.core import setup
 
-VERSION = '0.2.5'
-
-params = {}
-params['liblarch'] = {
-    'description': 'Liblarch is a python library built to easily handle ' \
-        'data structure such are lists, trees and acyclic graphs (tree where ' \
-        'nodes can have multiple parents)',
-}
-params['liblarch_gtk'] = {
-    'description': 'GTK binding for Liblarch.',
-}
-
-standalone_packages = ['liblarch', 'liblarch_gtk']
-
-for package in standalone_packages:
-    setup(
-      version = VERSION,
-      url = 'https://live.gnome.org/liblarch',
-      author = 'Lionel Dricot & Izidor Matušov',
-      author_email = 'gtg-contributors@lists.launchpad.net',
-      license = 'LGPLv3',
-
-      name = package,
-      packages = [package],
-      **params[package]
-    )
+setup(
+    version = '0.2.5',
+    url = 'https://live.gnome.org/liblarch',
+    author = 'Lionel Dricot & Izidor Matušov',
+    author_email = 'gtg-contributors@lists.launchpad.net',
+    license = 'LGPLv3',
+    name = 'liblarch',
+    packages = ['liblarch', 'liblarch_gtk'],
+    description = 'Liblarch is a python library built to easily handle '\
+	'data structures such as lists, trees and directed acyclic graphs '\
+	'and represent them as GTK TreeWidget or in other forms.',
+)

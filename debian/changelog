@@ -1,0 +1,5 @@
+liblarch (0.2.5-1) unstable; urgency=low
+
+  * Repackage liblarch and liblarch_gtk into a single package
+
+ -- Izidor Matušov <izidor.matusov@gmail.com>  Sat, 11 Aug 2012 16:50:51 +0200
