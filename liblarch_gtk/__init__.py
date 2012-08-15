@@ -344,10 +344,10 @@ class TreeView(gtk.TreeView):
 
         if isinstance(cell, gtk.CellRendererText):
             if color is not None and brightness(color) < 0.5:
-                fg_color = '#FFFFFF'
+                cell.set_property("foreground", '#FFFFFF')
             else:
-                fg_color = '#000000'
-            cell.set_property("foreground", fg_color)
+                # Otherwise unset foreground color
+                cell.set_property("foreground-set", False)
        
         cell.set_property("cell-background", color)
 
