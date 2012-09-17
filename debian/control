@@ -10,6 +10,7 @@ Homepage: https://live.gnome.org/liblarch/
 Package: python-liblarch
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-gtk2 (>=2.14)
+Replaces: python-liblarch-gtk
 Description: Liblarch handles structures like acyclic directed graphs.
   Liblarch is a python library built to easily handle data structures
   such as lists, trees and directed acyclic graphs and represent them
