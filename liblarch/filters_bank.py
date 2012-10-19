@@ -121,7 +121,6 @@ class FiltersBank:
         """
         if not self.available_filters.has_key(filter_name):
             if self.custom_filters.has_key(filter_name):
-                self.unapply_filter(filter_name)
                 self.custom_filters.pop(filter_name)
                 return True
             else:
