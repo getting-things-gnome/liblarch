@@ -92,6 +92,8 @@ class TreeView(gtk.TreeView):
         """
         gtk.TreeView.__init__(self)
         self.columns = {}
+        self.sort_col = None
+        self.sort_order = gtk.SORT_ASCENDING
         self.bg_color_column = None
         self.separator_func = None
 
@@ -154,7 +156,8 @@ class TreeView(gtk.TreeView):
             if ENABLE_SORTING:
                 if 'sorting' in desc:
                     # Just allow sorting and use default comparing
-                    sort_num, sort_col = self.columns[desc['sorting']]
+                    self.sort_col = desc['sorting']
+                    sort_num, sort_col = self.columns[self.sort_col]
                     col.set_sort_column_id(sort_num)
 
                 if 'sorting_func' in desc:
@@ -271,11 +274,18 @@ class TreeView(gtk.TreeView):
         col_num, col = self.columns[col_name]
         self.set_property("expander-column", col)
 
-    def set_sort_column(self, col_name):
+    def set_sort_column(self, col_name, order=gtk.SORT_ASCENDING):
         """ Select column to sort by it by default """
         if ENABLE_SORTING:
+            self.sort_col = col_name
+            self.sort_order = order
             col_num, col = self.columns[col_name]
-            self.treemodel.set_sort_column_id(col_num, gtk.SORT_ASCENDING)
+            self.treemodel.set_sort_column_id(col_num, order)
+
+    def get_sort_column(self):
+        """ Get sort column """
+        if ENABLE_SORTING:
+            return self.sort_col, self.sort_order
 
     def set_col_visible(self, col_name,visible):
         """ Set visiblity of column.
