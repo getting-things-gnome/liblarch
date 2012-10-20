@@ -510,18 +510,15 @@ class FilteredTree():
         nodes.remove(self.root_id)
         return nodes
 
-    def get_n_nodes(self, withfilters=[], include_transparent=True):
+    def get_n_nodes(self, withfilters=[]):
         """
         returns quantity of displayed nodes in this tree
         if the withfilters is set, returns the quantity of nodes
         that will be displayed if we apply those filters to the current
         tree. It means that the currently applied filters are also taken into
         account.
-        If include_transparent=False, we only take into account the applied filters
-        that doesn't have the transparent parameters.
         """
-        return len(self.get_nodes(withfilters=withfilters, \
-                                  include_transparent= include_transparent))
+        return len(self.get_nodes(withfilters=withfilters))
 
     def get_nodes(self, withfilters=[], include_transparent=True):
         """
@@ -734,23 +731,11 @@ class FilteredTree():
         else:
             return False
 
-    def reset_filters(self, refresh=True, transparent_only=False):
+    def reset_filters(self, refresh=True):
         """
         Clears all filters currently set on the tree.  Can't be called on 
         the main tree.
-        Remove only transparents filters if transparent_only is True
         """
-        if transparent_only:
-            for f in list(self.applied_filters):
-                filt = self.fbank.get_filter(f)
-                if filt:
-                    if filt.get_parameters('transparent'):
-                        self.applied_filters.remove(f)
-                else:
-                    print "bank is %s" % self.applied_filters
-                    raise IndexError('Applied filter %s doesnt' %f +\
-                                    'exist anymore in the bank')
-        else:
-            self.applied_filters = []
+        self.applied_filters = []
         if refresh:
             self.refilter()
