@@ -54,10 +54,6 @@ class Filter:
     def is_flat(self):
         """ Should be the final list flat """
         return self.get_parameters('flat')
-
-#    def is_transparent(self):
-#        """ Is this filter transparent? """
-#        return self.get_parameters('transparent')
     
 class FiltersBank:
     """

@@ -138,16 +138,6 @@ class FilteredTree():
         current_display = self.is_displayed(node_id)
         new_display = self.__is_displayed(node_id)
 
-        # Update counting cache
-#        if intransparent_display:
-#            for fcname in self.filter_cache:
-#                filt = self.fbank.get_filter(fcname)
-#                if filt and filt.is_displayed(node_id):
-#                    self.filter_cache[fcname]['nodes'].add(node_id)
-#                elif node_id in self.filter_cache[fcname]['nodes']:
-#                    self.filter_cache[fcname]['nodes'].remove(node_id)
-#                self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
-#        else:
         for fcname in self.filter_cache:
             if node_id in self.filter_cache[fcname]['nodes']:
                 self.filter_cache[fcname]['nodes'].remove(node_id)
@@ -353,28 +343,6 @@ class FilteredTree():
         else:
             return False
 
-#    def __is_displayed_by_transparency(self, node_id):
-#        """ Should be node displayed regardless of its current status? """
-#        if node_id is None or not self.tree.has_node(node_id):
-#            return False, False
-
-#        all_filters = True
-#        intransparent_filters = True
-
-#        for filter_name in self.applied_filters:
-#            filt = self.fbank.get_filter(filter_name)
-#            if filt:
-#                can_be_displayed = filt.is_displayed(node_id)
-#                if not can_be_displayed:
-#                    all_filters = False
-#                    if not filt.is_transparent():
-#                        intransparent_filters = False
-#            else:
-#                # Missing filters => not showed at all
-#                return False, False
-
-#        return all_filters, intransparent_filters
-
     def is_displayed(self, node_id):
         """ Is the node displayed at the moment? """
 
@@ -527,8 +495,6 @@ class FilteredTree():
         that will be displayed if we apply those filters to the current
         tree. It means that the currently applied filters are also taken into
         account.
-        If include_transparent=False, we only take into account the applied filters
-        that doesn't have the transparent parameters.
         """
         if withfilters == []:
             # Use current cache
@@ -563,7 +529,7 @@ class FilteredTree():
 
             return nodes
         
-# the following looks useless
+# the following looks useless (and removing it doesn't crash any test)
 #        else:
 #            # Recompute every node
 #            build_cache = len(withfilters) == 1
