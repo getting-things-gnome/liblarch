@@ -136,22 +136,22 @@ class FilteredTree():
             return None
 
         current_display = self.is_displayed(node_id)
-        new_display, intransparent_display = self.__is_displayed_by_transparency(node_id)
+        new_display = self.__is_displayed(node_id)
 
         # Update counting cache
-        if intransparent_display:
-            for fcname in self.filter_cache:
-                filt = self.fbank.get_filter(fcname)
-                if filt and filt.is_displayed(node_id):
-                    self.filter_cache[fcname]['nodes'].add(node_id)
-                elif node_id in self.filter_cache[fcname]['nodes']:
-                    self.filter_cache[fcname]['nodes'].remove(node_id)
+#        if intransparent_display:
+#            for fcname in self.filter_cache:
+#                filt = self.fbank.get_filter(fcname)
+#                if filt and filt.is_displayed(node_id):
+#                    self.filter_cache[fcname]['nodes'].add(node_id)
+#                elif node_id in self.filter_cache[fcname]['nodes']:
+#                    self.filter_cache[fcname]['nodes'].remove(node_id)
+#                self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
+#        else:
+        for fcname in self.filter_cache:
+            if node_id in self.filter_cache[fcname]['nodes']:
+                self.filter_cache[fcname]['nodes'].remove(node_id)
                 self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
-        else:
-            for fcname in self.filter_cache:
-                if node_id in self.filter_cache[fcname]['nodes']:
-                    self.filter_cache[fcname]['nodes'].remove(node_id)
-                    self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
 
         completely_updated = True
 
@@ -353,27 +353,27 @@ class FilteredTree():
         else:
             return False
 
-    def __is_displayed_by_transparency(self, node_id):
-        """ Should be node displayed regardless of its current status? """
-        if node_id is None or not self.tree.has_node(node_id):
-            return False, False
+#    def __is_displayed_by_transparency(self, node_id):
+#        """ Should be node displayed regardless of its current status? """
+#        if node_id is None or not self.tree.has_node(node_id):
+#            return False, False
 
-        all_filters = True
-        intransparent_filters = True
+#        all_filters = True
+#        intransparent_filters = True
 
-        for filter_name in self.applied_filters:
-            filt = self.fbank.get_filter(filter_name)
-            if filt:
-                can_be_displayed = filt.is_displayed(node_id)
-                if not can_be_displayed:
-                    all_filters = False
-                    if not filt.is_transparent():
-                        intransparent_filters = False
-            else:
-                # Missing filters => not showed at all
-                return False, False
+#        for filter_name in self.applied_filters:
+#            filt = self.fbank.get_filter(filter_name)
+#            if filt:
+#                can_be_displayed = filt.is_displayed(node_id)
+#                if not can_be_displayed:
+#                    all_filters = False
+#                    if not filt.is_transparent():
+#                        intransparent_filters = False
+#            else:
+#                # Missing filters => not showed at all
+#                return False, False
 
-        return all_filters, intransparent_filters
+#        return all_filters, intransparent_filters
 
     def is_displayed(self, node_id):
         """ Is the node displayed at the moment? """
@@ -520,7 +520,7 @@ class FilteredTree():
         """
         return len(self.get_nodes(withfilters=withfilters))
 
-    def get_nodes(self, withfilters=[], include_transparent=True):
+    def get_nodes(self, withfilters=[]):
         """
         returns quantity of displayed nodes in this tree
         if the withfilters is set, returns the quantity of nodes
@@ -530,10 +530,15 @@ class FilteredTree():
         If include_transparent=False, we only take into account the applied filters
         that doesn't have the transparent parameters.
         """
-        if withfilters == [] and include_transparent:
+        if withfilters == []:
             # Use current cache
             return self.get_all_nodes()
-        elif withfilters != [] and include_transparent:
+        #FIXME maybe allow caching multiple withfilters...
+        elif len(withfilters) == 1 and withfilters[0] in self.filter_cache:
+            return self.filter_cache[withfilters[0]]['nodes']
+            
+#        elif withfilters != []:
+        else:
             # Filter on the current nodes
 
             filters = []
@@ -557,48 +562,42 @@ class FilteredTree():
                     nodes.append(node_id)
 
             return nodes
-        #FIXME maybe allow caching multiple withfilters...
-        elif len(withfilters) == 1 and withfilters[0] in self.filter_cache:
-            return self.filter_cache[withfilters[0]]['nodes']
-        else:
-            # Recompute every node
-            build_cache = len(withfilters) == 1
+        
+# the following looks useless
+#        else:
+#            # Recompute every node
+#            build_cache = len(withfilters) == 1
 
-            if build_cache:
-                ffname = withfilters[0]
-                self.filter_cache[ffname] = {'count': 0, 'nodes': set()}
+#            if build_cache:
+#                ffname = withfilters[0]
+#                self.filter_cache[ffname] = {'count': 0, 'nodes': set()}
 
-            # 1st step: build list of filters
-            filters = []
-            for filter_name in self.applied_filters:
-                filt = self.fbank.get_filter(filter_name)
-                if not filt:
-                    continue
+#            # 1st step: build list of filters
+#            filters = []
+#            for filter_name in self.applied_filters:
+#                filt = self.fbank.get_filter(filter_name)
+#                if not filt:
+#                    continue
 
-                # Skip transparent filters if needed
-                transparent = filt.is_transparent()
-                if not include_transparent and transparent:
-                    continue
+#                filters.append(filt)
 
-                filters.append(filt)
+#            for filter_name in withfilters:
+#                filt = self.fbank.get_filter(filter_name)
+#                if filt:
+#                    filters.append(filt)
 
-            for filter_name in withfilters:
-                filt = self.fbank.get_filter(filter_name)
-                if filt:
-                    filters.append(filt)
-
-            nodes = []
-            total_count = 0
-            for node_id in self.tree.get_all_nodes():
-                displayed = True
-                for filt in filters:
-                    displayed = filt.is_displayed(node_id)
-                    if not displayed:
-                        break
-                
-                if displayed:
-                    nodes.append(node_id)
-                    total_count += 1
+#            nodes = []
+#            total_count = 0
+#            for node_id in self.tree.get_all_nodes():
+#                displayed = True
+#                for filt in filters:
+#                    displayed = filt.is_displayed(node_id)
+#                    if not displayed:
+#                        break
+#                
+#                if displayed:
+#                    nodes.append(node_id)
+#                    total_count += 1
 
             if build_cache:
                 self.filter_cache[ffname]['count'] = total_count
