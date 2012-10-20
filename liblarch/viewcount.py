@@ -57,11 +57,15 @@ class ViewCount:
             self.cllbcks.append(func)
             
     def unregister_cllbck(self,func):
-        #TODO
-        print "please implement unregister_cllbck in viewcount"
+        if func in self.cllbacks:
+            self.cllbacks.remove(func)
     
     def get_n_nodes(self):
         return len(self.nodes)
+        
+    #Allow external update of a given node
+    def modify(self,nid):
+        self.__modify(nid)
         
     def __modify(self,nid):
         displayed = True
