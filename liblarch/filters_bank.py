@@ -54,10 +54,6 @@ class Filter:
     def is_flat(self):
         """ Should be the final list flat """
         return self.get_parameters('flat')
-
-    def is_transparent(self):
-        """ Is this filter transparent? """
-        return self.get_parameters('transparent')
     
 class FiltersBank:
     """
@@ -87,6 +83,10 @@ class FiltersBank:
             return self.custom_filters[filter_name]
         else:
             return None
+            
+    def has_filter(self,filter_name):
+        return self.available_filters.has_key(filter_name) \
+            or self.custom_filters.has_key(filter_name)
     
     def list_filters(self):
         """ List, by name, all available filters """

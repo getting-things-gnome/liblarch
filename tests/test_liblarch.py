@@ -55,6 +55,15 @@ class DummyNode(TreeNode):
             self.colors.remove(color)
         self.modified()
 
+#the tid should be the name of the filter used for the Ccount
+class CountNode(TreeNode):
+    def __init__(self,tid, linked_tree):
+        TreeNode.__init__(self, tid)
+        self.tree = linked_tree
+        viewcount = linked_tree.get_viewcount(name=tid)
+        viewcount.apply_filter(tid)
+        viewcount.register_cllbck(self.modified)
+
 
 
 class TestLibLarch(unittest.TestCase):
@@ -132,7 +141,7 @@ class TestLibLarch(unittest.TestCase):
         """Set up a dummy tree with filters and nodes.
 
         Construct a Tree for testing, with some filters for testing, including
-        filters with parameters 'flat' and 'transparent'.  Create a collection of
+        filters with parameters 'flat'.  Create a collection of
         nodes with some of the properties these filters filter on.
         """
         i = 0
@@ -154,7 +163,6 @@ class TestLibLarch(unittest.TestCase):
         self.tree.add_filter('flatgreen',self.is_green,parameters=param)
         self.tree.add_filter('flatleaves',self.is_leaf,parameters=param)
         param = {}
-        param['transparent'] = True
         self.tree.add_filter('transblue',self.is_blue,parameters=param)
         self.tree.add_filter('transgreen',self.is_green,parameters=param)
         #first, we add some red nodes at the root
@@ -764,16 +772,13 @@ class TestLibLarch(unittest.TestCase):
     def test_viewtree_get_n_nodes_with_cache(self):
         '''Testing the cache of the get_n_nodes'''
         nbr = self.green_nodes
-        self.assertEqual(nbr,self.mainview.get_n_nodes(\
-                            withfilters=['green'],include_transparent=False))
+        self.assertEqual(nbr,self.mainview.get_n_nodes(withfilters=['green']))
         node = self.tree.get_node('0')
         node.add_color('green')
         
-        self.assertEqual(nbr+1,self.mainview.get_n_nodes(\
-                            withfilters=['green'],include_transparent=False))
+        self.assertEqual(nbr+1,self.mainview.get_n_nodes(withfilters=['green']))
         node.remove_color('green')
-        self.assertEqual(nbr,self.mainview.get_n_nodes(\
-                            withfilters=['green'],include_transparent=False))
+        self.assertEqual(nbr,self.mainview.get_n_nodes(withfilters=['green']))
     
     def test_viewtree_get_all_nodes(self):
         all_nodes = self.view.get_all_nodes()
@@ -1246,24 +1251,23 @@ class TestLibLarch(unittest.TestCase):
             i += 1
         test.test_validity()
         
-    def test_transparent_filters(self):
-        view = self.tree.get_viewtree(refresh=False)
-        test = TreeTester(view)
-        """Test excluding transparent filters
+#    def test_transparent_filters(self):
+#        view = self.tree.get_viewtree(refresh=False)
+#        test = TreeTester(view)
+#        """Test excluding transparent filters
 
-        Filters marked with the 'transparent' property should apply in get_n_nodes()
-        normally, but can be turned off via the include_transparent parameter.
-        """
-        view.apply_filter('transgreen')
-        self.assertEqual(self.green_nodes,view.get_n_nodes())
-        self.assertEqual(self.total,view.get_n_nodes(include_transparent=False))
-        #Now with filters in the counting
-        count1 = view.get_n_nodes(withfilters=['transblue'])
-        count2 = view.get_n_nodes(withfilters=['transblue'],\
-                                                    include_transparent=False)
-        self.assertEqual(0,count1)
-        self.assertEqual(self.blue_nodes,count2)
-        test.test_validity()
+#        Filters marked with the 'transparent' property should apply in get_n_nodes()
+#        normally, but can be turned off via the include_transparent parameter.
+#        """
+#        view.apply_filter('transgreen')
+#        self.assertEqual(self.green_nodes,view.get_n_nodes())
+#        self.assertEqual(self.total,view.get_n_nodes())
+#        #Now with filters in the counting
+#        count1 = view.get_n_nodes(withfilters=['transblue'])
+#        count2 = view.get_n_nodes(withfilters=['transblue'])
+#        self.assertEqual(0,count1)
+#        self.assertEqual(self.blue_nodes,count2)
+#        test.test_validity()
 
     def test_view_signals(self):
         view = self.tree.get_viewtree(refresh = True)
@@ -1619,19 +1623,18 @@ class TestLibLarch(unittest.TestCase):
             #we display a color in tagtree only if
             #this color has at least one node in self.tree
             color = node.get_id()
-            view = self.tree.get_viewtree()
-            view.apply_filter(color)
-#            print "%s %s nodes" %(view.get_n_nodes(),color)
-            return view.get_n_nodes() > 0
+            viewcount = self.tree.get_viewcount(name=color,refresh=True)
+            count = viewcount.get_n_nodes()
+#            print "%s %s nodes" %(count,color)
+            return count > 0
         #self.tree is where we will store "tasks" (here colors)
-#        print self.tree.get_viewtree().print_tree(True)
         #the main tree will be the tag tree.
         tagtree = Tree()
-        blue_tag = DummyNode("blue")
+        blue_tag = CountNode("blue",self.tree)
         tagtree.add_node(blue_tag)
-        green_tag = DummyNode("green")
+        green_tag = CountNode("green",self.tree)
         tagtree.add_node(green_tag)
-        red_tag = DummyNode("red")
+        red_tag = CountNode("red",self.tree)
         tagtree.add_node(red_tag)
         tagtree.add_filter("color_exists", filter_func)
         view = tagtree.get_viewtree()
@@ -1639,7 +1642,6 @@ class TestLibLarch(unittest.TestCase):
         self.assert_(view.is_displayed("red"))
         self.assert_(view.is_displayed("blue"))
         self.assert_(view.is_displayed("green"))
-#        print view.print_tree(True)
         self.tree.del_node('14')
         self.tree.del_node('13')
         self.tree.del_node('12')
@@ -1653,6 +1655,9 @@ class TestLibLarch(unittest.TestCase):
         self.assertFalse(view.is_displayed("green"))
 #        print self.tree.get_viewtree().print_tree(True)
 #        print view.print_tree(True)
+#        for color in ['red','blue','green']:
+#            count = self.view.get_n_nodes(withfilters=[color])
+#            print "%s %s nodes" %(count,color)
 
     def test_maintree_print_tree(self):
         """ Test MainTree's print_tree() to string """
@@ -1867,7 +1872,7 @@ class TestLibLarch(unittest.TestCase):
         def recount(node, path):
             """ Make all tags to recount """
             for tag in tags:
-                count = view.get_n_nodes(withfilters=[tag], include_transparent=False)
+                count = view.get_n_nodes(withfilters=[tag])
                 self.assertEqual(count, num_tags[tag])
 
         # register callback
