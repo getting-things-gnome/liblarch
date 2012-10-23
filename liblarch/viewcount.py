@@ -19,6 +19,8 @@
 
 class ViewCount:
     def __init__(self,tree,fbank, name = None, refresh = True):
+        self.initialized = False
+        self.ncount = {}
         self.tree = tree
         self.tree.register_callback("node-added", self.__modify)
         self.tree.register_callback("node-modified", self.__modify)
@@ -32,15 +34,24 @@ class ViewCount:
         self.cllbcks = []
         
         if refresh:
-            for node in self.tree.get_all_nodes():
-                self.__modify(node)
+            self.__refresh()
+                
+    def __refresh(self):
+        for node in self.tree.get_all_nodes():
+            self.__modify(node)
+        self.initialized = True
     
-    def apply_filter(self,filter_name):
+    def apply_filter(self,filter_name,refresh=True):
         if self.fbank.has_filter(filter_name):
             if filter_name not in self.applied_filters:
                 self.applied_filters.append(filter_name)
-                for n in list(self.nodes):
-                    self.__modify(n)
+                if refresh:
+                    #If we are not initialized, we need to refresh with all existing nodes
+                    if self.initialized:
+                        for n in list(self.nodes):
+                            self.__modify(n)
+                    else:
+                        self.__refresh()
         else:
             #FIXME: raise proper error
             print "There's no filter called %s" %filter_name
