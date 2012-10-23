@@ -528,48 +528,6 @@ class FilteredTree():
                     nodes.append(node_id)
 
             return nodes
-        
-# the following looks useless (and removing it doesn't crash any test)
-#        else:
-#            # Recompute every node
-#            build_cache = len(withfilters) == 1
-
-#            if build_cache:
-#                ffname = withfilters[0]
-#                self.filter_cache[ffname] = {'count': 0, 'nodes': set()}
-
-#            # 1st step: build list of filters
-#            filters = []
-#            for filter_name in self.applied_filters:
-#                filt = self.fbank.get_filter(filter_name)
-#                if not filt:
-#                    continue
-
-#                filters.append(filt)
-
-#            for filter_name in withfilters:
-#                filt = self.fbank.get_filter(filter_name)
-#                if filt:
-#                    filters.append(filt)
-
-#            nodes = []
-#            total_count = 0
-#            for node_id in self.tree.get_all_nodes():
-#                displayed = True
-#                for filt in filters:
-#                    displayed = filt.is_displayed(node_id)
-#                    if not displayed:
-#                        break
-#                
-#                if displayed:
-#                    nodes.append(node_id)
-#                    total_count += 1
-
-            if build_cache:
-                self.filter_cache[ffname]['count'] = total_count
-                self.filter_cache[ffname]['nodes'] = set(nodes)
-
-            return nodes
 
     def get_node_for_path(self, path):
         if not path or path == ():
