@@ -82,7 +82,6 @@ class _Node:
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
-                    self.parents.append(parent_id)
                     self.tree.new_relationship(parent_id, self.node_id)
 
     def set_parent(self, parent_id):
@@ -98,6 +97,7 @@ class _Node:
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
+                    #First we remove all the other parents
                     for node_id in self.parents:
                         if node_id != parent_id:
                             self.remove_parent(node_id)
