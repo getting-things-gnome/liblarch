@@ -1,4 +1,4 @@
-2012-11-08 liblarch 2.1.1
+2012-11-08 liblarch 2.1.0
 * Introducing the changelog
 * Removed completely the "transparency" property
 * Added a new object : viewcount
