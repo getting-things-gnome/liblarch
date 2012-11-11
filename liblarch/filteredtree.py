@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import gobject
+from gi.repository import GObject
 
 class FilteredTree():
     """ FilteredTree is the most important and also the most buggy part of
@@ -86,7 +86,7 @@ class FilteredTree():
                 raise Exception('runonce callback should come with a node_id')
             if self.is_displayed(node_id):
                 #it is essential to idle_add to avoid hard recursion
-                gobject.idle_add(func,param)
+                GObject.idle_add(func,param)
             else:
                 if not self.cllbcks.has_key(node_id):
                     self.cllbcks[node_id] = []

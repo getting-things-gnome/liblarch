@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 
 import threading
-import gobject
+from gi.repository import GObject
 
 class SyncQueue:
     """ Synchronized queue for processing requests"""
@@ -77,7 +77,7 @@ class SyncQueue:
         if element not in queue:
             queue.append(element)
             if self._handler is None:
-                self._handler = gobject.idle_add(self.process_queue)
+                self._handler = GObject.idle_add(self.process_queue)
 
         self._lock.release()
         
@@ -102,7 +102,7 @@ class SyncQueue:
         if len(self._queue) == 0 and len(self._vip_queue) == 0 and\
                                         len(self._low_queue) == 0 and\
                                         self._handler is not None:
-            gobject.source_remove(self._handler)
+            GObject.source_remove(self._handler)
             self._handler = None
         self._lock.release()
         return toreturn

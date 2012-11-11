@@ -21,9 +21,10 @@
 #The following code is an example that build a GTK contact-list with liblarch
 #If you have some basic PyGTK experience, the code should be straightforward. 
 
-import sys, gtk
+import sys
+from gi.repository import Gtk, Gdk, GObject
 #for the CellRenderer
-import cairo, gobject
+import cairo
 
 #First, we import this liblarch
 sys.path.append("../../../liblarch")
@@ -111,36 +112,36 @@ class contact_list_window():
     def __init__(self):
         # First we do all the GTK stuff
         # This is not interesting from a liblarch perspective
-        self.window = gtk.Window()
+        self.window = Gtk.Window()
         self.window.set_size_request(300, 600)
         self.window.set_border_width(12)
         self.window.set_title('Liblarch contact-list')
         self.window.connect('destroy', self.quit)
-        vbox = gtk.VBox()
+        vbox = Gtk.VBox()
         vbox.set_spacing(6)
         #A check button to show/hide offline contacts
-        show_offline = gtk.CheckButton("Show offline contacts")
+        show_offline = Gtk.CheckButton("Show offline contacts")
         show_offline.connect("toggled",self.show_offline_contacts)
-        vbox.pack_start(show_offline, False, True)
+        vbox.pack_start(show_offline, expand=False, fill=True, padding=0)
         #The search through contacts
-        search = gtk.Entry()
+        search = Gtk.Entry()
         search.set_icon_from_icon_name(0, "search")
         search.get_buffer().connect("inserted-text",self.search)
         search.get_buffer().connect("deleted-text",self.search)
-        vbox.pack_start(search, False, True)
+        vbox.pack_start(search, expand=False, fill=True, padding=0)
         #The contact list, build with liblarch
-        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.add_with_viewport(self.make_contact_list())
-        scrolled_window.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
-        vbox.pack_start(scrolled_window)
+        scrolled_window.set_policy(Gtk.PolicyType.NEVER,Gtk.PolicyType.AUTOMATIC)
+        vbox.pack_start(scrolled_window, True, True, 0)
         #Status
-        box = gtk.combo_box_new_text()
+        box = Gtk.ComboBoxText()
         box.append_text("Online")
         box.append_text("Busy")
         box.append_text("Offline")
         box.set_active(0)
         box.connect('changed',self.status_changed)
-        vbox.pack_start(box, False, True)
+        vbox.pack_start(box, expand=False, fill=True, padding=0)
         self.window.add(vbox)
         self.window.show_all()
         
@@ -197,7 +198,7 @@ class contact_list_window():
         render_tags = CellRendererTags()
         render_tags.set_property('xalign', 0.0)
         col['renderer'] = ['status',render_tags]
-        col['value'] = [gobject.TYPE_PYOBJECT,lambda node: node.get_status()]
+        col['value'] = [GObject.TYPE_PYOBJECT,lambda node: node.get_status()]
         col['expandable'] = False
         col['resizable'] = False
         col['order'] = 1
@@ -280,22 +281,22 @@ class contact_list_window():
             return False
         
     def quit(self, widget):
-        gtk.main_quit()
+        Gtk.main_quit()
 
 
 #The following is a custom CellRenderer that will make a coloured circle
 #This is aboslutely not needed for liblarch.
 #The purpose of using it is to show that liblarch works with 
 #complex cellrenderer too
-class CellRendererTags(gtk.GenericCellRenderer):
+class CellRendererTags(Gtk.CellRenderer):
     __gproperties__ = {
-        'status': (gobject.TYPE_PYOBJECT, "Status",\
-             "Status", gobject.PARAM_READWRITE),
+        'status': (GObject.TYPE_PYOBJECT, "Status",\
+             "Status", GObject.PARAM_READWRITE),
     }
 
     # Class methods
     def __init__(self): #pylint: disable-msg=W0231
-        self.__gobject_init__()
+        super(CellRendererTags, self).__init__()
         self.status = None
         self.xpad     = 1
         self.ypad     = 1
@@ -313,35 +314,31 @@ class CellRendererTags(gtk.GenericCellRenderer):
         else:
             return getattr(self, pspec.name)
 
-    def on_render(\
-        self, window, widget, background_area, cell_area, expose_area, flags):
-        # Drawing context
-        cr         = window.cairo_create()
-        gdkcontext = gtk.gdk.CairoContext(cr)
-        gdkcontext.set_antialias(cairo.ANTIALIAS_NONE)
+    def do_render(\
+        self, cr, widget, background_area, cell_area, flags):
+        cr.set_antialias(cairo.ANTIALIAS_NONE)
         # Coordinates of the origin point
         x_align = self.get_property("xalign")
         y_align = self.get_property("yalign")
         rect_x  = cell_area.x
         rect_y  = cell_area.y + int((cell_area.height - 16) * y_align)
-        colours = { "online": "#0FDD28", "busy": "#E81110", "offline": "#777"}
+        colours = { "online": (0.059, 0.867, 0.157), "busy": (0.910, 0.067, 0.063), "offline": (0.467,)*3}
         if self.status:
             color = colours[self.status]
             # Draw circle
             radius = 7
-            my_color = gtk.gdk.color_parse(color)
-            gdkcontext.set_source_color(my_color)
-            gdkcontext.arc(rect_x,rect_y+8,radius,90,180)
-            gdkcontext.fill()
+            cr.set_source_rgb(*color)
+            cr.arc(rect_x,rect_y+8,radius,90,180)
+            cr.fill()
 
             # Outer line
-            gdkcontext.set_source_rgba(0, 0, 0, 0.20)
-            gdkcontext.set_line_width(1.0)
-            gdkcontext.arc(rect_x,rect_y+8,radius,90,180)
-            gdkcontext.stroke()
+            cr.set_source_rgba(0, 0, 0, 0.20)
+            cr.set_line_width(1.0)
+            cr.arc(rect_x,rect_y+8,radius,90,180)
+            cr.stroke()
 
 
-    def on_get_size(self, widget, cell_area=None): #pylint: disable-msg=W0613
+    def do_get_size(self, widget, cell_area=None): #pylint: disable-msg=W0613
 
         if self.status:
             return (self.xpad, self.ypad, self.xpad*2 + 16 +\
@@ -349,13 +346,13 @@ class CellRendererTags(gtk.GenericCellRenderer):
         else:
             return (0,0,0,0)
 
-gobject.type_register(CellRendererTags)
+GObject.type_register(CellRendererTags)
 ##### End of the cell renderer
 
 
 #We launch the GTK main_loop
 if __name__ == "__main__":
-#    gobject.threads_init()
+#    GObject.threads_init()
     contact_list_window()
-    gtk.main()
+    Gtk.main()
 
