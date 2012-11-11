@@ -20,10 +20,10 @@
 BIG_NUMBER = 2000
 STAIRS = 200
 
-from liblarch import Tree
-from liblarch.tree import TreeNode
+from liblarch import Tree, TreeNode
 from liblarch_gtk import TreeView
-import time, gtk
+import time
+from gi.repository import Gtk
 
 #This is a dummy treenode that only have one properties: a color
 class DummyNode(TreeNode):
@@ -41,7 +41,7 @@ nodes_id = []
 desc = {}
 col = {}
 col['title'] = "Node name"
-render_text = gtk.CellRendererText()
+render_text = Gtk.CellRendererText()
 col['renderer'] = ['markup',render_text]
 def get_node_name(node):
     return node.get_id()
