@@ -17,8 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 
 from liblarch_gtk.treemodel import TreeModel
 
@@ -40,16 +40,16 @@ def brightness(color_str):
     global BRITGHTNESS_CACHE
 
     if color_str not in BRITGHTNESS_CACHE:
-        c = gtk.gdk.color_parse(color_str)
+        c = Gdk.color_parse(color_str)
         brightness = (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
         BRITGHTNESS_CACHE[color_str] = brightness
     return BRITGHTNESS_CACHE[color_str]
 
 
-class TreeView(gtk.TreeView):
+class TreeView(Gtk.TreeView):
     """ Widget which display LibLarch FilteredTree.
 
-    This widget extends gtk.TreeView by several features:
+    This widget extends Gtk.TreeView by several features:
       * Drag'n'Drop support
       * Sorting support
       * separator rows
@@ -57,7 +57,7 @@ class TreeView(gtk.TreeView):
       * selection of multiple rows
     """
 
-    __string_signal__ = (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (str, ))
+    __string_signal__ = (GObject.SignalFlags.RUN_FIRST, None, (str, ))
     __gsignals__ = {'node-expanded' : __string_signal__, \
                     'node-collapsed': __string_signal__, \
                     }
@@ -86,14 +86,14 @@ class TreeView(gtk.TreeView):
         Example of columns descriptions:
         description = { 'title': {
                 'value': [str, self.task_title_column],
-                'renderer': ['markup', gtk.CellRendererText()],
+                'renderer': ['markup', Gtk.CellRendererText()],
                 'order': 0
             }}
         """
-        gtk.TreeView.__init__(self)
+        GObject.GObject.__init__(self)
         self.columns = {}
         self.sort_col = None
-        self.sort_order = gtk.SORT_ASCENDING
+        self.sort_order = Gtk.SortType.ASCENDING
         self.bg_color_column = None
         self.separator_func = None
 
@@ -112,7 +112,7 @@ class TreeView(gtk.TreeView):
         types = []
         sorting_func = []
         # Build the first coulumn if user starts with new_colum=False
-        col = gtk.TreeViewColumn()
+        col = Gtk.TreeViewColumn()
 
         # Build columns according to the order
         for col_num, (order_num, col_name) in enumerate(sorted(self.order_of_column), 1):
@@ -127,12 +127,12 @@ class TreeView(gtk.TreeView):
                 rend_attribute, renderer = desc['renderer']
             else:
                 rend_attribute = 'markup'
-                renderer = gtk.CellRendererText()
+                renderer = Gtk.CellRendererText()
 
             # If new_colum=False, do not create new column, use the previous one
             # It will create columns without borders
             if desc.get('new_column',True):
-                col = gtk.TreeViewColumn()
+                col = Gtk.TreeViewColumn()
                 newcol = True
             else:
                 newcol = False
@@ -174,7 +174,7 @@ class TreeView(gtk.TreeView):
             treemodelfilter = self.basetreemodel
         # Apply TreeModelSort to be able to sort
         if ENABLE_SORTING:
-#            self.treemodel = gtk.TreeModelSort(treemodelfilter)
+#            self.treemodel = Gtk.TreeModelSort(treemodelfilter)
             self.treemodel = self.basetreemodel
             for col_num, col, sort_func in sorting_func:
                 self.treemodel.set_sort_func(col_num,
@@ -195,13 +195,15 @@ class TreeView(gtk.TreeView):
         self.treemodel.connect('row-has-child-toggled', self.on_child_toggled)
 
     def __emit(self, sender, iter, path, data):
-        """ Emitt expanded/collapsed signal """
+        """ Emit expanded/collapsed signal """
         node_id = self.treemodel.get_value(iter, 0)
         #recreating the path of the collapsed node
         ll_path = ()
         i = 1
+        path = path.get_indices()
         while i <= len(path):
-            temp_iter = self.treemodel.get_iter(path[:i])
+            temp_path = Gtk.TreePath(":".join(str(n) for n in path[:i]))
+            temp_iter = self.treemodel.get_iter(temp_path)
             ll_path += (self.treemodel.get_value(temp_iter,0),)
             i+=1
         if data == 'expanded':
@@ -264,7 +266,7 @@ class TreeView(gtk.TreeView):
 
     def show(self):
         """ Shows the TreeView and connect basetreemodel to LibLarch """
-        gtk.TreeView.show(self)
+        Gtk.TreeView.show(self)
         self.basetreemodel.connect_model()
 
     def get_columns(self):
@@ -283,7 +285,7 @@ class TreeView(gtk.TreeView):
         col_num, col = self.columns[col_name]
         self.set_property("expander-column", col)
 
-    def set_sort_column(self, col_name, order=gtk.SORT_ASCENDING):
+    def set_sort_column(self, col_name, order=Gtk.SortType.ASCENDING):
         """ Select column to sort by it by default """
         if ENABLE_SORTING:
             self.sort_col = col_name
@@ -318,7 +320,7 @@ class TreeView(gtk.TreeView):
 
             Transform function from func(node, default_color) into func(node).
             Default color is computed based on some GTK style magic. """
-            default = column.get_tree_view().get_style().base[gtk.STATE_NORMAL]
+            default = column.get_tree_view().get_style().base[Gtk.StateType.NORMAL]
             return lambda node: func(node, default)
             
         if self.columns.has_key(color_column):
@@ -345,7 +347,7 @@ class TreeView(gtk.TreeView):
             sort = -1
         return sort
 
-    def _celldatafunction(self, column, cell, model, myiter):
+    def _celldatafunction(self, column, cell, model, myiter, user_data):
         """ Determine background color for cell
         
         Requirements: self.bg_color_column must be set
@@ -361,7 +363,7 @@ class TreeView(gtk.TreeView):
         else:
             color = None
 
-        if isinstance(cell, gtk.CellRendererText):
+        if isinstance(cell, Gtk.CellRendererText):
             if color is not None and brightness(color) < 0.5:
                 cell.set_property("foreground", '#FFFFFF')
             else:
@@ -401,9 +403,9 @@ class TreeView(gtk.TreeView):
         Enable DND by calling enable_model_drag_dest(), 
         enable_model-drag_source()
 
-        It didnt use support from gtk.Widget(drag_source_set(),
+        It didnt use support from Gtk.Widget(drag_source_set(),
         drag_dest_set()). To know difference, look in PyGTK FAQ:
-        http://faq.pygtk.org/index.py?file=faq13.033.htp&req=show
+        http://faq.pyGtk.org/index.py?file=faq13.033.htp&req=show
         """
         self.defer_select = False
         
@@ -412,16 +414,16 @@ class TreeView(gtk.TreeView):
             error += 'Use set_dnd_name() first'
             raise Exception(error)
             
-        dnd_targets = [(self.dnd_internal_target, gtk.TARGET_SAME_WIDGET, 0)]
+        dnd_targets = [(self.dnd_internal_target, Gtk.TargetFlags.SAME_WIDGET, 0)]
         for target in self.dnd_external_targets:
             name = self.dnd_external_targets[target][0]
-            dnd_targets.append((name, gtk.TARGET_SAME_APP, target))
+            dnd_targets.append((name, Gtk.TargetFlags.SAME_APP, target))
     
-        self.enable_model_drag_source( gtk.gdk.BUTTON1_MASK,
-            dnd_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+        self.enable_model_drag_source( Gdk.ModifierType.BUTTON1_MASK,
+            dnd_targets, Gdk.DragAction.DEFAULT | Gdk.DragAction.MOVE)
 
         self.enable_model_drag_dest(\
-            dnd_targets, gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_MOVE)
+            dnd_targets, Gdk.DragAction.DEFAULT | Gdk.DragAction.MOVE)
     
     def on_drag_data_get(self, treeview, context, selection, info, timestamp):
         """ Extract data from the source of the DnD operation.
@@ -464,8 +466,8 @@ class TreeView(gtk.TreeView):
             iter = model.get_iter(path)
             # Must add the task to the parent of the task situated
             # before/after 
-            if position == gtk.TREE_VIEW_DROP_BEFORE or\
-               position == gtk.TREE_VIEW_DROP_AFTER:
+            if position == Gtk.TreeViewDropPosition.BEFORE or\
+               position == Gtk.TreeViewDropPosition.AFTER:
                 # Get sibling parent
                 destination_iter = model.iter_parent(iter)
             else:
@@ -546,12 +548,12 @@ class TreeView(gtk.TreeView):
             None will disable support for row separators.
         """
         self.separator_func = func
-        gtk.TreeView.set_row_separator_func(self,self._separator_func)
+        Gtk.TreeView.set_row_separator_func(self,self._separator_func)
 
     ######### Multiple selection ####################################################
     def get_selected_nodes(self):
         """ Return list of node_id from liblarch for selected nodes """
-        # Get the selection in the gtk.TreeView
+        # Get the selection in the Gtk.TreeView
         selection = self.get_selection()
         # Get the selection iter
         if selection.count_selected_rows() <= 0:
@@ -571,8 +573,8 @@ class TreeView(gtk.TreeView):
         # See LP #817433
 
         if multiple_selection:
-            selection_type = gtk.SELECTION_MULTIPLE
+            selection_type = Gtk.SelectionMode.MULTIPLE
         else:
-            selection_type = gtk.SELECTION_SINGLE
+            selection_type = Gtk.SelectionMode.SINGLE
 
         self.get_selection().set_mode(selection_type)
