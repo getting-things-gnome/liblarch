@@ -320,7 +320,8 @@ class TreeView(Gtk.TreeView):
 
             Transform function from func(node, default_color) into func(node).
             Default color is computed based on some GTK style magic. """
-            default = column.get_tree_view().get_style().base[Gtk.StateType.NORMAL]
+            style = column.get_tree_view().get_style_context()
+            default = style.get_background_color(Gtk.StateFlags.NORMAL).to_color()
             return lambda node: func(node, default)
             
         if self.columns.has_key(color_column):
