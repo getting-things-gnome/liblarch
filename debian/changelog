@@ -1,3 +1,14 @@
+liblarch (2.1.0-1) unstable; urgency=low
+
+  * Removed completely the "transparency" property
+  * Added a new object : viewcount
+  * The version number of liblarch will now be the API number + a number. Meaning that:
+    0.0.1 releases are pure bugfix/performance releases without impact on your application
+    0.1.0 releases introduce new API but are backward compatible. You don't need to port your application.
+    1.0.0 releases break the API.
+
+ -- Lionel Dricot <ploum@ploum.net>  Thu, 08 Nov 2012 12:00:00 +0200
+
 liblarch (0.2.5-1) unstable; urgency=low
 
   * Repackage liblarch and liblarch_gtk into a single package
