@@ -1972,6 +1972,20 @@ class TestLibLarch(unittest.TestCase):
         self.assertEqual(view.node_all_children(), ['@a'])
         self.assertEqual(view.node_all_children('@a'), ['@b'])
 
+    def test_deleted_callback_has_correct_nodes_count(self):
+        """ Test case for LP #1078368 """
+
+        def update_count(*args):
+            """ Check if node count is equal to one from view's interface """
+            self.assertEqual(node_count, self.view.get_n_nodes())
+
+        self.view.register_cllbck('node-deleted-inview', update_count)
+        node_count = self.view.get_n_nodes()
+        for node_id in list(self.view.get_nodes()):
+            if not self.view.node_has_child(node_id):
+                node_count -= 1
+                self.tree.del_node(node_id)
+
 
 def test_suite():
     return unittest.TestLoader().loadTestsFromName(__name__)
