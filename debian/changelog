@@ -1,3 +1,9 @@
+liblarch (2.2.0-1) unstable; urgency=low
+
+  * Fix for LP #1078368
+
+ -- Izidor Matušov <izidor.matusov@gmail.com>  Tue, 22 Jan 2013 15:56:12 +0100
+
 liblarch (2.1.0-1) unstable; urgency=low
 
   * Removed completely the "transparency" property
