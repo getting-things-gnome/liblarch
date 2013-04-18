@@ -436,7 +436,7 @@ class TreeView(Gtk.TreeView):
         model, paths = treeselection.get_selected_rows()
         iters = [model.get_iter(path) for path in paths]
         iter_str = ','.join([model.get_string_from_iter(iter) for iter in iters])
-        selection.set(self.dnd_internal_target, 0, iter_str)
+        selection.set(selection.get_target(), 0, iter_str)
 
     def on_drag_data_received(self, treeview, context, x, y, selection, info,\
                               timestamp):
@@ -492,10 +492,11 @@ class TreeView(Gtk.TreeView):
         # Get dragged iter as a TaskTreeModel iter
         # If there is no selected task (empty selection.data), 
         # explictly skip handling it (set to empty list)
-        if selection.data == '':
+        data = selection.get_data()
+        if data == '':
             iters = []
         else:
-            iters = selection.data.split(',')
+            iters = data.split(',')
 
         dragged_iters = []
         for iter in iters:
