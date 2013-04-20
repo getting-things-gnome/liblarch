@@ -530,9 +530,10 @@ class FilteredTree():
             return nodes
 
     def get_node_for_path(self, path):
-        if not path or path == ():
+        indices = path.get_indices()
+        if not path or indices == []:
             return None
-        node_id = path[-1]
+        node_id = indices[-1]
         #Both "if" should be benchmarked
         if path in self.get_paths_for_node(node_id):
 #        if self.is_path_valid(path):
