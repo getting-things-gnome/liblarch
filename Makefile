@@ -22,10 +22,7 @@ test:
 	./run-tests
 
 sdist:
-	./build_packages sdist
-
-ppa:
-	./build_packages remote-deb
+	python setup.py sdist
 
 # Remove .pyc files
 clean:

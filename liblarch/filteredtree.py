@@ -235,15 +235,14 @@ class FilteredTree():
                 self.nodes[child_id]['parents'].remove(node_id)
                 self.__update_node(child_id,direction="down")
 
+            node = self.nodes.pop(node_id)
             for path in paths:
                 self.callback(action, node_id, path)
 
             # Remove node from cache
-            for parent_id in self.nodes[node_id]['parents']:
+            for parent_id in node['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
                 self.__update_node(parent_id,direction="up")
-
-            self.nodes.pop(node_id)
 
             # We update parents who are not displayed
             # If the node is only hidden and still exists in the tree
