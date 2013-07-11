@@ -88,7 +88,7 @@ class FilteredTree():
                 #it is essential to idle_add to avoid hard recursion
                 GObject.idle_add(func,param)
             else:
-                if not self.cllbcks.has_key(node_id):
+                if node_id not in self.cllbcks:
                     self.cllbcks[node_id] = []
                 self.cllbcks[node_id].append([func,node_id,param])
         else:
@@ -112,7 +112,7 @@ class FilteredTree():
             for func,nid,param in self.cllbcks.get(node_id,[]):
                 if nid and self.is_displayed(nid):
                     func(param)
-                    if self.cllbcks.has_key(node_id):
+                    if node_id in self.cllbcks:
                         self.cllbcks.pop(node_id)
                 else:
                     raise Exception('%s is not displayed but %s was added' %(nid,node_id))
@@ -402,7 +402,7 @@ class FilteredTree():
             while valid and i < len(p) - 1:
                 child = p[i+1]
                 par = p[i]
-                if self.nodes.has_key(par):
+                if par in self.nodes:
                     valid = (child in self.nodes[par]['children'])
                 else:
                     valid = False
@@ -471,7 +471,7 @@ class FilteredTree():
         if string:
             return output
         else:
-            print output
+            print(output)
 
     def get_all_nodes(self):
         nodes = list(self.nodes.keys())
@@ -570,7 +570,7 @@ class FilteredTree():
     def node_n_children(self, node_id, recursive=False):
         if node_id == None:
             node_id = self.root_id
-        if not self.nodes.has_key(node_id):
+        if node_id not in self.nodes:
             return 0
         if recursive:
             total = 0

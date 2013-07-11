@@ -71,14 +71,14 @@ def save_backup(fun):
         sys.stdout = output
         sys.stderr = output
 
-        print "Tree before operation"
+        print("Tree before operation")
         self.print_tree()
-        print
-        print "Operation '%s':" % (fun.__name__)
+        print()
+        print("Operation '%s':" % (fun.__name__))
 
         res = fun(*args, **kwargs)
 
-        print "Tree after operation"
+        print("Tree after operation")
         self.print_tree()
 
         sys.stdout = stdout
@@ -88,7 +88,7 @@ def save_backup(fun):
 
         # Print the log
         output = open(file_name, "r")
-        print output.read()
+        print(output.read())
         output.close()
 
         return res
@@ -138,11 +138,11 @@ class Backend(threading.Thread):
             # Delete some tasks
             for i in range(randint(3,10)):
                 delete_id = str(choice([1,3,5]))+"sec_"+str(randint(0, 2*counter))
-                print self.backend_id + " deleting " + delete_id
+                print(self.backend_id + " deleting " + delete_id)
                 self.tree.del_node(delete_id)
             counter += 1
 
-        print self.backend_id + " --- finish"
+        print(self.backend_id + " --- finish")
 
 class LiblarchDemo:
     """ Shows a simple GUI demo of liblarch usage
@@ -177,7 +177,7 @@ class LiblarchDemo:
 
         # Polish TreeView
         def on_row_activate(sender,a,b):
-            print "Selected nodes are: %s" %str(tree_view.get_selected_nodes())
+            print("Selected nodes are: %s" %str(tree_view.get_selected_nodes()))
 
         tree_view.set_dnd_name('liblarch-demo/liblarch_widget')
         tree_view.set_multiple_selection(True)
@@ -210,10 +210,10 @@ class LiblarchDemo:
         count = self.view_tree.get_n_nodes()
         if count == LOAD_MANY_TASKS_COUNT and self.start_time > 0:
             stop_time = time() - self.start_time
-            print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)
+            print("Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time))
 #        if count > 0:
             mean = self.mod_counter * 1.0 / count
-            print "%s modified signals were received (%s per task)" %(self.mod_counter, mean)     
+            print("%s modified signals were received (%s per task)" %(self.mod_counter, mean))     
         self.window.set_title('Liblarch demo: %s nodes' %count)
         
 
@@ -307,16 +307,16 @@ class LiblarchDemo:
         return newlabel
 
     def print_tree(self, widget=None):
-        print 
-        print "=" * 20, "Tree", "=" * 20
+        print() 
+        print("=" * 20, "Tree", "=" * 20)
         self.tree.get_main_view().print_tree()
-        print "=" * 46
-        print
+        print("=" * 46)
+        print()
 
     def print_ft(self, widget=None):
-        print 
+        print() 
         self.view_tree.print_tree()
-        print
+        print()
     
     @save_backup
     def add_task(self, widget):
@@ -332,16 +332,16 @@ class LiblarchDemo:
             # Adding a subchild
             parent = selected[0]
             self.tree.add_node(task, parent_id = parent)
-            print 'Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent)
+            print('Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent))
         else:
             # Adding as a new child
             self.tree.add_node(task)
             for parent_id in selected:
                 task.add_parent(parent_id)
-            print 'Added task "%s" (%s)' % (t_title, t_id)
+            print('Added task "%s" (%s)' % (t_title, t_id))
             
     def apply_filter(self,widget,param):
-        print "applying filter: %s" %param
+        print("applying filter: %s" %param)
         if param in self.view_tree.list_applied_filters():
             self.view_tree.unapply_filter(param)
         else:
@@ -351,7 +351,7 @@ class LiblarchDemo:
     def tree_high_3(self, widget):
         ''' We add the leaf nodes before the root, in order to test
         if it works fine even in this configuration'''
-        print 'Adding a tree of height 3'
+        print('Adding a tree of height 3')
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -379,7 +379,7 @@ class LiblarchDemo:
 
     @save_backup
     def tree_high_3_backwards(self, widget):
-        print 'Adding a tree of height 3 backwards'
+        print('Adding a tree of height 3 backwards')
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -406,24 +406,24 @@ class LiblarchDemo:
         relationships = reversed(relationships)
 
         for t_id, task in tasks:
-            print "Adding task to tree:", t_id, task
+            print("Adding task to tree:", t_id, task)
             self.tree.add_node(task)
-            print "="*50
+            print("="*50)
 
         for parent, child in relationships:
-            print "New relationship: ", parent, "with", child
+            print("New relationship: ", parent, "with", child)
             parent_node = self.tree.get_node(parent)
             parent_node.add_child(child)
-            print "="*50
+            print("="*50)
 
-        print
+        print()
 
     @save_backup
     def delete_task(self, widget, order='normal'):
-        print 'Deleting a task'
+        print('Deleting a task')
         selected = self.liblarch_widget.get_selected_nodes()
 
-        print 'Order: %s' % order
+        print('Order: %s' % order)
 
         if   order == 'normal':
             ordered_nodes = selected
@@ -442,11 +442,11 @@ class LiblarchDemo:
             Log.error('Unknown order, skipping...')
             return
 
-        print "Tasks should be removed in this order:", ordered_nodes
+        print("Tasks should be removed in this order:", ordered_nodes)
 
         for node_id in ordered_nodes:
             self.tree.del_node(node_id)
-            print 'Removed node %s' % node_id
+            print('Removed node %s' % node_id)
 
         self.print_tree(None)
 
@@ -469,7 +469,7 @@ class LiblarchDemo:
             node.modified()
 
     def backends(self, widget):
-        print "Backends...."
+        print("Backends....")
         Backend('1sec', self.should_finish, 1, self.tree).start()
         Backend('3sec', self.should_finish, 3, self.tree).start()
         Backend('5sec', self.should_finish, 5, self.tree).start()
@@ -498,7 +498,7 @@ class LiblarchDemo:
                 # Sleep 0.01 second to create illusion of real tasks
                 sleep(SLEEP_BETWEEN_TASKS)
 
-            print "end of _many_tasks thread"
+            print("end of _many_tasks thread")
         t = threading.Thread(target=_many_tasks)
         t.start()
 
@@ -546,9 +546,9 @@ class LiblarchDemo:
 
                 parent_level[level] = name
 
-            print "Nodes to add:", nodes
-            print "Relationships:", "\n".join(str(r) for r in relationships)
-            print
+            print("Nodes to add:", nodes)
+            print("Relationships:", "\n".join(str(r) for r in relationships))
+            print()
 
             for node_id in nodes:
                 task = TaskNode(node_id, random_task_title(node_id),self.view_tree)
@@ -558,8 +558,8 @@ class LiblarchDemo:
                 parent_node = self.tree.get_node(parent)
                 parent_node.add_child(child)
         else:
-            print "Not matched"
-            print "Log: ", log
+            print("Not matched")
+            print("Log: ", log)
 
     def finish(self, widget):
         self.should_finish.set()

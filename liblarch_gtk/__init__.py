@@ -271,7 +271,7 @@ class TreeView(Gtk.TreeView):
 
     def get_columns(self):
         """ Return the list of columns name """
-        return self.columns.keys()
+        return list(self.columns.keys())
 
     def set_main_search_column(self, col_name):
         """ Set search column for GTK integrate search
@@ -324,7 +324,7 @@ class TreeView(Gtk.TreeView):
             default = style.get_background_color(Gtk.StateFlags.NORMAL).to_color()
             return lambda node: func(node, default)
             
-        if self.columns.has_key(color_column):
+        if color_column in self.columns:
             self.bg_color_column, column = self.columns[color_column]
             func = closure_default_color(color_func, column)
             self.treemodel.set_column_function(self.bg_color_column, func)
@@ -388,7 +388,7 @@ class TreeView(Gtk.TreeView):
     def set_dnd_external(self, sourcename, func):
         """ Add a new external target and initialize Drag'n'Drop support"""
         i = 1
-        while self.dnd_external_targets.has_key(i):
+        while i in self.dnd_external_targets:
             i += 1
         self.dnd_external_targets[i] = [sourcename, func]
         self.__init_dnd()
@@ -522,8 +522,8 @@ class TreeView(Gtk.TreeView):
                     dragged_tid = model.get_value(dragged_iter, 0)
                     try:
                         tree.move_node(dragged_tid, new_parent_id=destination_tid)
-                    except Exception, e:
-                        print 'Problem with dragging: %s' % e
+                    except Exception as e:
+                        print('Problem with dragging: %s' % e)
             elif info in self.dnd_external_targets and destination_tid:    
                 source = src_model.get_value(dragged_iter,0)
                 # Handle external Drag'n'Drop

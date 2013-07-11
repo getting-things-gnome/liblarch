@@ -84,12 +84,12 @@ class ViewTree:
         """ Store function and return unique key which can be used to
         unregister the callback later """
 
-        if not self.__cllbcks.has_key(event):
+        if event not in self.__cllbcks:
             self.__cllbcks[event] = {}
 
         callbacks = self.__cllbcks[event]
         key = 0
-        while callbacks.has_key(key):
+        while key in callbacks:
             key += 1
 
         callbacks[key] = func
@@ -107,7 +107,7 @@ class ViewTree:
         by passing it to other objects, e.g. TreeWidget """
         callbacks = dict(self.__cllbcks.get(event, {}))
 #        print "ViewTree __emit for %s" %str(node_id)
-        for func in callbacks.itervalues():
+        for func in callbacks.values():
 #            print "   -> func = %s - %s" %(func,str(path))
             if neworder:
                 func(node_id, path, neworder)

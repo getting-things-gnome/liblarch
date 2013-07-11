@@ -44,7 +44,7 @@ class TreeTester:
         currentnode = self.paths.get(path,None)
         if currentnode and currentnode != nid:
             raise Exception('path %s is already occupied by %s' %(str(path),nid))
-        if self.nodes.has_key(nid):
+        if nid in self.nodes:
             node = self.nodes[nid]
         else:
             node = []
@@ -63,7 +63,7 @@ class TreeTester:
             raise Exception('%s is not a path of node %s'%(str(path),nid))
         if REORDER_ON_DELETE:
             index = path[-1:]
-            print "reorder on delete not yet implemented"
+            print("reorder on delete not yet implemented")
         self.nodes[nid].remove(path)
         if len(self.nodes[nid]) == 0:
             self.nodes.pop(nid)
@@ -102,12 +102,12 @@ class TreeTester:
             old_path = path
             if check_prefix(path) and len(path_prefix) > 1:
                 new_path =  list(path)
-                print "new_path: %s" %str(new_path)
+                print("new_path: %s" %str(new_path))
                 new_path[len(path_prefix)] = str(int(new_path[len(path_prefix)])-1)
                 new_path = tuple(new_path)
                 
-                print "new_path: %s" %str(new_path)
-                print "self.paths: %s" %str(self.paths)
+                print("new_path: %s" %str(new_path))
+                print("self.paths: %s" %str(self.paths))
 
                 assert new_path not in self.paths
 
@@ -141,7 +141,7 @@ class TreeTester:
 #            raise Exception('Mismatching node for path %s'%str(p))
             
     def reordered(self,nid,path,neworder):
-        print "reordering"
+        print("reordering")
         self.trace += "reordering children of %s (%s) : %s\n" %(nid,str(path),neworder)
         self.trace += "VR is %s\n" %self.tree.node_all_children()
         if not path:
@@ -156,7 +156,7 @@ class TreeTester:
                 oldp = path + (old,)
                 newp = path + (i,)
                 le = len(newp)
-                for pp in self.paths.keys():
+                for pp in list(self.paths.keys()):
                     if pp[0:le] == oldp:
                         n = self.paths[pp]
                         self.nodes[n].remove(pp)
@@ -176,7 +176,7 @@ class TreeTester:
     
     
     def test_validity(self):
-        for n in self.nodes.keys():
+        for n in list(self.nodes.keys()):
             paths = self.tree.get_paths_for_node(n)
             if len(self.nodes[n]) == 0:
                 raise Exception('Node %s is stored without any path'%n)
@@ -193,7 +193,7 @@ class TreeTester:
                 paths.remove(p)
             if len(paths) > 0:
                 raise Exception('why is this path existing for %s' %n)
-        for p in self.paths.keys():
+        for p in list(self.paths.keys()):
             node = self.tree.get_node_for_path(p)
             n = self.paths[p]
             if n != node:

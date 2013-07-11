@@ -1342,24 +1342,24 @@ class TestLibLarch(unittest.TestCase):
         view = self.tree.get_viewtree(refresh = False)
         nodes_id = []
         start = time.time()
-        for index in xrange(BIG_NUMBER):
+        for index in range(BIG_NUMBER):
             node = DummyNode("stress" + str(index))
             nodes_id.append(node.get_id())
             self.tree.add_node(node)
         end = time.time()
-        print "\nADDING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nADDING %d NODES: %f" % (BIG_NUMBER, end - start))
 
         start = time.time()
         for node_id in nodes_id:
             self.tree.refresh_node(node_id)
         end = time.time()
-        print "\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start))
 
         start = time.time()
         for node_id in nodes_id:
             self.tree.del_node(node_id)
         end = time.time()
-        print "\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start))
 
     def test_remove_grand_grand_parent(self):
         """ Remove from tree a node which is parent of child 

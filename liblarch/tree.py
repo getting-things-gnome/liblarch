@@ -17,7 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import processqueue
+from . import processqueue
 from liblarch.treenode import _Node
 
 class MainTree:
@@ -52,12 +52,12 @@ class MainTree:
         """ Store function and return unique key which can be used to
         unregister the callback later """
 
-        if not self.__cllbcks.has_key(event):
+        if event not in self.__cllbcks:
             self.__cllbcks[event] = {}
 
         callbacks = self.__cllbcks[event]
         key = 0
-        while callbacks.has_key(key):
+        while key in callbacks:
             key += 1
 
         callbacks[key] = func
@@ -74,7 +74,7 @@ class MainTree:
         """ Inform others about the event """
         #We copy the dict to not loop on it while it could be modified
         dic = dict(self.__cllbcks.get(event, {}))
-        for func in dic.itervalues():
+        for func in dic.values():
             func(node_id)
 
 ####### INTERFACE FOR HANDLING REQUESTS #######################################
@@ -95,7 +95,7 @@ class MainTree:
 
     def refresh_all(self):
         """ Refresh all nodes """
-        for node_id in self.nodes.keys():
+        for node_id in list(self.nodes.keys()):
             self.modify_node(node_id)
 
 ####### IMPLEMENTATION OF HANDLING REQUESTS ###################################
@@ -155,7 +155,7 @@ class MainTree:
         """
         node_id = node.get_id()
         if node_id in self.nodes:
-            print "Error: Node '%s' already exists" % node_id
+            print("Error: Node '%s' already exists" % node_id)
             return False
 
         _Node._set_tree(node,self)
@@ -179,8 +179,8 @@ class MainTree:
                     add_to_root = False
                     parents_to_refresh.append(rel_parent_id)
                 else:
-                    print "Error: Detected pending circular relationship", \
-                        rel_parent_id, rel_child_id
+                    print("Error: Detected pending circular relationship", \
+                        rel_parent_id, rel_child_id)
                 self.pending_relationships.remove((rel_parent_id, rel_child_id))
 
             # Adding as a parent
@@ -189,8 +189,8 @@ class MainTree:
                     self._create_relationship(node_id, rel_child_id)
                     children_to_refresh.append(rel_child_id)
                 else:
-                    print "Error: Detected pending circular relationship", \
-                        rel_parent_id, rel_child_id
+                    print("Error: Detected pending circular relationship", \
+                        rel_parent_id, rel_child_id)
                 self.pending_relationships.remove((rel_parent_id, rel_child_id))
         
         # Build relationship with given parent
@@ -228,7 +228,7 @@ class MainTree:
         """ Remove node from tree """
 
         if node_id not in self.nodes:
-            print "*** Warning *** Trying to remove a non-existing node"
+            print("*** Warning *** Trying to remove a non-existing node")
             return
 
         # Do not remove root node
@@ -370,7 +370,7 @@ class MainTree:
 
     def get_all_nodes(self):
         """ Return list of all nodes in this tree """
-        return self.nodes.keys()
+        return list(self.nodes.keys())
 
     def next_node(self, node_id, parent_id=None):
         """ Return the next sibling node or None if there is none
@@ -420,4 +420,4 @@ class MainTree:
         if string:
             return output
         else:
-            print output,
+            print(output, end=' ')

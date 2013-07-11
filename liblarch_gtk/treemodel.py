@@ -113,16 +113,16 @@ class TreeModel(Gtk.TreeStore):
         stack = []
         push_to_stack(stack, 0, self.get_iter_first())
 
-        print "+"*50
-        print "Treemodel print_tree: "
+        print("+"*50)
+        print("Treemodel print_tree: ")
         while stack != []:
             level, iterator = stack.pop()
 
-            print "=>"*level, self.get_value(iterator, 0)
+            print("=>"*level, self.get_value(iterator, 0))
 
             push_to_stack(stack, level, self.iter_next(iterator))
             push_to_stack(stack, level+1, self.iter_children(iterator))
-        print "+"*50
+        print("+"*50)
 
 ### INTERFACE TO LIBLARCH #####################################################
 
