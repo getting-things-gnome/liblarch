@@ -30,3 +30,16 @@ clean:
 	find -type f -iname '*.~*~' -exec rm {} \;
 	rm -f *.bak
 	rm -rf dist/
+
+# Check for common & easily catchable Python mistakes.
+pyflakes:
+	pyflakes examples liblarch liblarch-gtk tests \
+	main.py open_prof.py run-tests setup.py test.py
+
+# Check for coding standard violations.
+pep8:
+	pep8 --statistics --count examples liblarch liblarch-gtk tests \
+	main.py open_prof.py run-tests setup.py test.py
+
+# Check for coding standard violations & flakes.
+lint: pyflakes pep8
