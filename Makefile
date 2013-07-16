@@ -33,12 +33,12 @@ clean:
 
 # Check for common & easily catchable Python mistakes.
 pyflakes:
-	pyflakes examples liblarch liblarch-gtk tests \
+	pyflakes examples liblarch liblarch_gtk tests \
 	main.py open_prof.py run-tests setup.py test.py
 
 # Check for coding standard violations.
 pep8:
-	pep8 --statistics --count examples liblarch liblarch-gtk tests \
+	pep8 --statistics --count examples liblarch liblarch_gtk tests \
 	main.py open_prof.py run-tests setup.py test.py
 
 # Check for coding standard violations & flakes.
