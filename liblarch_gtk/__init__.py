@@ -436,7 +436,7 @@ class TreeView(Gtk.TreeView):
         model, paths = treeselection.get_selected_rows()
         iters = [model.get_iter(path) for path in paths]
         iter_str = ','.join([model.get_string_from_iter(iter) for iter in iters])
-        selection.set(selection.get_target(), 0, iter_str)
+        selection.set(selection.get_target(), 0, iter_str.encode('ascii'))
 
     def on_drag_data_received(self, treeview, context, x, y, selection, info,\
                               timestamp):
@@ -496,7 +496,7 @@ class TreeView(Gtk.TreeView):
         if data == '':
             iters = []
         else:
-            iters = data.split(',')
+            iters = data.decode().split(',')
 
         dragged_iters = []
         for iter in iters:
