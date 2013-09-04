@@ -117,7 +117,7 @@ class contact_list_window():
         self.window.set_border_width(12)
         self.window.set_title('Liblarch contact-list')
         self.window.connect('destroy', self.quit)
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.set_spacing(6)
         #A check button to show/hide offline contacts
         show_offline = Gtk.CheckButton("Show offline contacts")

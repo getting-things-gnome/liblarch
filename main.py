@@ -232,7 +232,7 @@ class LiblarchDemo:
         self.start_time = 0
 
         # Buttons 
-        action_panel = Gtk.HBox()
+        action_panel = Gtk.Box()
         action_panel.set_spacing(5)
 
         button_desc = [('_Add a Task', self.add_task), 
@@ -247,7 +247,7 @@ class LiblarchDemo:
             button.connect('clicked', callback)
             action_panel.pack_start(button, True, True, 0)
             
-        filter_panel= Gtk.HBox()
+        filter_panel= Gtk.Box()
         filter_panel.set_spacing(5)
             
         for name in self.tree.list_filters():
@@ -256,7 +256,7 @@ class LiblarchDemo:
             filter_panel.pack_start(button, True, True, 0)
 
         # Use cases
-        usecases_vbox = Gtk.VBox()
+        usecases_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         usecase_box = None
         usecase_order = 0
         usecase_order_max = 3
@@ -275,7 +275,7 @@ class LiblarchDemo:
             if usecase_order <= 0:
                 if usecase_box is not None:
                     usecases_vbox.pack_start(usecase_box, expand=False, fill=True, padding=0)
-                usecase_box = Gtk.HBox()
+                usecase_box = Gtk.Box()
                 usecase_box.set_spacing(5)
 
             button = Gtk.Button(name)
@@ -291,7 +291,7 @@ class LiblarchDemo:
         usecase_panel.add(usecases_vbox)
 
         # Show it
-        vbox = Gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(action_panel, False, True, 10)
         vbox.pack_start(filter_panel, False, True, 10)
         vbox.pack_start(scrolled_window, True, True, 0)
