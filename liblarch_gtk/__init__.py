@@ -522,8 +522,8 @@ class TreeView(Gtk.TreeView):
                     dragged_tid = model.get_value(dragged_iter, 0)
                     try:
                         tree.move_node(dragged_tid, new_parent_id=destination_tid)
-                    except Exception, e:
-                        print 'Problem with dragging: %s' % e
+                    except Exception as e:
+                        print('Problem with dragging: %s' % e)
             elif info in self.dnd_external_targets and destination_tid:    
                 source = src_model.get_value(dragged_iter,0)
                 # Handle external Drag'n'Drop

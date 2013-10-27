@@ -471,7 +471,7 @@ class FilteredTree():
         if string:
             return output
         else:
-            print output
+            print(output)
 
     def get_all_nodes(self):
         nodes = list(self.nodes.keys())
