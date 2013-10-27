@@ -54,7 +54,7 @@ class ViewCount:
                         self.__refresh()
         else:
             #FIXME: raise proper error
-            print "There's no filter called %s" %filter_name
+            print("There's no filter called %s" %filter_name)
             
     def unapply_filter(self,filter_name):
         if filter_name in self.applied_filters:

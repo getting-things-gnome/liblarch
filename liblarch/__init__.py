@@ -47,7 +47,7 @@ class TreeNode(_Node):
         _Node.__init__(self,node_id,parent)
         
     def _set_tree(tree):
-        print "_set_tree is not part of the API"
+        print("_set_tree is not part of the API")
 
 class Tree:
     """ A thin wrapper to MainTree that adds filtering capabilities.
