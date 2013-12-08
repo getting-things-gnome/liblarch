@@ -543,15 +543,15 @@ class TreeView(Gtk.TreeView):
         else:
             return False
 
-    def set_row_separator_func(self, func):
+    def set_row_separator_func(self, func, data=None, destroy=None):
         """ Enable support for row separators.
 
         @param func - function which determines if a node is separator,
             None will disable support for row separators.
         """
         self.separator_func = func
-#FIXME
-        Gtk.TreeView.set_row_separator_func(self,self._separator_func, None)
+        Gtk.TreeView.set_row_separator_func(self, self._separator_func, data,
+                destroy)
 
     ######### Multiple selection ####################################################
     def get_selected_nodes(self):
