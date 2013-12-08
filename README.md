@@ -9,9 +9,10 @@ your data structure into a Gtk.Treeview.
 Liblarch support multiple views of one data structure and complex filtering. That way, you have a clear
 separation between your data themselves (Model) and how they are displayed (View).
 
-## Documentation
+## Links
 
-https://wiki.gnome.org/action/show/Projects/liblarch
+ - [Documentation](https://wiki.gnome.org/action/show/Projects/liblarch)
+ - [PPA for dev versions](https://launchpad.net/~gtg/+archive/gtg-daily)
 
 ## Credits
 
