@@ -20,8 +20,8 @@
 """Tests for the tagstore."""
 
 import unittest
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import functools
 import inspect
 import time
@@ -125,13 +125,13 @@ class TestLibLarch(unittest.TestCase):
         FakeGobject.emit_n_signals.
         """
 
-        class FakeGobject(gobject.GObject):
-            __gsignals__ = {'node-added-inview': (gobject.SIGNAL_RUN_FIRST,
-                                    gobject.TYPE_NONE, [])}
+        class FakeGobject(GObject.GObject):
+            __gsignals__ = {'node-added-inview': (GObject.SignalFlags.RUN_FIRST,
+                                    None, [])}
             def emit_n_signals(self, n):
                 while n:
                     n -= 1
-                    gobject.idle_add(self.emit, 'node-added-inview')
+                    GObject.idle_add(self.emit, 'node-added-inview')
         fake_gobject = FakeGobject() 
         self._assertSignal(fake_gobject, \
                           'node-added-inview', \
@@ -193,7 +193,7 @@ class TestLibLarch(unittest.TestCase):
         desc = {}
         col = {}
         col['title'] = "Node name"
-        render_text = gtk.CellRendererText()
+        render_text = Gtk.CellRendererText()
         col['renderer'] = ['markup',render_text]
         def get_node_name(node):
             return node.get_id()
@@ -1342,24 +1342,24 @@ class TestLibLarch(unittest.TestCase):
         view = self.tree.get_viewtree(refresh = False)
         nodes_id = []
         start = time.time()
-        for index in xrange(BIG_NUMBER):
+        for index in range(BIG_NUMBER):
             node = DummyNode("stress" + str(index))
             nodes_id.append(node.get_id())
             self.tree.add_node(node)
         end = time.time()
-        print "\nADDING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nADDING %d NODES: %f" % (BIG_NUMBER, end - start))
 
         start = time.time()
         for node_id in nodes_id:
             self.tree.refresh_node(node_id)
         end = time.time()
-        print "\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start))
 
         start = time.time()
         for node_id in nodes_id:
             self.tree.del_node(node_id)
         end = time.time()
-        print "\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start)
+        print("\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start))
 
     def test_remove_grand_grand_parent(self):
         """ Remove from tree a node which is parent of child 

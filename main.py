@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
 # Liblarch - a library to handle directed acyclic graphs
@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import gtk
+from gi.repository import Gtk
 
 from liblarch import Tree
 from liblarch import TreeNode
@@ -32,7 +32,7 @@ import re
 import logging
 from time import sleep, time
 import threading
-import gobject
+from gi.repository import GObject
 
 # Constants
 LOAD_MANY_TASKS_COUNT = 1000
@@ -71,14 +71,14 @@ def save_backup(fun):
         sys.stdout = output
         sys.stderr = output
 
-        print "Tree before operation"
+        print("Tree before operation")
         self.print_tree()
-        print
-        print "Operation '%s':" % (fun.__name__)
+        print()
+        print("Operation '%s':" % (fun.__name__))
 
         res = fun(*args, **kwargs)
 
-        print "Tree after operation"
+        print("Tree after operation")
         self.print_tree()
 
         sys.stdout = stdout
@@ -88,7 +88,7 @@ def save_backup(fun):
 
         # Print the log
         output = open(file_name, "r")
-        print output.read()
+        print(output.read())
         output.close()
 
         return res
@@ -132,17 +132,17 @@ class Backend(threading.Thread):
         while not self.finish_event.wait(self.delay):
             task_id = self.backend_id + "_" + str(counter)
             title = task_id
-            self.tree.add_node(TaskNode(task_id, title), parent_id,self.view_tree)
+            self.tree.add_node(TaskNode(task_id, title, self.tree), parent_id, self.tree)
             parent_id = task_id
 
             # Delete some tasks
             for i in range(randint(3,10)):
                 delete_id = str(choice([1,3,5]))+"sec_"+str(randint(0, 2*counter))
-                print self.backend_id + " deleting " + delete_id
+                print(self.backend_id + " deleting " + delete_id)
                 self.tree.del_node(delete_id)
             counter += 1
 
-        print self.backend_id + " --- finish"
+        print(self.backend_id + " --- finish")
 
 class LiblarchDemo:
     """ Shows a simple GUI demo of liblarch usage
@@ -177,7 +177,7 @@ class LiblarchDemo:
 
         # Polish TreeView
         def on_row_activate(sender,a,b):
-            print "Selected nodes are: %s" %str(tree_view.get_selected_nodes())
+            print("Selected nodes are: %s" %str(tree_view.get_selected_nodes()))
 
         tree_view.set_dnd_name('liblarch-demo/liblarch_widget')
         tree_view.set_multiple_selection(True)
@@ -210,29 +210,29 @@ class LiblarchDemo:
         count = self.view_tree.get_n_nodes()
         if count == LOAD_MANY_TASKS_COUNT and self.start_time > 0:
             stop_time = time() - self.start_time
-            print "Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time)
+            print("Time to load %s tasks: %s" %(LOAD_MANY_TASKS_COUNT,stop_time))
 #        if count > 0:
             mean = self.mod_counter * 1.0 / count
-            print "%s modified signals were received (%s per task)" %(self.mod_counter, mean)     
+            print("%s modified signals were received (%s per task)" %(self.mod_counter, mean))     
         self.window.set_title('Liblarch demo: %s nodes' %count)
         
 
     def __init__(self):
-        self.window = gtk.Window()
+        self.window = Gtk.Window()
         self.window.set_size_request(640, 480)
-        self.window.set_position(gtk.WIN_POS_CENTER)
+        self.window.set_position(Gtk.WindowPosition.CENTER)
         self.window.set_border_width(10)
         self.window.set_title('Liblarch demo')
         self.window.connect('destroy', self.finish)
 
         self.liblarch_widget = self._build_tree_view()
-        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.add_with_viewport(self.liblarch_widget)
         
         self.start_time = 0
 
         # Buttons 
-        action_panel = gtk.HBox()
+        action_panel = Gtk.Box()
         action_panel.set_spacing(5)
 
         button_desc = [('_Add a Task', self.add_task), 
@@ -243,20 +243,20 @@ class LiblarchDemo:
             ('_Quit', self.finish)]
 
         for name, callback in button_desc:
-            button = gtk.Button(name)
+            button = Gtk.Button(name)
             button.connect('clicked', callback)
-            action_panel.pack_start(button)
+            action_panel.pack_start(button, True, True, 0)
             
-        filter_panel= gtk.HBox()
+        filter_panel= Gtk.Box()
         filter_panel.set_spacing(5)
             
         for name in self.tree.list_filters():
-            button = gtk.ToggleButton("%s filter"%name)
+            button = Gtk.ToggleButton("%s filter"%name)
             button.connect('toggled',self.apply_filter,name)
-            filter_panel.pack_start(button)
+            filter_panel.pack_start(button, True, True, 0)
 
         # Use cases
-        usecases_vbox = gtk.VBox()
+        usecases_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         usecase_box = None
         usecase_order = 0
         usecase_order_max = 3
@@ -274,26 +274,27 @@ class LiblarchDemo:
         for name, callback in button_desc:
             if usecase_order <= 0:
                 if usecase_box is not None:
-                    usecases_vbox.pack_start(usecase_box, False, True)
-                usecase_box = gtk.HBox()
+                    usecases_vbox.pack_start(usecase_box, expand=False, fill=True, padding=0)
+                usecase_box = Gtk.Box()
                 usecase_box.set_spacing(5)
 
-            button = gtk.Button(name)
+            button = Gtk.Button(name)
             button.connect('clicked', callback)
-            usecase_box.pack_start(button)
+            usecase_box.pack_start(button, True, True, 0)
 
             usecase_order = (usecase_order + 1) % usecase_order_max
 
-        usecases_vbox.pack_start(usecase_box, False, True)
-        usecase_panel = gtk.Expander('Use cases')
+        usecases_vbox.pack_start(usecase_box, expand=False, fill=True, padding=0)
+        usecase_panel = Gtk.Expander()
+        usecase_panel.set_label('Use cases')
         usecase_panel.set_expanded(True)
         usecase_panel.add(usecases_vbox)
 
         # Show it
-        vbox = gtk.VBox()
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         vbox.pack_start(action_panel, False, True, 10)
         vbox.pack_start(filter_panel, False, True, 10)
-        vbox.pack_start(scrolled_window)
+        vbox.pack_start(scrolled_window, True, True, 0)
         vbox.pack_start(usecase_panel, False, True, 10)
 
         self.window.add(vbox)
@@ -306,16 +307,16 @@ class LiblarchDemo:
         return newlabel
 
     def print_tree(self, widget=None):
-        print 
-        print "=" * 20, "Tree", "=" * 20
+        print() 
+        print("=" * 20, "Tree", "=" * 20)
         self.tree.get_main_view().print_tree()
-        print "=" * 46
-        print
+        print("=" * 46)
+        print()
 
     def print_ft(self, widget=None):
-        print 
+        print() 
         self.view_tree.print_tree()
-        print
+        print()
     
     @save_backup
     def add_task(self, widget):
@@ -331,16 +332,16 @@ class LiblarchDemo:
             # Adding a subchild
             parent = selected[0]
             self.tree.add_node(task, parent_id = parent)
-            print 'Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent)
+            print('Added sub-task "%s" (%s) for %s' % (t_title, t_id, parent))
         else:
             # Adding as a new child
             self.tree.add_node(task)
             for parent_id in selected:
                 task.add_parent(parent_id)
-            print 'Added task "%s" (%s)' % (t_title, t_id)
+            print('Added task "%s" (%s)' % (t_title, t_id))
             
     def apply_filter(self,widget,param):
-        print "applying filter: %s" %param
+        print("applying filter: %s" %param)
         if param in self.view_tree.list_applied_filters():
             self.view_tree.unapply_filter(param)
         else:
@@ -350,7 +351,7 @@ class LiblarchDemo:
     def tree_high_3(self, widget):
         ''' We add the leaf nodes before the root, in order to test
         if it works fine even in this configuration'''
-        print 'Adding a tree of height 3'
+        print('Adding a tree of height 3')
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -378,7 +379,7 @@ class LiblarchDemo:
 
     @save_backup
     def tree_high_3_backwards(self, widget):
-        print 'Adding a tree of height 3 backwards'
+        print('Adding a tree of height 3 backwards')
 
         selected = self.liblarch_widget.get_selected_nodes()
 
@@ -405,24 +406,24 @@ class LiblarchDemo:
         relationships = reversed(relationships)
 
         for t_id, task in tasks:
-            print "Adding task to tree:", t_id, task
+            print("Adding task to tree:", t_id, task)
             self.tree.add_node(task)
-            print "="*50
+            print("="*50)
 
         for parent, child in relationships:
-            print "New relationship: ", parent, "with", child
+            print("New relationship: ", parent, "with", child)
             parent_node = self.tree.get_node(parent)
             parent_node.add_child(child)
-            print "="*50
+            print("="*50)
 
-        print
+        print()
 
     @save_backup
     def delete_task(self, widget, order='normal'):
-        print 'Deleting a task'
+        print('Deleting a task')
         selected = self.liblarch_widget.get_selected_nodes()
 
-        print 'Order: %s' % order
+        print('Order: %s' % order)
 
         if   order == 'normal':
             ordered_nodes = selected
@@ -441,11 +442,11 @@ class LiblarchDemo:
             Log.error('Unknown order, skipping...')
             return
 
-        print "Tasks should be removed in this order:", ordered_nodes
+        print("Tasks should be removed in this order:", ordered_nodes)
 
         for node_id in ordered_nodes:
             self.tree.del_node(node_id)
-            print 'Removed node %s' % node_id
+            print('Removed node %s' % node_id)
 
         self.print_tree(None)
 
@@ -468,7 +469,7 @@ class LiblarchDemo:
             node.modified()
 
     def backends(self, widget):
-        print "Backends...."
+        print("Backends....")
         Backend('1sec', self.should_finish, 1, self.tree).start()
         Backend('3sec', self.should_finish, 3, self.tree).start()
         Backend('5sec', self.should_finish, 5, self.tree).start()
@@ -497,18 +498,18 @@ class LiblarchDemo:
                 # Sleep 0.01 second to create illusion of real tasks
                 sleep(SLEEP_BETWEEN_TASKS)
 
-            print "end of _many_tasks thread"
+            print("end of _many_tasks thread")
         t = threading.Thread(target=_many_tasks)
         t.start()
 
     def load_from_file(self, widget):
-        dialog = gtk.FileChooserDialog("Open..", self.window, 
-            gtk.FILE_CHOOSER_ACTION_OPEN, 
-            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog = Gtk.FileChooserDialog("Open..", self.window, 
+            Gtk.FileChooserAction.OPEN, 
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
         response = dialog.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             file_name = dialog.get_filename()
         else:
             file_name = None
@@ -545,9 +546,9 @@ class LiblarchDemo:
 
                 parent_level[level] = name
 
-            print "Nodes to add:", nodes
-            print "Relationships:", "\n".join(str(r) for r in relationships)
-            print
+            print("Nodes to add:", nodes)
+            print("Relationships:", "\n".join(str(r) for r in relationships))
+            print()
 
             for node_id in nodes:
                 task = TaskNode(node_id, random_task_title(node_id),self.view_tree)
@@ -557,19 +558,19 @@ class LiblarchDemo:
                 parent_node = self.tree.get_node(parent)
                 parent_node.add_child(child)
         else:
-            print "Not matched"
-            print "Log: ", log
+            print("Not matched")
+            print("Log: ", log)
 
     def finish(self, widget):
         self.should_finish.set()
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def run(self):
-        gtk.main()
+        Gtk.main()
 
 
 if __name__ == "__main__":
-    gobject.threads_init()
+    GObject.threads_init()
     app = LiblarchDemo()
     app.run()
 

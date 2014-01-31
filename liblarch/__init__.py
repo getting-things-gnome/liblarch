@@ -47,7 +47,7 @@ class TreeNode(_Node):
         _Node.__init__(self,node_id,parent)
         
     def _set_tree(tree):
-        print "_set_tree is not part of the API"
+        print("_set_tree is not part of the API")
 
 class Tree:
     """ A thin wrapper to MainTree that adds filtering capabilities.
@@ -128,7 +128,7 @@ class Tree:
         an optimization if you plan to apply a filter.
         """
 
-        if name is not None and self.__views.has_key(name):
+        if name is not None and name in self.__views:
             view_tree = self.__views[name]
         else:
             view_tree = ViewTree(self,self.__tree,self.__fbank, name = name, refresh = refresh)
@@ -137,7 +137,7 @@ class Tree:
         return view_tree
         
     def get_viewcount(self,name=None, refresh=True):
-        if name is not None and self.__viewscount.has_key(name):
+        if name is not None and name in self.__viewscount:
             view_count = self.__viewscount[name]
         else:
             view_count = ViewCount(self.__tree,self.__fbank, name = name, refresh = refresh)

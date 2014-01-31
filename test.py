@@ -20,10 +20,10 @@
 BIG_NUMBER = 2000
 STAIRS = 200
 
-from liblarch import Tree
-from liblarch.tree import TreeNode
+from liblarch import Tree, TreeNode
 from liblarch_gtk import TreeView
-import time, gtk
+import time
+from gi.repository import Gtk
 
 #This is a dummy treenode that only have one properties: a color
 class DummyNode(TreeNode):
@@ -41,7 +41,7 @@ nodes_id = []
 desc = {}
 col = {}
 col['title'] = "Node name"
-render_text = gtk.CellRendererText()
+render_text = Gtk.CellRendererText()
 col['renderer'] = ['markup',render_text]
 def get_node_name(node):
     return node.get_id()
@@ -53,41 +53,41 @@ desc['titles'] = col
 
 start = time.time()
 previous_id = None
-for index in xrange(BIG_NUMBER):
+for index in range(BIG_NUMBER):
     nid = "stress" + str(index)
     node = DummyNode(nid)
     nodes_id.append(node.get_id())
     tree.add_node(node)
     previous_id = nid
 end = time.time()
-print "\nADDING %d NODES: %f" % (BIG_NUMBER, end - start)
+print("\nADDING %d NODES: %f" % (BIG_NUMBER, end - start))
 
 start = time.time()
 for node_id in nodes_id:
     tree.refresh_node(node_id)
 end = time.time()
-print "\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start)
+print("\nUPDATING %d NODES: %f" % (BIG_NUMBER, end - start))
 
 
 start = time.time()
 for node_id in nodes_id:
     tree.del_node(node_id)
 end = time.time()
-print "\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start)
+print("\nDELETING %d NODES: %f" % (BIG_NUMBER, end - start))
 
 start = time.time()
 previous_id = None
-for index in xrange(STAIRS):
+for index in range(STAIRS):
     nid = "stress" + str(index)
     node = DummyNode(nid)
     nodes_id.append(node.get_id())
     tree.add_node(node,parent_id=previous_id)
     previous_id = nid
 end = time.time()
-print "\nADDING %d NODES in stairs: %f" % (STAIRS, end - start)
+print("\nADDING %d NODES in stairs: %f" % (STAIRS, end - start))
 
 start = time.time()
 for node_id in nodes_id:
     tree.refresh_node(node_id)
 end = time.time()
-print "\nUPDATING %d NODES in stairs: %f" % (STAIRS, end - start)
+print("\nUPDATING %d NODES in stairs: %f" % (STAIRS, end - start))

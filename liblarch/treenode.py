@@ -160,7 +160,7 @@ class _Node:
                         self.children.append(child_id)
                         self.tree.new_relationship(self.node_id, child_id)
             else:
-                print "%s was already in children of %s" % (child_id, self.node_id)
+                print("%s was already in children of %s" % (child_id, self.node_id))
 
     def has_child(self, child_id=None):
         """ Has child/children?

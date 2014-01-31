@@ -77,21 +77,21 @@ class FiltersBank:
         
     def get_filter(self,filter_name):
         """ Get the filter object for a given name """
-        if self.available_filters.has_key(filter_name):
+        if filter_name in self.available_filters:
             return self.available_filters[filter_name]
-        elif self.custom_filters.has_key(filter_name):
+        elif filter_name in self.custom_filters:
             return self.custom_filters[filter_name]
         else:
             return None
             
     def has_filter(self,filter_name):
-        return self.available_filters.has_key(filter_name) \
-            or self.custom_filters.has_key(filter_name)
+        return filter_name in self.available_filters \
+            or filter_name in self.custom_filters
     
     def list_filters(self):
         """ List, by name, all available filters """
-        liste = self.available_filters.keys()
-        liste += self.custom_filters.keys()
+        liste = list(self.available_filters.keys())
+        liste += list(self.custom_filters.keys())
         return liste
     
     def add_filter(self,filter_name,filter_func,parameters=None):
@@ -119,8 +119,8 @@ class FiltersBank:
         Only custom filters that were added here can be removed
         Return False if the filter was not removed
         """
-        if not self.available_filters.has_key(filter_name):
-            if self.custom_filters.has_key(filter_name):
+        if filter_name not in self.available_filters:
+            if filter_name in self.custom_filters:
                 self.custom_filters.pop(filter_name)
                 return True
             else:
