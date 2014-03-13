@@ -99,6 +99,10 @@ class TreeView(Gtk.TreeView):
 
         self.dnd_internal_target = ''
         self.dnd_external_targets = {}
+
+        self.dnd_handler_get = None
+        self.dnd_handler_received = None 
+        self.dnd_enabled_on = []
         
         # Sort columns
         self.order_of_column = []
@@ -383,7 +387,15 @@ class TreeView(Gtk.TreeView):
         self.__init_dnd()
         self.connect('drag_data_get', self.on_drag_data_get)
         self.connect('drag_data_received', self.on_drag_data_received)
-            
+
+    def remove_dnd_name(self, dndname):
+        if(not dndname in self.dnd_enabled_on):
+            return
+        self.unset_rows_drag_source()
+        self.unset_rows_drag_dest()
+        self.disconnect(self.dnd_handler_get)
+        self.disconnect(self.dnd_handler_received)
+        self.dnd_enabled_on.remove(dndname)
 
     def set_dnd_external(self, sourcename, func):
         """ Add a new external target and initialize Drag'n'Drop support"""
