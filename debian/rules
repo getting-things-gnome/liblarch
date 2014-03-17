@@ -2,3 +2,6 @@
 
 %:
 	dh $@ --with python3 --buildsystem=python_distutils
+	
+override_dh_auto_clean:
+	make clean

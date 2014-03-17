@@ -4,6 +4,7 @@ Maintainer: Izidor Matušov <izidor.matusov@gmail.com>
 Build-Depends: debhelper (>= 8.0.0)
 Build-Depends-Indep: python-support, python (>= 2.5), python3 (>= 3.0)
 Standards-Version: 3.9.2
+X-Python3-Version: >= 3.0
 Section: python
 Homepage: https://live.gnome.org/liblarch/
 
