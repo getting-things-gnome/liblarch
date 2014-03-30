@@ -2,16 +2,15 @@ Source: liblarch
 Priority: optional
 Maintainer: Izidor Matušov <izidor.matusov@gmail.com>
 Build-Depends: debhelper (>= 8.0.0)
-Build-Depends-Indep: python-support, python (>= 2.5), python3 (>= 3.0)
+Build-Depends-Indep: python3-all
 Standards-Version: 3.9.2
 X-Python3-Version: >= 3.0
 Section: python
-Homepage: https://live.gnome.org/liblarch/
+Homepage: https://github.com/getting-things-gnome/liblarch
 
-Package: python-liblarch
+Package: python3-liblarch
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-gtk2 (>=2.14)
-Replaces: python-liblarch-gtk
+Depends: ${misc:Depends}, ${python3:Depends}, python3-gi, gir1.2-gtk-3.0
 Description: Liblarch handles structures like acyclic directed graphs.
   Liblarch is a python library built to easily handle data structures
   such as lists, trees and directed acyclic graphs and represent them

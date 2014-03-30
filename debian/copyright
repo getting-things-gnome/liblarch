@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: liblarch
-Source: https://live.gnome.org/liblarch/
+Source: https://github.com/getting-things-gnome/liblarch
 
 Files: *
 Copyright: 2011-2012 Lionel Dricot <ploum@ploum.net>
