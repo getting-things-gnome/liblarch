@@ -1,5 +1,7 @@
 # Liblarch
 
+[![Build Status](https://travis-ci.org/getting-things-gnome/liblarch.svg)](https://travis-ci.org/getting-things-gnome/liblarch)
+
 If you find Gtk.Treeview and Gtk.Treemodel hard to use, then liblarch is probably for you.
 
 Liblarch is a python library built to easily handle data structure such are lists, trees and acyclic graphs
