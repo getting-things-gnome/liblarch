@@ -6,6 +6,9 @@ python:
 before_install:
   - sudo apt-get update
 
+virtualenv:
+  system_site_packages: true
+
 install:
   - sudo apt-get install -qq python3-gi gir1.2-gtk-3.0
 
