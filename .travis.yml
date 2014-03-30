@@ -3,5 +3,11 @@ language: python
 python:
   - '3.3'
 
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install -qq python3-gi gir1.2-gtk-3.0
+
 script:
   - ./run-tests
