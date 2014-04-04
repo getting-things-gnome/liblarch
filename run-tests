@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
 # Liblarch - a library to handle directed acyclic graphs
-# Copyright (c) 2011-2012 - Lionel Dricot & Izidor Matušov
+# Copyright (c) 2011-2014 - Lionel Dricot & Izidor Matušov
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -18,75 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-"""Runs the GTG unit tests."""
-
 import sys
-import unittest
+import nose
 
-from tests import test_suite
+if __name__ == "__main__":
+    # By default, run tests in tests folder
+    if len(sys.argv) == 1:
+        sys.argv.append('tests')
 
-TEST_MODULE_PREFIX = "tests."
-
-def main(args):
-    runner = unittest.TextTestRunner(
-                    stream = sys.stdout,
-                    descriptions = True,
-                    verbosity = 1)
-    if "-h" in args:
-        print("USAGE:")
-        print("./run_tests  to run all tests")
-        print("./run_tests  [module_name ..] to run tests from the listed " + \
-              "modules")
-        print("./run_tests  [function_path ..] to run the selected " + \
-              "functions as tests")
-        return
-    if args:
-        #if we have specified the name of the test in the command line
-        suites = []
-        for arg in args:
-            #each arg can be a module name (as test_liblarch), or a module name
-            # "dot" a function name (as test_liblarch.test_something)
-            arg_content = arg.split(".")
-            module_name = arg_content[0]
-            #load the module
-            module_path = TEST_MODULE_PREFIX + module_name
-            module = __import__(module_path)
-            sys.modules[module_path] = module
-            globals()[module_path] = module
-            if TEST_MODULE_PREFIX == "GTG.tests.":
-                tests = getattr(module, "tests")
-            else:
-                tests = module
-            a_test = getattr(tests, module_name)
-            if len(arg_content) > 1:
-                path = TEST_MODULE_PREFIX + arg
-                suites.append(unittest.TestLoader().loadTestsFromName(path))
-                #NOTE: this can be done easily with pattern matching with 
-                #      unittest.TestLoader().discover(..), but that's only from 
-                #      python 2.7 on. 
-            else:
-                suites.append(getattr(a_test, "test_suite")())
-    else:
-        #otherwise, run all tests
-        suites = [test_suite()]
-
-    #run the tests
-    tests_are_successful = True
-    for suite in suites:
-        result = runner.run(suite)
-        tests_are_successful &= result.wasSuccessful()
-
-    #show the aggregated result of all the tests
-    if tests_are_successful:
-        print("ALL TESTS ARE SUCCESSFUL")
-        return 0
-    else:
-        print("""
-        ****************************************
-        SOME TESTS *FAILED*!
-        ****************************************
-        """)
-        return 1
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    nose.main()

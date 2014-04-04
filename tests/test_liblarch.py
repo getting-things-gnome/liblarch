@@ -1985,7 +1985,3 @@ class TestLibLarch(unittest.TestCase):
             if not self.view.node_has_child(node_id):
                 node_count -= 1
                 self.tree.del_node(node_id)
-
-
-def test_suite():
-    return unittest.TestLoader().loadTestsFromName(__name__)
