@@ -32,7 +32,7 @@ from liblarch.viewcount import ViewCount
 #
 # The major number is incremented if an existing method is removed or modified
 # The minor number is incremented when a method is added to the API
-API = "2.2"
+API = "3.0"
 
 
 def is_compatible(request):
