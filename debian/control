@@ -2,8 +2,8 @@ Source: liblarch
 Priority: optional
 Maintainer: Izidor Matušov <izidor.matusov@gmail.com>
 Build-Depends: debhelper (>= 8.0.0)
-Build-Depends-Indep: python3-all
-Standards-Version: 3.9.2
+Build-Depends-Indep: python (>= 2.7), python3-all
+Standards-Version: 3.9.4
 X-Python3-Version: >= 3.0
 Section: python
 Homepage: https://github.com/getting-things-gnome/liblarch
