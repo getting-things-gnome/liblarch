@@ -1,3 +1,9 @@
+liblarch (3.0.0-1) unstable; urgency=low
+
+  * Liblarch now requires Gtk3 and Python3
+
+ -- Izidor Matušov <izidor.matusov@gmail.com>  Sat, 19 Apr 2014 09:44:12 +0100
+
 liblarch (2.2.0-1) unstable; urgency=low
 
   * Fix for LP #1078368
