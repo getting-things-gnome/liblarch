@@ -18,8 +18,8 @@ separation between your data themselves (Model) and how they are displayed (View
 
 ## Credits
 
-Liblarch is under the LGPLv3 license.
+Liblarch is published under the LGPLv3 license.
 
 Authors:
- - Lionel Dricot <ploum@ploum.net>
- - Izidor Matušov <izidor.matusov@gmail.com>
+ - [Lionel Dricot](https://github.com/ploum)
+ - [Izidor Matušov](https://github.com/izidormatusov)
