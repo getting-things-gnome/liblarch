@@ -19,24 +19,22 @@
 
 import functools
 
-from liblarch.tree import MainTree
-from liblarch.treenode import _Node
-from liblarch.filteredtree import FilteredTree
-from liblarch.filters_bank import FiltersBank
+from .filteredtree import FilteredTree
+
 
 # There should be two classes: for static and for dynamic mode
 # There are many conditions, and also we would prevent unallowed modes
-class ViewTree:
-    def __init__(self, maininterface, maintree, filters_bank,\
-                                name = None,
-                                             refresh = True, static = False):
+class ViewTree(object):
+    def __init__(self, maininterface, maintree, filters_bank,
+                 name=None, refresh=True, static=False):
         """A ViewTree is the interface that should be used to display Tree(s).
 
-           In static mode, FilteredTree layer is not created. (There is no need)
+           In static mode, FilteredTree layer is not created.
+           (There is no need)
 
-           We connect to MainTree or FilteredTree to get informed about changes.
-           If FilteredTree is used, it is connected to MainTree to handle changes
-           and then send id to ViewTree if it applies.
+           We connect to MainTree or FilteredTree to get informed about
+           changes.  If FilteredTree is used, it is connected to MainTree
+           to handle changes and then send id to ViewTree if it applies.
 
            @param maintree: a Tree object, cointaining all the nodes
            @param filters_bank: a FiltersBank object. Filters can be added
@@ -55,27 +53,35 @@ class ViewTree:
         if self.static:
             self._tree = self.__maintree
             self.__ft = None
-            self.__maintree.register_callback('node-added', \
-                        functools.partial(self.__emit, 'node-added'))
-            self.__maintree.register_callback('node-deleted', \
-                        functools.partial(self.__emit, 'node-deleted'))
-            self.__maintree.register_callback('node-modified', \
-                        functools.partial(self.__emit, 'node-modified'))
+            self.__maintree.register_callback(
+                'node-added',
+                functools.partial(self.__emit, 'node-added'))
+            self.__maintree.register_callback(
+                'node-deleted',
+                functools.partial(self.__emit, 'node-deleted'))
+            self.__maintree.register_callback(
+                'node-modified',
+                functools.partial(self.__emit, 'node-modified'))
         else:
-            self.__ft = FilteredTree(maintree, filters_bank, name = name, refresh = refresh)
+            self.__ft = FilteredTree(
+                maintree, filters_bank, name=name, refresh=refresh)
             self._tree = self.__ft
-            self.__ft.set_callback('added', \
-                        functools.partial(self.__emit, 'node-added-inview'))
-            self.__ft.set_callback('deleted', \
-                        functools.partial(self.__emit, 'node-deleted-inview'))
-            self.__ft.set_callback('modified', \
-                        functools.partial(self.__emit, 'node-modified-inview'))
-            self.__ft.set_callback('reordered', \
-                        functools.partial(self.__emit, 'node-children-reordered'))
-                        
-    def queue_action(self, node_id,func,param=None):
-        self.__ft.set_callback('runonce',func,node_id=node_id,param=param)
-        
+            self.__ft.set_callback(
+                'added',
+                functools.partial(self.__emit, 'node-added-inview'))
+            self.__ft.set_callback(
+                'deleted',
+                functools.partial(self.__emit, 'node-deleted-inview'))
+            self.__ft.set_callback(
+                'modified',
+                functools.partial(self.__emit, 'node-modified-inview'))
+            self.__ft.set_callback(
+                'reordered',
+                functools.partial(self.__emit, 'node-children-reordered'))
+
+    def queue_action(self, node_id, func, param=None):
+        self.__ft.set_callback('runonce', func, node_id=node_id, param=param)
+
     def get_basetree(self):
         """ Return Tree object """
         return self.maininterface
@@ -101,28 +107,26 @@ class ViewTree:
             del self.__cllbcks[event][key]
         except KeyError:
             pass
-        
+
     def __emit(self, event, node_id, path=None, neworder=None):
         """ Handle a new event from MainTree or FilteredTree
         by passing it to other objects, e.g. TreeWidget """
         callbacks = dict(self.__cllbcks.get(event, {}))
-#        print "ViewTree __emit for %s" %str(node_id)
         for func in callbacks.values():
-#            print "   -> func = %s - %s" %(func,str(path))
             if neworder:
                 func(node_id, path, neworder)
             else:
-                func(node_id,path)
+                func(node_id, path)
 
     def get_node(self, node_id):
         """ Get a node from MainTree """
         return self.__maintree.get_node(node_id)
-        
-    #FIXME Remove this method from public interface
+
+    # FIXME Remove this method from public interface
     def get_root(self):
         return self.__maintree.get_root()
 
-    #FIXME Remove this method from public interface
+    # FIXME Remove this method from public interface
     def refresh_all(self):
         self.__maintree.refresh_all()
 
@@ -153,7 +157,8 @@ class ViewTree:
         """
 
         if not self.__ft:
-            self.__ft = FilteredTree(self.__maintree, self.__fbank, refresh = True)
+            self.__ft = FilteredTree(
+                self.__maintree, self.__fbank, refresh=True)
         return self.__ft.get_n_nodes(withfilters=withfilters)
 
     def get_nodes(self, withfilters=[]):
@@ -164,7 +169,8 @@ class ViewTree:
         """
 
         if not self.__ft:
-            self.__ft = FilteredTree(self.__maintree, self.__fbank, refresh = True)
+            self.__ft = FilteredTree(
+                self.__maintree, self.__fbank, refresh=True)
         return self.__ft.get_nodes(withfilters=withfilters)
 
     def get_node_for_path(self, path):
@@ -189,7 +195,7 @@ class ViewTree:
         If None, random instance is used """
 
         return self._tree.next_node(node_id, pid)
-        
+
     def node_has_child(self, node_id):
         """ Has the node at least one child? """
         if self.static:
@@ -209,11 +215,12 @@ class ViewTree:
 
     def node_n_children(self, node_id=None, recursive=False):
         """ Return quantity of children of node_id.
-        If node_id is None, use the root node. 
+        If node_id is None, use the root node.
         Every instance of node has the same children"""
         if not self.__ft:
-            self.__ft = FilteredTree(self.__maintree, self.__fbank, refresh = True)
-        return self.__ft.node_n_children(node_id,recursive)
+            self.__ft = FilteredTree(
+                self.__maintree, self.__fbank, refresh=True)
+        return self.__ft.node_n_children(node_id, recursive)
 
     def node_nth_child(self, node_id, n):
         """ Return nth child of the node. """
@@ -226,23 +233,25 @@ class ViewTree:
             if node and node.get_n_children() > n:
                 return node.get_nth_child(n)
             else:
-                raise ValueError("node %s has less than %s nodes" %(node_id, n))
+                raise ValueError(
+                    "node {} has less than {} nodes".format(node_id, n))
         else:
             realn = self.__ft.node_n_children(node_id)
             if realn <= n:
-                raise ValueError("viewtree has %s nodes, no node %s" %(realn, n))
+                raise ValueError(
+                    "viewtree has {} nodes, no node {}".format(realn, n))
             return self.__ft.node_nth_child(node_id, n)
-        
+
     def node_has_parent(self, node_id):
         """ Has node parents? Is it child of root? """
         return len(self.node_parents(node_id)) > 0
 
     def node_parents(self, node_id):
-        """ Returns displayed parents of the given node, or [] if there is no 
+        """ Returns displayed parents of the given node, or [] if there is no
         parent (such as if the node is a child of the virtual root),
         or if the parent is not displayable.
-        Doesn't check wheter node node_id is displayed or not. (we only care about
-        parents)
+        Doesn't check wheter node node_id is displayed or not.
+        (we only care about parents)
         """
         if self.static:
             return self.__maintree.get_node(node_id).get_parents()
@@ -256,40 +265,40 @@ class ViewTree:
         else:
             return self.__ft.is_displayed(node_id)
 
-####### FILTERS ###############################################################
+    # FILTERS #################################################################
     def list_applied_filters(self):
         return self.__ft.list_applied_filters()
-        
-    def apply_filter(self, filter_name, parameters=None, \
+
+    def apply_filter(self, filter_name, parameters=None,
                      reset=False, refresh=True):
         """ Applies a new filter to the tree.
 
         @param filter_name: The name of an already registered filter to apply
         @param parameters: Optional parameters to pass to the filter
-        @param reset : optional boolean. Should we remove other filters?
+        @param reset: optional boolean. Should we remove other filters?
         @param refresh : should we refresh after applying this filter ?
         """
         if self.static:
-            raise Exception("WARNING: filters cannot be applied" + \
+            raise Exception("WARNING: filters cannot be applied"
                             "to a static tree\n")
 
         self.__ft.apply_filter(filter_name, parameters, reset, refresh)
 
-    def unapply_filter(self,filter_name,refresh=True):
+    def unapply_filter(self, filter_name, refresh=True):
         """ Removes a filter from the tree.
 
         @param filter_name: The name of filter to remove
         """
         if self.static:
-            raise Exception("WARNING: filters cannot be unapplied" +\
+            raise Exception("WARNING: filters cannot be unapplied"
                             "from a static tree\n")
-        
+
         self.__ft.unapply_filter(filter_name, refresh)
 
     def reset_filters(self, refresh=True):
         """ Remove all filters currently set on the tree. """
         if self.static:
-            raise Exception("WARNING: filters cannot be reset" +\
+            raise Exception("WARNING: filters cannot be reset"
                             "on a static tree\n")
         else:
-             self.__ft.reset_filters(refresh)
+            self.__ft.reset_filters(refresh)

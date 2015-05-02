@@ -17,7 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk
+
 
 class TreeModel(Gtk.TreeStore):
     """ Local copy of showed tree """
@@ -25,7 +26,7 @@ class TreeModel(Gtk.TreeStore):
     def __init__(self, tree, types):
         """ Initializes parent and create list of columns. The first colum
         is node_id of node """
-        
+
         self.count = 0
         self.count2 = 0
 
@@ -51,14 +52,15 @@ class TreeModel(Gtk.TreeStore):
 
     def connect_model(self):
         """ Register "signals", callbacks from liblarch.
-        
+
         Also asks for the current status by providing add_task callback.
         We are able to connect to liblarch tree on the fly. """
 
-        self.tree.register_cllbck('node-added-inview',self.add_task)
-        self.tree.register_cllbck('node-deleted-inview',self.remove_task)
-        self.tree.register_cllbck('node-modified-inview',self.update_task)
-        self.tree.register_cllbck('node-children-reordered',self.reorder_nodes)
+        self.tree.register_cllbck('node-added-inview', self.add_task)
+        self.tree.register_cllbck('node-deleted-inview', self.remove_task)
+        self.tree.register_cllbck('node-modified-inview', self.update_task)
+        self.tree.register_cllbck(
+            'node-children-reordered', self.reorder_nodes)
 
         # Request the current state
         self.tree.get_current_state()
@@ -67,39 +69,38 @@ class TreeModel(Gtk.TreeStore):
         """ Because we sort the TreeStore, paths in the treestore are
         not the same as paths in the FilteredTree. We do the  conversion here.
         We receive a Liblarch path as argument and return a Gtk.TreeIter"""
-        #The function is recursive. We take iter for path (A,B,C) in cache.
-        #If there is not, we take iter for path (A,B) and try to find C.
+        # The function is recursive. We take iter for path (A, B, C) in cache.
+        # If there is not, we take iter for path (A, B) and try to find C.
         if path == ():
             return None
         nid = str(path[-1])
         self.count += 1
-        #We try to use the cache
-        iter = self.cache_paths.get(path,None)
+        # We try to use the cache
+        iter = self.cache_paths.get(path, None)
         toreturn = None
-        if iter and self.iter_is_valid(iter) and nid == self.get_value(iter,0):
+        if (iter and self.iter_is_valid(iter) and
+                nid == self.get_value(iter, 0)):
             self.count2 += 1
             toreturn = iter
         else:
             root = self.my_get_iter(path[:-1])
-            #This is a small ad-hoc optimisation.
-            #Instead of going through all the children nodes
-            #We go directly at the last known position.
-            pos = self.cache_position.get(path,None)
+            # This is a small ad-hoc optimisation.
+            # Instead of going through all the children nodes
+            # We go directly at the last known position.
+            pos = self.cache_position.get(path, None)
             if pos:
-                iter = self.iter_nth_child(root,pos)
-                if iter and self.get_value(iter,0) == nid:
+                iter = self.iter_nth_child(root, pos)
+                if iter and self.get_value(iter, 0) == nid:
                     toreturn = iter
             if not toreturn:
                 if root:
                     iter = self.iter_children(root)
                 else:
                     iter = self.get_iter_first()
-                while iter and self.get_value(iter,0) != nid:
+                while iter and self.get_value(iter, 0) != nid:
                     iter = self.iter_next(iter)
             self.cache_paths[path] = iter
             toreturn = iter
-#        print "%s / %s" %(self.count2,self.count)
-#        print "my_get_iter %s : %s" %(nid,self.get_string_from_iter(toreturn))
         return toreturn
 
     def print_tree(self):
@@ -124,8 +125,7 @@ class TreeModel(Gtk.TreeStore):
             push_to_stack(stack, level+1, self.iter_children(iterator))
         print("+"*50)
 
-### INTERFACE TO LIBLARCH #####################################################
-
+    # INTERFACE TO LIBLARCH ###################################################
     def add_task(self, node_id, path):
         """ Add new instance of node_id to position described at path.
 
@@ -145,10 +145,7 @@ class TreeModel(Gtk.TreeStore):
 
         iterator = self.my_get_iter(iter_path)
         self.cache_position[path] = self.iter_n_children(iterator)
-        it = self.insert(iterator, -1, row)
-        
-        # Show the new task if possible
-#        self.row_has_child_toggled(self.get_path(it), it)
+        self.insert(iterator, -1, row)
 
     def remove_task(self, node_id, path):
         """ Remove instance of node.
@@ -158,7 +155,8 @@ class TreeModel(Gtk.TreeStore):
         """
         it = self.my_get_iter(path)
         if not it:
-            raise Exception("Trying to remove node %s with no iterator"%node_id)
+            raise Exception(
+                "Trying to remove node %s with no iterator" % node_id)
         actual_node_id = self.get_value(it, 0)
         assert actual_node_id == node_id
         self.remove(it)
@@ -170,24 +168,24 @@ class TreeModel(Gtk.TreeStore):
         @param node_id: identification of task
         @param path: identification of position
         """
-        #We cannot assume that the node is in the tree because
-        #update is asynchronus
-        #Also, we should consider that missing an update is not critical
-        #and ignoring the case where there is no iterator
+        # We cannot assume that the node is in the tree because
+        # update is asynchronus
+        # Also, we should consider that missing an update is not critical
+        # and ignoring the case where there is no iterator
         if self.tree.is_displayed(node_id):
             node = self.tree.get_node(node_id)
-            #That call to my_get_iter is really slow!
+            # That call to my_get_iter is really slow!
             iterator = self.my_get_iter(path)
-        
+
             if iterator:
-                for column_num, (python_type, access_method) in enumerate(self.types):
+                for column_num, (__, access_method) in enumerate(self.types):
                     value = access_method(node)
                     if value is not None:
                         self.set_value(iterator, column_num, value)
 
     def reorder_nodes(self, node_id, path, neworder):
         """ Reorder nodes.
-        
+
         This is deprecated signal. In the past it was useful for reordering
         showed nodes of tree. It was possible to delete just the last
         element and therefore every element must be moved to the last position

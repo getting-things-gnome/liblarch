@@ -19,19 +19,21 @@
 
 from gi.repository import GObject
 
-class FilteredTree():
+
+class FilteredTree(object):
     """ FilteredTree is the most important and also the most buggy part of
     LibLarch.
 
-    FilteredTree transforms general changes in tree like creating/removing 
+    FilteredTree transforms general changes in tree like creating/removing
     relationships between nodes and adding/updating/removing nodes into a serie
     of simple steps which can be for instance by GTK Widget.
 
-    FilteredTree allows filtering - hiding certain nodes defined by a predicate.
+    FilteredTree allows filtering - hiding certain nodes defined by
+    a predicate.
 
     The reason of most bugs is that FilteredTree is request to update a node.
-    FilteredTree must update its ancestors and also decestors. You cann't do that
-    by a simple recursion.
+    FilteredTree must update its ancestors and also decestors. You cann't do
+    that by a simple recursion.
     """
 
     def __init__(self, tree, filtersbank, name=None, refresh=True):
@@ -42,7 +44,8 @@ class FilteredTree():
         @param refresh: Requests all nodes in the beginning? Additional
             filters can be added and refresh can be done later
 
-        _flat defines whether only nodes without children can be shown. For example WorkView filter.
+        _flat defines whether only nodes without children can be shown.
+        For example WorkView filter.
         """
 
         self.cllbcks = {}
@@ -69,12 +72,11 @@ class FilteredTree():
         self.__flat = False
         self.applied_filters = []
         self.fbank = filtersbank
-        
+
         if refresh:
             self.refilter()
-            
 
-    def set_callback(self, event, func,node_id=None, param=None):
+    def set_callback(self, event, func, node_id=None, param=None):
         """ Register a callback for an event.
 
         It is possible to have just one callback for event.
@@ -85,15 +87,15 @@ class FilteredTree():
             if not node_id:
                 raise Exception('runonce callback should come with a node_id')
             if self.is_displayed(node_id):
-                #it is essential to idle_add to avoid hard recursion
-                GObject.idle_add(func,param)
+                # it is essential to idle_add to avoid hard recursion
+                GObject.idle_add(func, param)
             else:
                 if node_id not in self.cllbcks:
                     self.cllbcks[node_id] = []
-                self.cllbcks[node_id].append([func,node_id,param])
+                self.cllbcks[node_id].append([func, node_id, param])
         else:
-            self.cllbcks[event] = [func,node_id,param]
-        
+            self.cllbcks[event] = [func, node_id, param]
+
     def callback(self, event, node_id, path, neworder=None):
         """ Run a callback.
 
@@ -103,33 +105,32 @@ class FilteredTree():
         @param node_id: node_id parameter for callback function
         @param path: path parameter for callback function
         @param neworder: neworder parameter for reorder callback function
-        
+
         The runonce event is actually only run once, when a given task appears.
         """
-
-        
         if event == 'added':
-            for func,nid,param in self.cllbcks.get(node_id,[]):
+            for func, nid, param in self.cllbcks.get(node_id, []):
                 if nid and self.is_displayed(nid):
                     func(param)
                     if node_id in self.cllbcks:
                         self.cllbcks.pop(node_id)
                 else:
-                    raise Exception('%s is not displayed but %s was added' %(nid,node_id))
-        func,nid,param = self.cllbcks.get(event, (None,None,None))
+                    raise Exception(
+                        '{} is not displayed but {} was added'.format(
+                            nid, node_id))
+        func, nid, param = self.cllbcks.get(event, (None, None, None))
         if func:
             if neworder:
-                func(node_id,path,neworder)
+                func(node_id, path, neworder)
             else:
-                func(node_id,path)
-                    
+                func(node_id, path)
 
-#### EXTERNAL MODIFICATION ####################################################
+    # EXTERNAL MODIFICATION ###################################################
     def __external_modify(self, node_id):
-        return self.__update_node(node_id,direction="both")
-        
+        return self.__update_node(node_id, direction="both")
+
     def __update_node(self, node_id, direction):
-        '''update the node node_id and propagate the 
+        '''update the node node_id and propagate the
         change in direction (up|down|both) '''
 
         if node_id == self.root_id:
@@ -141,7 +142,8 @@ class FilteredTree():
         for fcname in self.filter_cache:
             if node_id in self.filter_cache[fcname]['nodes']:
                 self.filter_cache[fcname]['nodes'].remove(node_id)
-                self.filter_cache[fcname]['count'] = len(self.filter_cache[fcname]['nodes'])
+                self.filter_cache[fcname]['count'] = len(
+                    self.filter_cache[fcname]['nodes'])
 
         completely_updated = True
 
@@ -152,7 +154,7 @@ class FilteredTree():
             if self.tree.has_node(node_id):
                 node = self.tree.get_node(node_id)
                 for parent in node.get_parents():
-                    self.__update_node(parent,"up")
+                    self.__update_node(parent, "up")
             return completely_updated
         elif not current_display and new_display:
             action = 'added'
@@ -163,7 +165,7 @@ class FilteredTree():
 
         # Create node info for new node
         if action == 'added':
-            self.nodes[node_id] = {'parents':[], 'children':[]}
+            self.nodes[node_id] = {'parents': [], 'children': []}
 
         # Make sure parents are okay if we adding or updating
         if action == 'added' or action == 'modified':
@@ -175,22 +177,24 @@ class FilteredTree():
             if action == 'added':
                 node = self.tree.get_node(node_id)
                 for parent_id in node.get_parents():
-                    if parent_id not in new_parents and parent_id not in current_parents:
+                    if (parent_id not in new_parents and
+                            parent_id not in current_parents):
                         self.__update_node(parent_id, direction="up")
 
             # Refresh list of parents after doing checkup once again
             current_parents = self.nodes[node_id]['parents']
             new_parents = self.__node_parents(node_id)
-                    
-            self.nodes[node_id]['parents'] = [parent_id for parent_id in new_parents
+
+            self.nodes[node_id]['parents'] = [
+                parent_id for parent_id in new_parents
                 if parent_id in self.nodes]
 
             remove_from = list(set(current_parents) - set(new_parents))
             add_to = list(set(new_parents) - set(current_parents))
             stay = list(set(new_parents) - set(add_to))
 
-            #If we are updating a node at the root, we should take care
-            #of the root too
+            # If we are updating a node at the root, we should take care
+            # of the root too
             if direction == "down" and self.root_id in add_to:
                 direction = "both"
 
@@ -198,34 +202,34 @@ class FilteredTree():
                 self.send_remove_tree(node_id, parent_id)
                 self.nodes[parent_id]['children'].remove(node_id)
                 if direction == "both" or direction == "up":
-                    self.__update_node(parent_id,direction="up")
-            #there might be some optimization here
+                    self.__update_node(parent_id, direction="up")
+            # there might be some optimization here
             for parent_id in add_to:
                 if parent_id in self.nodes:
                     self.nodes[parent_id]['children'].append(node_id)
                     self.send_add_tree(node_id, parent_id)
                     if direction == "both" or direction == "up":
-                        self.__update_node(parent_id,direction="up")
+                        self.__update_node(parent_id, direction="up")
                 else:
                     completely_updated = False
                     raise Exception("We have a parent not in the ViewTree")
-            #We update all the other parents
+            # We update all the other parents
             if direction == "both" or direction == "up":
                 for parent_id in stay:
-                    self.__update_node(parent_id,direction="up")
-            #We update the node itself     
-            #Why should we call the callback only for modify?
+                    self.__update_node(parent_id, direction="up")
+            # We update the node itself
+            # Why should we call the callback only for modify?
             if action == 'modified':
                 for path in self.get_paths_for_node(node_id):
-                    self.callback(action, node_id, path) 
-            
-            #We update the children
+                    self.callback(action, node_id, path)
+
+            # We update the children
             current_children = self.nodes[node_id]['children']
             new_children = self.__node_children(node_id)
             if direction == "both" or direction == "down":
                 for cid in new_children:
                     if cid not in current_children:
-                        self.__update_node(cid,direction="down")
+                        self.__update_node(cid, direction="down")
 
         elif action == 'deleted':
             paths = self.get_paths_for_node(node_id)
@@ -233,7 +237,7 @@ class FilteredTree():
             for child_id in children:
                 self.send_remove_tree(child_id, node_id)
                 self.nodes[child_id]['parents'].remove(node_id)
-                self.__update_node(child_id,direction="down")
+                self.__update_node(child_id, direction="down")
 
             node = self.nodes.pop(node_id)
             for path in paths:
@@ -242,7 +246,7 @@ class FilteredTree():
             # Remove node from cache
             for parent_id in node['parents']:
                 self.nodes[parent_id]['children'].remove(node_id)
-                self.__update_node(parent_id,direction="up")
+                self.__update_node(parent_id, direction="up")
 
             # We update parents who are not displayed
             # If the node is only hidden and still exists in the tree
@@ -251,7 +255,7 @@ class FilteredTree():
                 for parent in node.get_parents():
                     if parent not in self.nodes:
                         self.__update_node(parent, direction="up")
-                
+
         return completely_updated
 
     def send_add_tree(self, node_id, parent_id):
@@ -266,7 +270,7 @@ class FilteredTree():
                 self.callback('added', node_id, path)
 
             for child_id in self.nodes[node_id]['children']:
-                queue.append((child_id, relative_path + (child_id,)))
+                queue.append((child_id, relative_path + (child_id, )))
 
     def send_remove_tree(self, node_id, parent_id):
         paths = self.get_paths_for_node(parent_id)
@@ -278,7 +282,8 @@ class FilteredTree():
             if first_time:
                 stack.append((node_id, relative_path, False))
                 for child_id in self.nodes[node_id]['children']:
-                    stack.append((child_id, relative_path + (child_id,), True))
+                    stack.append(
+                        (child_id, relative_path + (child_id, ), True))
 
             else:
                 for start_path in paths:
@@ -288,16 +293,20 @@ class FilteredTree():
     def test_validity(self):
         for node_id in self.nodes:
             for parent_id in self.nodes[node_id]['parents']:
-                assert node_id in self.nodes[parent_id]['children'], "Node '%s' is not in children of '%s'" % (node_id, parent_id)
+                assert node_id in self.nodes[parent_id]['children'], (
+                    "Node '{}' is not in children of '{}'".format(
+                        node_id, parent_id))
 
             if self.nodes[node_id]['parents'] == []:
-                assert node_id == self.root_id, "Node '%s' does not have parents" % (node_id)
+                assert node_id == self.root_id, (
+                    "Node '{}' does not have parents".format(node_id))
 
             for parent_id in self.nodes[node_id]['children']:
-                assert node_id in self.nodes[parent_id]['parents'], "Node '%s' is not in parents of '%s'" % (node_id, parent_id)
+                assert node_id in self.nodes[parent_id]['parents'], (
+                    "Node '{}' is not in parents of '{}'".format(
+                        node_id, parent_id))
 
-
-#### OTHER ####################################################################
+    # OTHER ###################################################################
     def refilter(self):
         # Find out it there is at least one flat filter
         self.filter_cache = {}
@@ -370,14 +379,14 @@ class FilteredTree():
         return toreturn
 
     def __node_parents(self, node_id):
-        """ Returns parents of the given node. If node has no parent or 
+        """ Returns parents of the given node. If node has no parent or
         no displyed parent, return the virtual root.
         """
         if node_id == self.root_id:
             raise ValueError("Requested a parent of the root node")
 
         parents_nodes = []
-        #we return only parents that are not root and displayed
+        # we return only parents that are not root and displayed
         if not self.__flat and self.tree.has_node(node_id):
             node = self.tree.get_node(node_id)
             for parent_id in node.get_parents():
@@ -389,10 +398,9 @@ class FilteredTree():
             parents_nodes = [self.root_id]
 
         return parents_nodes
-        
-    #This is a crude hack which is more performant that other methods
-    def is_path_valid(self,p):
-#        print "is %s valid?" %str(p)
+
+    # This is a crude hack which is more performant that other methods
+    def is_path_valid(self, p):
         valid = True
         i = 0
         if len(p) == 1:
@@ -409,19 +417,6 @@ class FilteredTree():
         return valid
 
     def get_paths_for_node(self, node_id):
-#        cached = self.cache_paths.get(node_id,None)
-        #The cache improves performance a lot for "stairs"
-        #FIXME : the cache cannot detect if a new path has been added
-#        validcache = False
-#        if cached:
-#            validcache = True
-#            for p in cached:
-#                validcache = validcache and self.is_path_valid(p)
-#            if validcache:
-##                print "the valid cache is : %s" %str(cached)
-#                return cached
-
-        
         if node_id == self.root_id or not self.is_displayed(node_id):
             return [()]
         else:
@@ -433,23 +428,23 @@ class FilteredTree():
                     # Dump also state of FilteredTree => useful for debugging
                     s = "\nCurrent tree:\n"
                     for key in self.nodes:
-                        s += key + "\n"
-                        s += "\t parents" + str(self.nodes[key]['parents']) + "\n"
-                        s += "\t children" + str(self.nodes[key]['children']) + "\n"
-                    raise Exception("%s is not children of %s\n%s" % (node_id, parent_id, s))
+                        s += "{}\n\t parents: {}\n\t children: {}\n".format(
+                            key,
+                            str(self.nodes[key]['parents']),
+                            str(self.nodes[key]['children']))
+                    raise Exception(
+                        "{} is not children of {}\n{}".format(
+                            node_id, parent_id, s))
 
                 for parent_path in self.get_paths_for_node(parent_id):
-                    mypath = parent_path + (node_id,)
+                    mypath = parent_path + (node_id, )
                     toreturn.append(mypath)
-#            #Testing the cache
-#            if validcache and toreturn != cached:
-#                print "We return %s but %s was cached" %(str(toreturn),str(cached))
             self.cache_paths[node_id] = toreturn
             return toreturn
 
     def print_tree(self, string=False):
         """ Representation of tree in FilteredTree
-        
+
         @param string: if set, instead of printing, return string for printing.
         """
 
@@ -498,14 +493,10 @@ class FilteredTree():
         if withfilters == []:
             # Use current cache
             return self.get_all_nodes()
-        #FIXME maybe allow caching multiple withfilters...
         elif len(withfilters) == 1 and withfilters[0] in self.filter_cache:
             return self.filter_cache[withfilters[0]]['nodes']
-            
-#        elif withfilters != []:
         else:
             # Filter on the current nodes
-
             filters = []
             for filter_name in withfilters:
                 filt = self.fbank.get_filter(filter_name)
@@ -522,7 +513,7 @@ class FilteredTree():
                     displayed = filt.is_displayed(node_id)
                     if not displayed:
                         break
-                
+
                 if displayed:
                     nodes.append(node_id)
 
@@ -532,9 +523,8 @@ class FilteredTree():
         if not path or path == ():
             return None
         node_id = path[-1]
-        #Both "if" should be benchmarked
+        # Both "if" should be benchmarked
         if path in self.get_paths_for_node(node_id):
-#        if self.is_path_valid(path):
             return node_id
         else:
             return None
@@ -550,7 +540,8 @@ class FilteredTree():
         if not parent_id:
             parent_id = parents[0]
         elif parent_id not in parents:
-            raise Exception("Node %s does not have parent %s" % (node_id, parent_id))
+            raise Exception(
+                "Node {} does not have parent {}".format(node_id, parent_id))
 
         index = self.nodes[parent_id]['children'].index(node_id)
         if index+1 < len(self.nodes[parent_id]['children']):
@@ -567,19 +558,19 @@ class FilteredTree():
         return len(self.nodes[node_id]['children']) > 0
 
     def node_n_children(self, node_id, recursive=False):
-        if node_id == None:
+        if node_id is None:
             node_id = self.root_id
         if node_id not in self.nodes:
             return 0
         if recursive:
             total = 0
-            #We avoid recursion in a loop
-            #because the dict might be updated in the meantime
-            cids = list(self.nodes[node_id]['children'])   
-            for cid in cids: 
-                total += self.node_n_children(cid,recursive=True)
-                total += 1 #we count the node itself ofcourse
-            return total  
+            # We avoid recursion in a loop
+            # because the dict might be updated in the meantime
+            cids = list(self.nodes[node_id]['children'])
+            for cid in cids:
+                total += self.node_n_children(cid, recursive=True)
+                total += 1  # we count the node itself ofcourse
+            return total
         else:
             return len(self.nodes[node_id]['children'])
 
@@ -596,7 +587,7 @@ class FilteredTree():
 
     def get_current_state(self):
         """ Allows to connect LibLarch widget on fly to FilteredTree
-        
+
         Sends 'added' signal/callback for every nodes that is currently
         in FilteredTree. After that, FilteredTree and TreeModel are
         in the same state
@@ -604,12 +595,12 @@ class FilteredTree():
         for node_id in self.nodes[self.root_id]['children']:
             self.send_add_tree(node_id, self.root_id)
 
-#### FILTERS ##################################################################
+    # FILTERS #################################################################
     def list_applied_filters(self):
         return list(self.applied_filters)
 
-    def apply_filter(self, filter_name, parameters=None, \
-                    reset=None, refresh=None):
+    def apply_filter(self, filter_name, parameters=None,
+                     reset=None, refresh=None):
         """ Apply a new filter to the tree.
 
         @param filter_name: The name of an registrered filter from filters_bank
@@ -626,7 +617,8 @@ class FilteredTree():
             if filt:
                 filt.set_parameters(parameters)
             else:
-                raise ValueError("No filter of name %s in the bank" % filter_name)
+                raise ValueError(
+                    "No filter of name {} in the bank".format(filter_name))
 
         if filter_name not in self.applied_filters:
             self.applied_filters.append(filter_name)
@@ -655,7 +647,7 @@ class FilteredTree():
 
     def reset_filters(self, refresh=True):
         """
-        Clears all filters currently set on the tree.  Can't be called on 
+        Clears all filters currently set on the tree.  Can't be called on
         the main tree.
         """
         self.applied_filters = []

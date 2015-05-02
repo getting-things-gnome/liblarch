@@ -18,9 +18,10 @@
 # -----------------------------------------------------------------------------
 
 from . import processqueue
-from liblarch.treenode import _Node
+from .treenode import _Node
 
-class MainTree:
+
+class MainTree(object):
     """ Tree which stores and handle all requests """
 
     def __init__(self):
@@ -36,7 +37,7 @@ class MainTree:
 
         self.root_id = 'root'
         self.root = _Node(self.root_id)
-        _Node._set_tree(self.root,self)
+        _Node._set_tree(self.root, self)
 
         self._queue = processqueue.SyncQueue()
 
@@ -47,7 +48,7 @@ class MainTree:
         """ Return root node """
         return self.root
 
-####### INTERFACE FOR CALLBACKS ###############################################
+    # INTERFACE FOR CALLBACKS #################################################
     def register_callback(self, event, func):
         """ Store function and return unique key which can be used to
         unregister the callback later """
@@ -72,12 +73,12 @@ class MainTree:
 
     def _callback(self, event, node_id):
         """ Inform others about the event """
-        #We copy the dict to not loop on it while it could be modified
+        # We copy the dict to not loop on it while it could be modified
         dic = dict(self.__cllbcks.get(event, {}))
         for func in dic.values():
             func(node_id)
 
-####### INTERFACE FOR HANDLING REQUESTS #######################################
+    # INTERFACE FOR HANDLING REQUESTS #########################################
     def add_node(self, node, parent_id=None, priority="low"):
         self._queue.push(self._add_node, node, parent_id, priority=priority)
 
@@ -98,7 +99,7 @@ class MainTree:
         for node_id in list(self.nodes.keys()):
             self.modify_node(node_id)
 
-####### IMPLEMENTATION OF HANDLING REQUESTS ###################################
+    # IMPLEMENTATION OF HANDLING REQUESTS #####################################
     def _create_relationship(self, parent_id, child_id):
         """ Create relationship without any checks """
         parent = self.nodes[parent_id]
@@ -126,7 +127,7 @@ class MainTree:
 
     def _is_circular_relation(self, parent_id, child_id):
         """ Would the new relation be circular?
-        
+
         Go over every possible ancestors. If one of them is child_id,
         this would be circular relation.
         """
@@ -137,16 +138,16 @@ class MainTree:
             node_id = ancestors.pop(0)
             if node_id == child_id:
                 return True
-            
+
             if node_id not in self.nodes:
                 continue
-    
+
             for ancestor_id in self.nodes[node_id].parents:
                 if ancestor_id not in visited:
                     ancestors.append(ancestor_id)
 
         return False
-        
+
     def _add_node(self, node, parent_id):
         """ Add a node to the tree
 
@@ -158,7 +159,7 @@ class MainTree:
             print("Error: Node '%s' already exists" % node_id)
             return False
 
-        _Node._set_tree(node,self)
+        _Node._set_tree(node, self)
         for relationship in node.pending_relationships:
             if relationship not in self.pending_relationships:
                 self.pending_relationships.append(relationship)
@@ -179,9 +180,10 @@ class MainTree:
                     add_to_root = False
                     parents_to_refresh.append(rel_parent_id)
                 else:
-                    print("Error: Detected pending circular relationship", \
-                        rel_parent_id, rel_child_id)
-                self.pending_relationships.remove((rel_parent_id, rel_child_id))
+                    print("Error: Detected pending circular relationship",
+                          rel_parent_id, rel_child_id)
+                self.pending_relationships.remove(
+                    (rel_parent_id, rel_child_id))
 
             # Adding as a parent
             if rel_parent_id == node_id and rel_child_id in self.nodes:
@@ -189,15 +191,17 @@ class MainTree:
                     self._create_relationship(node_id, rel_child_id)
                     children_to_refresh.append(rel_child_id)
                 else:
-                    print("Error: Detected pending circular relationship", \
-                        rel_parent_id, rel_child_id)
-                self.pending_relationships.remove((rel_parent_id, rel_child_id))
-        
+                    print("Error: Detected pending circular relationship",
+                          rel_parent_id, rel_child_id)
+                self.pending_relationships.remove(
+                        (rel_parent_id, rel_child_id))
+
         # Build relationship with given parent
         if parent_id is not None:
             if self._is_circular_relation(parent_id, node_id):
-                raise Exception('Creating circular relationship between %s and %s' % \
-                     (parent_id, node_id))
+                raise Exception(
+                    'Creating circular relationship between {} and {}'.format(
+                        parent_id, node_id))
             if parent_id in self.nodes:
                 self._create_relationship(parent_id, node_id)
                 add_to_root = False
@@ -210,19 +214,8 @@ class MainTree:
             self.root.children.append(node_id)
 
         # Send callbacks
-        #updating the parent and the children is handled by the FT
+        # updating the parent and the children is handled by the FT
         self._callback("node-added", node_id)
-        
-#        #The following callback is only needed in case we have a
-#        #Flat filter applied.
-#        for parent_id in parents_to_refresh:
-#            self._callback("node-modified", parent_id)
-
-        #this callback is really fast. No problem
-#        for child_id in children_to_refresh:
-#            #FIXME: why parent_id? this should be a bug!
-#            #removing this doesn't affect the tests. Why is it useful?
-#            self._callback("node-modified", child_id)
 
     def _remove_node(self, node_id, recursive=False):
         """ Remove node from tree """
@@ -269,8 +262,8 @@ class MainTree:
             self._callback('node-modified', node_id)
 
     def _new_relationship(self, parent_id, child_id):
-        """ Creates a new relationship 
-        
+        """ Creates a new relationship
+
         This method is used mainly from TreeNode"""
 
         if (parent_id, child_id) in self.pending_relationships:
@@ -285,8 +278,9 @@ class MainTree:
 
         if self._is_circular_relation(parent_id, child_id):
             self._destroy_relationship(parent_id, child_id)
-            raise Exception('Cannot build circular relationship between %s and %s' % (parent_id, child_id))
-
+            raise Exception(
+                'Cannot build circular relationship between {} and {}'.format(
+                    parent_id, child_id))
 
         self._create_relationship(parent_id, child_id)
 
@@ -320,8 +314,7 @@ class MainTree:
         self._callback('node-modified', parent_id)
         self._callback('node-modified', child_id)
 
-
-####### INTERFACE FOR READING STATE OF TREE ###################################
+    # INTERFACE FOR READING STATE OF TREE #####################################
     def has_node(self, node_id):
         """ Is this node_id in this tree? """
         return node_id in self.nodes
@@ -337,7 +330,7 @@ class MainTree:
 
     def get_node_for_path(self, path):
         """ Convert path into node_id
-        
+
         @return node_id if path is valid, None otherwise
         """
         if not path or path == ():
@@ -361,12 +354,13 @@ class MainTree:
                     if parent_id not in self.nodes:
                         continue
                     for path in self.get_paths_for_node(parent_id):
-                        paths.append(path + (node_id,))
+                        paths.append(path + (node_id, ))
                 return paths
             else:
-                return [(node_id,)]
+                return [(node_id, )]
         else:
-            raise ValueError("Cannot get path for non existing node %s" % node_id)
+            raise ValueError("Cannot get path for non existing node {}".format(
+                node_id))
 
     def get_all_nodes(self):
         """ Return list of all nodes in this tree """
@@ -374,9 +368,9 @@ class MainTree:
 
     def next_node(self, node_id, parent_id=None):
         """ Return the next sibling node or None if there is none
-        
+
         @param  node_id - we look for siblings of this node
-        @param parent_id - specify which siblings should be used, 
+        @param parent_id - specify which siblings should be used,
             if task has more parents. If None, random parent will be used
         """
         if node_id is None:
@@ -396,9 +390,9 @@ class MainTree:
             raise ValueError('Parent does not exist')
 
         index = parent.get_child_index(node_id)
-        if index == None:
-            error = 'children are : %s\n' %parent.get_children()
-            error += 'node %s is not a child of %s' %(node_id,parid)
+        if index is None:
+            error = 'children are : {}\n'.format(parent.get_children())
+            error += 'node {} is not a child of {}'.format(node_id, parid)
             raise IndexError(error)
 
         if parent.get_n_children() > index+1:

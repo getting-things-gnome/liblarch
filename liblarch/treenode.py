@@ -17,7 +17,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-class _Node:
+
+class _Node(object):
     """ Object just for a single node in Tree """
     def __init__(self, node_id, parent=None):
         """ Initializes node
@@ -26,7 +27,7 @@ class _Node:
         @param parent - node_id of parent
         """
         self.node_id = node_id
-        
+
         self.parents_enabled = True
         self.children_enabled = True
         self.parents = []
@@ -44,7 +45,7 @@ class _Node:
     def get_id(self):
         """ Return node_id """
         return self.node_id
-        
+
     def modified(self, priority="low"):
         """ Force to update node (because it has changed) """
         if self.tree:
@@ -52,7 +53,7 @@ class _Node:
 
     def _set_tree(self, tree):
         """ Set tree which is should contain this node.
-        
+
         This method should be called only from MainTree. It is not
         part of public interface. """
         self.tree = tree
@@ -61,24 +62,26 @@ class _Node:
         """ Return associated tree with this node """
         return self.tree
 
-####### Parents ###############################################################
-    def set_parents_enabled(self,bol):
+    # Parents #################################################################
+    def set_parents_enabled(self, bol):
         if not bol:
             for p in self.get_parents():
                 self.remove_parent(p)
         self.parents_enabled = bol
-        
+
     def has_parents_enabled(self):
         return self.parents_enabled
 
     def add_parent(self, parent_id):
         """ Add a new parent """
-        if parent_id != self.get_id() and self.parents_enabled \
-                                      and parent_id not in self.parents:
+        if (parent_id != self.get_id() and
+                self.parents_enabled and
+                parent_id not in self.parents):
             if not self.tree:
                 self.pending_relationships.append((parent_id, self.get_id()))
             elif not self.tree.has_node(parent_id):
-                self.tree.pending_relationships.append((parent_id, self.get_id()))
+                self.tree.pending_relationships.append(
+                    (parent_id, self.get_id()))
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
@@ -92,12 +95,13 @@ class _Node:
                 self.pending_relationships.append((parent_id, self.get_id()))
             elif not self.tree.has_node(parent_id):
                 for p in self.get_parents():
-                    self.tree.break_relationship(p,self.get_id())
-                self.tree.pending_relationships.append((parent_id, self.get_id()))
+                    self.tree.break_relationship(p, self.get_id())
+                self.tree.pending_relationships.append(
+                    (parent_id, self.get_id()))
             else:
                 par = self.tree.get_node(parent_id)
                 if par.has_children_enabled():
-                    #First we remove all the other parents
+                    # First we remove all the other parents
                     for node_id in self.parents:
                         if node_id != parent_id:
                             self.remove_parent(node_id)
@@ -120,7 +124,9 @@ class _Node:
         """
         if self.parents_enabled:
             if parent_id:
-                return self.tree.has_node(parent_id) and parent_id in self.parents
+                parent_in_tree = self.tree.has_node(parent_id)
+                own_parent = parent_id in self.parents
+                return parent_in_tree and own_parent
             else:
                 return len(self.parents) > 0
         else:
@@ -136,31 +142,34 @@ class _Node:
 
         return parents
 
-####### Children ##############################################################
-    def set_children_enabled(self,bol):
+    # Children ################################################################
+    def set_children_enabled(self, bol):
         if not bol:
             for c in self.get_children():
-                self.tree.break_relationship(self.get_id(),c)
+                self.tree.break_relationship(self.get_id(), c)
         self.children_enabled = bol
-        
+
     def has_children_enabled(self):
         return self.children_enabled
-        
+
     def add_child(self, child_id):
         """ Add a children to node """
         if self.children_enabled and child_id != self.get_id():
             if child_id not in self.children:
                 if not self.tree:
-                    self.pending_relationships.append((self.get_id(), child_id))
+                    self.pending_relationships.append(
+                        (self.get_id(), child_id))
                 elif not self.tree.has_node(child_id):
-                    self.tree.pending_relationships.append((self.get_id(), child_id))
+                    self.tree.pending_relationships.append(
+                        (self.get_id(), child_id))
                 else:
                     child = self.tree.get_node(child_id)
                     if child.has_parents_enabled():
                         self.children.append(child_id)
                         self.tree.new_relationship(self.node_id, child_id)
             else:
-                print("%s was already in children of %s" % (child_id, self.node_id))
+                print("{} was already in children of {}".format(
+                    child_id, self.node_id))
 
     def has_child(self, child_id=None):
         """ Has child/children?

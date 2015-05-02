@@ -18,9 +18,11 @@
 # -----------------------------------------------------------------------------
 
 import threading
+
 from gi.repository import GObject
 
-class SyncQueue:
+
+class SyncQueue(object):
     """ Synchronized queue for processing requests"""
 
     def __init__(self):
@@ -33,9 +35,9 @@ class SyncQueue:
         self._handler = None
         self._lock = threading.Lock()
         self._origin_thread = threading.current_thread()
-        
+
         self.count = 0
-        
+
     def process_queue(self):
         """ Process requests from queue """
         for action in self.process():
@@ -43,7 +45,7 @@ class SyncQueue:
             func(*action[1:])
         # return True to process other requests as well
         return True
-        
+
     def push(self, *element, **kwargs):
         """ Add a new element to the queue.
 
@@ -80,13 +82,13 @@ class SyncQueue:
                 self._handler = GObject.idle_add(self.process_queue)
 
         self._lock.release()
-        
+
     def process(self):
         """ Return elements to process
-        
+
         At the moment, it returns just one element. In the future more
         elements may be better to return (to speed it up).
-        
+
         If there is no request left, disable processing. """
 
         self._lock.acquire()
@@ -99,9 +101,10 @@ class SyncQueue:
         else:
             toreturn = []
 
-        if len(self._queue) == 0 and len(self._vip_queue) == 0 and\
-                                        len(self._low_queue) == 0 and\
-                                        self._handler is not None:
+        if (len(self._queue) == 0 and
+                len(self._vip_queue) == 0 and
+                len(self._low_queue) == 0 and
+                self._handler is not None):
             GObject.source_remove(self._handler)
             self._handler = None
         self._lock.release()

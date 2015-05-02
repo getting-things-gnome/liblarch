@@ -17,16 +17,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 # -----------------------------------------------------------------------------
 
-import functools
+from .filters_bank import FiltersBank
+from .tree import MainTree
+from .treenode import _Node
+from .viewcount import ViewCount
+from .viewtree import ViewTree
 
-from liblarch.tree import MainTree
-from liblarch.treenode import _Node
-from liblarch.filteredtree import FilteredTree
-from liblarch.filters_bank import FiltersBank
-from liblarch.viewtree import ViewTree
-from liblarch.viewcount import ViewCount
-
-# API version of liblarch. 
+# API version of liblarch.
 # Your application is compatible if the major version number match liblarch's
 # one and if your minor version number is inferior to liblarch's one.
 #
@@ -39,20 +36,22 @@ def is_compatible(request):
     major, minor = [int(i) for i in request.split(".")]
     current_ma, current_mi = [int(i) for i in API.split(".")]
     return major == current_ma and minor <= current_mi
-    
+
+
 class TreeNode(_Node):
     """ The public interface for TreeNode
     """
     def __init__(self, node_id, parent=None):
-        _Node.__init__(self,node_id,parent)
-        
+        _Node.__init__(self, node_id, parent)
+
     def _set_tree(tree):
         print("_set_tree is not part of the API")
 
-class Tree:
+
+class Tree(object):
     """ A thin wrapper to MainTree that adds filtering capabilities.
     It also provides a few methods to operate complex operation on the
-    MainTree (e.g, move_node) """ 
+    MainTree (e.g, move_node) """
 
     def __init__(self):
         """ Creates MainTree which wraps and a main view without filters """
@@ -60,10 +59,10 @@ class Tree:
         self.__fbank = FiltersBank(self.__tree)
         self.__views = {}
         self.__viewscount = {}
-        self.__views['main'] = ViewTree(self, self.__tree, self.__fbank, static=True)
+        self.__views['main'] = ViewTree(
+            self, self.__tree, self.__fbank, static=True)
 
-##### HANDLE NODES ############################################################
-
+    # HANDLE NODES ############################################################
     def get_node(self, node_id):
         """ Returns the object of node.
         If the node does not exists, a ValueError is raised. """
@@ -79,7 +78,8 @@ class Tree:
         self.__tree.add_node(node, parent_id, priority)
 
     def del_node(self, node_id, recursive=False):
-        """ Remove node from tree and return whether it was successful or not """
+        """ Remove node from tree and return whether it was successful or not
+        """
         return self.__tree.remove_node(node_id, recursive)
 
     def refresh_node(self, node_id, priority="low"):
@@ -102,7 +102,6 @@ class Tree:
 
         return toreturn
 
-
     def add_parent(self, node_id, new_parent_id=None):
         """ Add the node to a new parent. Return whether operation was
         successful or not. If the node does not exists, return False """
@@ -113,15 +112,17 @@ class Tree:
         else:
             return False
 
-##### VIEWS ###################################################################
+    # VIEWS ###################################################################
     def get_main_view(self):
-        """ Return the special view "main" which is without any filters on it."""
+        """ Return the special view "main" which is without any filters on it.
+        """
         return self.__views['main']
 
     def get_viewtree(self, name=None, refresh=True):
         """ Returns a viewtree by the name:
           * a viewtree with that name exists => return it
-          * a viewtree with that name does not exist => create a new one and return it
+          * a viewtree with that name does not exist => create a new one and
+            return it
           * name is None => create an anonymous tree (do not remember it)
 
         If refresh is False, the view is not initialized. This is useful as
@@ -131,23 +132,23 @@ class Tree:
         if name is not None and name in self.__views:
             view_tree = self.__views[name]
         else:
-            view_tree = ViewTree(self,self.__tree,self.__fbank, name = name, refresh = refresh)
+            view_tree = ViewTree(
+                self, self.__tree, self.__fbank, name=name, refresh=refresh)
             if name is not None:
                 self.__views[name] = view_tree
         return view_tree
-        
-    def get_viewcount(self,name=None, refresh=True):
+
+    def get_viewcount(self, name=None, refresh=True):
         if name is not None and name in self.__viewscount:
             view_count = self.__viewscount[name]
         else:
-            view_count = ViewCount(self.__tree,self.__fbank, name = name, refresh = refresh)
+            view_count = ViewCount(
+                self.__tree, self.__fbank, name=name, refresh=refresh)
             if name is not None:
                 self.__viewscount[name] = view_count
         return view_count
-        
-        
 
-##### FILTERS ##################################################################
+    # FILTERS #################################################################
     def list_filters(self):
         """ Return a list of all available filters by name """
         return self.__fbank.list_filters()
@@ -163,8 +164,8 @@ class Tree:
         """
         return self.__fbank.add_filter(filter_name, filter_func, parameters)
 
-    def remove_filter(self,filter_name):
-        """ Remove a filter from the bank. Only custom filters that were 
+    def remove_filter(self, filter_name):
+        """ Remove a filter from the bank. Only custom filters that were
         added here can be removed. Return False if the filter was not removed.
         """
         return self.__fbank.remove_filter(filter_name)

@@ -17,8 +17,9 @@
 # -----------------------------------------------------------------------------
 
 # Simple makefile for common tasks
+check: tests lint
 
-test:
+tests:
 	./run-tests
 
 sdist:
@@ -26,7 +27,7 @@ sdist:
 
 # Remove .pyc files
 clean:
-	find -type f -iname '*.pyc' -exec rm {} \;
+	find -type d -name '__pycache__' -print | xargs rm -rf
 	find -type f -iname '*.~*~' -exec rm {} \;
 	rm -f *.bak
 	rm -rf dist/
@@ -34,12 +35,14 @@ clean:
 # Check for common & easily catchable Python mistakes.
 pyflakes:
 	pyflakes examples liblarch liblarch_gtk tests \
-	main.py open_prof.py run-tests setup.py test.py
+	main.py run-tests setup.py
 
 # Check for coding standard violations.
 pep8:
 	pep8 --statistics --count examples liblarch liblarch_gtk tests \
-	main.py open_prof.py run-tests setup.py test.py
+	main.py run-tests setup.py
 
 # Check for coding standard violations & flakes.
 lint: pyflakes pep8
+
+.PHONY: check tests sdist clean pyflakes pep8 lint
