@@ -609,6 +609,7 @@ class FilteredTree(object):
         @param refresh: Should be refereshed the whole tree?
                 (performance optimization)
         """
+        should_refilter = False
         if reset:
             self.applied_filters = []
 
@@ -616,18 +617,20 @@ class FilteredTree(object):
             filt = self.fbank.get_filter(filter_name)
             if filt:
                 filt.set_parameters(parameters)
+                should_refilter = True
             else:
                 raise ValueError(
                     "No filter of name {} in the bank".format(filter_name))
 
         if filter_name not in self.applied_filters:
             self.applied_filters.append(filter_name)
-            if refresh:
-                self.refilter()
+            should_refilter = True
             toreturn = True
         else:
             toreturn = False
 
+        if should_refilter:
+            self.refilter()
         return toreturn
 
     def unapply_filter(self, filter_name, refresh=True):
