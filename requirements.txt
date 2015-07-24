@@ -1,3 +1,5 @@
 nose
 spec
 pyflakes
+pep8
+pyflakes
