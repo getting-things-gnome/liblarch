@@ -386,8 +386,6 @@ class TreeView(Gtk.TreeView):
         If ENABLE_SORTING, drag_drop signal must be handled by this widget."""
         self.dnd_internal_target = dndname
         self.__init_dnd()
-        self.connect('drag_data_get', self.on_drag_data_get)
-        self.connect('drag_data_received', self.on_drag_data_received)
 
     def set_dnd_external(self, sourcename, func):
         """ Add a new external target and initialize Drag'n'Drop support"""
@@ -424,14 +422,6 @@ class TreeView(Gtk.TreeView):
         for target in self.dnd_external_targets:
             name = self.dnd_external_targets[target][0]
             dnd_targets.append((name, Gtk.TargetFlags.SAME_APP, target))
-
-        self.enable_model_drag_source(
-            Gdk.ModifierType.BUTTON1_MASK,
-            dnd_targets,
-            Gdk.DragAction.DEFAULT | Gdk.DragAction.MOVE)
-
-        self.enable_model_drag_dest(
-            dnd_targets, Gdk.DragAction.DEFAULT | Gdk.DragAction.MOVE)
 
     def on_drag_data_get(self, treeview, context, selection, info, timestamp):
         """ Extract data from the source of the DnD operation.
