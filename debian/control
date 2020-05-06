@@ -2,7 +2,7 @@ Source: liblarch
 Priority: optional
 Maintainer: Izidor Matušov <izidor.matusov@gmail.com>
 Build-Depends:
-	debhelper (>= 8.0.0),
+	debhelper (>= 10~),
 	dh-python,
 	python3-all,
 	python3-setuptools,
