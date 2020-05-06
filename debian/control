@@ -12,7 +12,7 @@ Build-Depends:
 	gir1.2-gtk-3.0,
 	xvfb,
 	xauth,
-Standards-Version: 3.9.4
+Standards-Version: 4.5.0
 Section: python
 Homepage: https://github.com/getting-things-gnome/liblarch
 
