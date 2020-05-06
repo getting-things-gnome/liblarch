@@ -20,7 +20,7 @@ Homepage: https://github.com/getting-things-gnome/liblarch
 Package: python3-liblarch
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends}, python3-gi, gir1.2-gtk-3.0
-Description: Liblarch handles structures like acyclic directed graphs.
+Description: Python library to easily handle complex data structures
   Liblarch is a python library built to easily handle data structures
   such as lists, trees and directed acyclic graphs and represent them
   as a GTK TreeWidget or in other forms.
