@@ -13,7 +13,6 @@ Build-Depends:
 	xvfb,
 	xauth,
 Standards-Version: 3.9.4
-X-Python3-Version: >= 3.0
 Section: python
 Homepage: https://github.com/getting-things-gnome/liblarch
 
