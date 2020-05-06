@@ -2,9 +2,12 @@
 
 export PYBUILD_NAME = liblarch
 
-# Disable running tests (for the moment): Testing will fail if no valid
-# $DISPLAY is available, which is usually the case within a build chroot
-export PYBUILD_DISABLE=test
-
 %:
 	dh $@ --with python3 --buildsystem=pybuild
+
+# Use Xvfb to run tests without requiring an actual X server
+# (We need to check $DEB_BUILD_OPTIONS ourselves until Debhelper 13+)
+override_dh_auto_test:
+ifeq (,$(filter nocheck, $(DEB_BUILD_OPTIONS)))
+	xvfb-run dh_auto_test
+endif
