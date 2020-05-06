@@ -6,6 +6,12 @@ Build-Depends:
 	dh-python,
 	python3-all,
 	python3-setuptools,
+# Needed for running the test suite:
+	python3-nose,
+	python3-gi,
+	gir1.2-gtk-3.0,
+	xvfb,
+	xauth,
 Standards-Version: 3.9.4
 X-Python3-Version: >= 3.0
 Section: python
