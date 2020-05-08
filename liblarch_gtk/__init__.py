@@ -517,10 +517,10 @@ class TreeView(Gtk.TreeView):
                     # the string
                     dragged_iter = None
 
+            # Handle drag from one widget to another (ex: treeview to treeview)
             elif info in self.dnd_external_targets and destination_tid:
                 f = self.dnd_external_targets[info][1]
-
-                src_model = context.get_source_widget().get_model()
+                src_model = Gtk.drag_get_source_widget(context).get_model()
                 dragged_iters.append(src_model.get_iter_from_string(iter))
 
         for dragged_iter in dragged_iters:
@@ -532,9 +532,10 @@ class TreeView(Gtk.TreeView):
                             dragged_tid, new_parent_id=destination_tid)
                     except Exception as e:
                         print('Problem with dragging: %s' % e)
+
+            # Handle inter-widget Drag'n'Drop again (like in the previous loop)
             elif info in self.dnd_external_targets and destination_tid:
                 source = src_model.get_value(dragged_iter, 0)
-                # Handle external Drag'n'Drop
                 f(source, destination_tid)
 
     # Separators support ##############################################
