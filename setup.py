@@ -22,15 +22,15 @@ from distutils.core import setup
 
 setup(
     version='3.0.0',
-    url='https://live.gnome.org/liblarch',
+    url='https://wiki.gnome.org/Projects/liblarch',
     author='Lionel Dricot & Izidor Matušov',
     author_email='gtg-contributors@lists.launchpad.net',
     license='LGPLv3',
     name='liblarch',
     packages=['liblarch', 'liblarch_gtk'],
     description=(
-        'Liblarch is a python library built to easily handle '
+        'LibLarch is a python library built to easily handle '
         'data structures such as lists, trees and directed acyclic graphs '
-        'and represent them as GTK TreeWidget or in other forms.'
+        'and represent them as a GTK TreeWidget or in other forms.'
     ),
 )

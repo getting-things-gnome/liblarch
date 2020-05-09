@@ -14,4 +14,4 @@ Depends: ${misc:Depends}, ${python3:Depends}, python3-gi, gir1.2-gtk-3.0
 Description: Liblarch handles structures like acyclic directed graphs.
   Liblarch is a python library built to easily handle data structures
   such as lists, trees and directed acyclic graphs and represent them
-  as GTK TreeWidget or in other forms.
+  as a GTK TreeWidget or in other forms.
