@@ -42,7 +42,7 @@ def brightness(color_str):
 
     if color_str not in BRITGHTNESS_CACHE:
         c = Gdk.color_parse(color_str)
-        brightness = (0.2126*c.red + 0.7152*c.green + 0.0722*c.blue)/65535.0
+        brightness = (0.2126 * c.red + 0.7152 * c.green + 0.0722 * c.blue) / 65535.0
         BRITGHTNESS_CACHE[color_str] = brightness
     return BRITGHTNESS_CACHE[color_str]
 

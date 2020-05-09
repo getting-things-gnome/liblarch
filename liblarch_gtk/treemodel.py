@@ -59,8 +59,7 @@ class TreeModel(Gtk.TreeStore):
         self.tree.register_cllbck('node-added-inview', self.add_task)
         self.tree.register_cllbck('node-deleted-inview', self.remove_task)
         self.tree.register_cllbck('node-modified-inview', self.update_task)
-        self.tree.register_cllbck(
-            'node-children-reordered', self.reorder_nodes)
+        self.tree.register_cllbck('node-children-reordered', self.reorder_nodes)
 
         # Request the current state
         self.tree.get_current_state()
@@ -78,8 +77,7 @@ class TreeModel(Gtk.TreeStore):
         # We try to use the cache
         iter = self.cache_paths.get(path, None)
         toreturn = None
-        if (iter and self.iter_is_valid(iter) and
-                nid == self.get_value(iter, 0)):
+        if (iter and self.iter_is_valid(iter) and nid == self.get_value(iter, 0)):
             self.count2 += 1
             toreturn = iter
         else:
@@ -114,16 +112,16 @@ class TreeModel(Gtk.TreeStore):
         stack = []
         push_to_stack(stack, 0, self.get_iter_first())
 
-        print("+"*50)
+        print("+" * 50)
         print("Treemodel print_tree: ")
         while stack != []:
             level, iterator = stack.pop()
 
-            print("=>"*level, self.get_value(iterator, 0))
+            print("=>" * level, self.get_value(iterator, 0))
 
             push_to_stack(stack, level, self.iter_next(iterator))
-            push_to_stack(stack, level+1, self.iter_children(iterator))
-        print("+"*50)
+            push_to_stack(stack, level + 1, self.iter_children(iterator))
+        print("+" * 50)
 
     # INTERFACE TO LIBLARCH ###################################################
     def add_task(self, node_id, path):

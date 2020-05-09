@@ -21,13 +21,13 @@
 
 import unittest
 import gi
-gi.require_version('Gtk','3.0')
-from gi.repository import Gtk
-from gi.repository import GObject
+gi.require_version('Gtk', '3.0')
 import functools
 import inspect
 import time
 import random
+from gi.repository import Gtk
+from gi.repository import GObject
 
 from liblarch import Tree
 from liblarch import TreeNode
@@ -189,7 +189,7 @@ class TestLibLarch(unittest.TestCase):
         while i < 15:
             node = DummyNode(str(i))
             node.add_color('green')
-            self.tree.add_node(node, parent_id=str(i-1))
+            self.tree.add_node(node, parent_id=str(i - 1))
             i += 1
             self.green_nodes += 1
         self.total = self.red_nodes + self.blue_nodes + self.green_nodes
@@ -246,9 +246,9 @@ class TestLibLarch(unittest.TestCase):
         view = self.tree.get_viewtree()
         self.assertEqual(view.get_node_for_path(()), None)
         # we test that get node works for the last node
-        node = self.tree.get_node(str(self.total-1))
+        node = self.tree.get_node(str(self.total - 1))
         self.assertTrue(node is not None)
-        self.assertEqual(str(self.total-1), node.get_id())
+        self.assertEqual(str(self.total - 1), node.get_id())
         # and not for an non-existing node
         self.assertRaises(ValueError, self.tree.get_node, str(self.total))
 
@@ -273,10 +273,10 @@ class TestLibLarch(unittest.TestCase):
         shouldbe = self.blue_nodes + 1
         total = self.red_nodes + self.blue_nodes + self.green_nodes
         # Testing that the blue node count has increased
-        self.assertEqual(total+1, view.get_n_nodes())
+        self.assertEqual(total + 1, view.get_n_nodes())
         self.assertEqual(shouldbe, view.get_n_nodes(withfilters=['blue']))
         # also comparing with another view
-        self.assertEqual(total+1, self.view.get_n_nodes())
+        self.assertEqual(total + 1, self.view.get_n_nodes())
         self.assertEqual(shouldbe, self.view.get_n_nodes(withfilters=['blue']))
         self.tree.del_node('temp')
         # Testing that it goes back to normal
@@ -787,7 +787,7 @@ class TestLibLarch(unittest.TestCase):
         node = self.tree.get_node('0')
         node.add_color('green')
 
-        self.assertEqual(nbr+1,
+        self.assertEqual(nbr + 1,
                          self.mainview.get_n_nodes(withfilters=['green']))
         node.remove_color('green')
         self.assertEqual(nbr, self.mainview.get_n_nodes(withfilters=['green']))
@@ -810,11 +810,11 @@ class TestLibLarch(unittest.TestCase):
         all_nodes2 = self.mainview.get_all_nodes()
         self.assertTrue('0' in all_nodes)
         self.assertTrue('temp' in all_nodes)
-        self.assertEqual(self.total+1, len(all_nodes))
+        self.assertEqual(self.total + 1, len(all_nodes))
         # Mainview
         self.assertTrue('0' in all_nodes2)
         self.assertTrue('temp' in all_nodes2)
-        self.assertEqual(self.total+1, len(all_nodes2))
+        self.assertEqual(self.total + 1, len(all_nodes2))
         # Removing the node
         self.tree.del_node('1')
         all_nodes = self.view.get_all_nodes()
@@ -883,20 +883,20 @@ class TestLibLarch(unittest.TestCase):
         i = 0
         # Testing all the green nodes (that are in stairs)
         while i < self.green_nodes:
-            returned = view.get_paths_for_node(str(firstgreen+i))[0]
+            returned = view.get_paths_for_node(str(firstgreen + i))[0]
             self.assertEqual(pp, returned)
             i += 1
-            pp += (str(firstgreen+i), )
+            pp += (str(firstgreen + i), )
         # with filters
         view.apply_filter('green')
-        pp = view.get_paths_for_node(str(firstgreen+1))[0]
+        pp = view.get_paths_for_node(str(firstgreen + 1))[0]
         i = 1
         # Testing all the green nodes (that are in stairs)
         while i < self.green_nodes:
-            returned = view.get_paths_for_node(str(firstgreen+i))[0]
+            returned = view.get_paths_for_node(str(firstgreen + i))[0]
             self.assertEqual(pp, returned)
             i += 1
-            pp += (str(firstgreen+i), )
+            pp += (str(firstgreen + i), )
 
     def test_viewtree_next_node(self):
         view = self.tree.get_viewtree(refresh=True)
@@ -1258,7 +1258,7 @@ class TestLibLarch(unittest.TestCase):
         # we check that we have seen all the nodes
         i = 10
         while i <= self.green_nodes:
-            self.assertTrue(str(self.total-i) in nodes)
+            self.assertTrue(str(self.total - i) in nodes)
             i += 1
         test.test_validity()
 
@@ -1575,7 +1575,7 @@ class TestLibLarch(unittest.TestCase):
         This is the way the localfile backend works. """
 
         CHILDREN_NUM = 6
-        children = ['%d@1' % i for i in range(1, CHILDREN_NUM+1)]
+        children = ['%d@1' % i for i in range(1, CHILDREN_NUM + 1)]
         master_id = '0@1'
 
         view = self.tree.get_main_view()

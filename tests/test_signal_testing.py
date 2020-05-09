@@ -36,8 +36,7 @@ class TestSignalTesting(unittest.TestCase):
     def test_signal_catching(self):
         generator = FakeGobject()
         arg = str(uuid.uuid4())
-        with SignalCatcher(self, generator, 'one') \
-                as [signal_catched_event, signal_arguments]:
+        with SignalCatcher(self, generator, 'one') as [signal_catched_event, signal_arguments]:
             generator.emit_signal('one', arg)
             signal_catched_event.wait()
         self.assertEqual(len(signal_arguments), 1)

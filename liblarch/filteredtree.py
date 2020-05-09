@@ -177,8 +177,7 @@ class FilteredTree(object):
             if action == 'added':
                 node = self.tree.get_node(node_id)
                 for parent_id in node.get_parents():
-                    if (parent_id not in new_parents and
-                            parent_id not in current_parents):
+                    if (parent_id not in new_parents and parent_id not in current_parents):
                         self.__update_node(parent_id, direction="up")
 
             # Refresh list of parents after doing checkup once again
@@ -407,7 +406,7 @@ class FilteredTree(object):
             valid = False
         else:
             while valid and i < len(p) - 1:
-                child = p[i+1]
+                child = p[i + 1]
                 par = p[i]
                 if par in self.nodes:
                     valid = (child in self.nodes[par]['children'])
@@ -450,7 +449,7 @@ class FilteredTree(object):
 
         stack = [(self.root_id, "")]
 
-        output = "_"*30 + "\n" + "FilteredTree cache\n" + "_"*30 + "\n"
+        output = "_" * 30 + "\n" + "FilteredTree cache\n" + "_" * 30 + "\n"
 
         while stack != []:
             node_id, prefix = stack.pop()
@@ -458,9 +457,9 @@ class FilteredTree(object):
             output += prefix + str(node_id) + '\n'
 
             for child_id in reversed(self.nodes[node_id]['children']):
-                stack.append((child_id, prefix+" "))
+                stack.append((child_id, prefix + " "))
 
-        output += "_"*30 + "\n"
+        output += "_" * 30 + "\n"
 
         if string:
             return output
@@ -544,8 +543,8 @@ class FilteredTree(object):
                 "Node {} does not have parent {}".format(node_id, parent_id))
 
         index = self.nodes[parent_id]['children'].index(node_id)
-        if index+1 < len(self.nodes[parent_id]['children']):
-            return self.nodes[parent_id]['children'][index+1]
+        if index + 1 < len(self.nodes[parent_id]['children']):
+            return self.nodes[parent_id]['children'][index + 1]
         else:
             return None
 

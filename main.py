@@ -50,6 +50,7 @@ def random_task_title_on_id(t_id):
     except ValueError:
         return 'Task %5s' % t_id
 
+
 # Generate title in different ways
 random_task_title = random_task_title_on_id
 
@@ -99,6 +100,7 @@ def save_backup(function):
         return _save_backup
     else:
         return function
+
 
 MAX_ID = 0
 
@@ -554,7 +556,7 @@ class LiblarchDemo(object):
 
             # The "root" items should be at level 0, adjust level to that
             min_level = min(level for level, name in items)
-            items = [(level-min_level, name) for level, name in items]
+            items = [(level - min_level, name) for level, name in items]
 
             nodes = list(set([name for level, name in items]))
 

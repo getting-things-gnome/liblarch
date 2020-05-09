@@ -193,8 +193,7 @@ class MainTree(object):
                 else:
                     print("Error: Detected pending circular relationship",
                           rel_parent_id, rel_child_id)
-                self.pending_relationships.remove(
-                        (rel_parent_id, rel_child_id))
+                self.pending_relationships.remove((rel_parent_id, rel_child_id))
 
         # Build relationship with given parent
         if parent_id is not None:
@@ -395,8 +394,8 @@ class MainTree(object):
             error += 'node {} is not a child of {}'.format(node_id, parid)
             raise IndexError(error)
 
-        if parent.get_n_children() > index+1:
-            return parent.get_nth_child(index+1)
+        if parent.get_n_children() > index + 1:
+            return parent.get_nth_child(index + 1)
         else:
             return None
 

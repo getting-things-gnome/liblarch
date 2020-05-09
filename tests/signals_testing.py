@@ -30,7 +30,7 @@ class SignalCatcher(object):
     A class to test signals
     '''
 
-    def __init__(self, unittest,  generator, signal_name,
+    def __init__(self, unittest, generator, signal_name,
                  should_be_caught=True, how_many_signals=1,
                  error_code="No error code set"):
         self.signal_catched_event = threading.Event()
@@ -79,7 +79,7 @@ class CallbackCatcher(object):
     A class to test callbacks
     '''
 
-    def __init__(self, unittest,  generator, signal_name,
+    def __init__(self, unittest, generator, signal_name,
                  should_be_caught=True, how_many_signals=1,
                  error_code="No error code set"):
         self.signal_catched_event = threading.Event()
