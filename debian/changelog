@@ -1,3 +1,18 @@
+liblarch (v3.0-26-g2b3366b-1) unstable; urgency=medium
+
+  * New upstream snapshot
+  * Debian packaging changes:
+    - Switch dh build system to pybuild
+    - Run test suite when building, using Xvfb
+    - Bump debhelper compatibility level to 10
+    - Reworded package synopsis line
+    - Fixed package description indentation
+    - Fixed typo in package description
+    - Removed unnecessary X-Python3-Version header
+    - Bumped Standards-Version to 4.5.0
+
+ -- Frédéric Brière <fbriere@fbriere.net>  Wed, 06 May 2020 20:01:04 -0400
+
 liblarch (3.0.0-1) unstable; urgency=low
 
   * Liblarch now requires Gtk3 and Python3
