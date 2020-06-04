@@ -1,3 +1,13 @@
+liblarch (3.0.1-1) unstable; urgency=low
+
+  * Release accumulated improvements:
+    - Fix drag & drop from one GTK TreeView widget to another 
+    - Handle cases where the tree should and shouldn't be re-filtered
+    - Improved PyGI (GObject introspection) compatibility
+    - Improved code quality and PEP 8 compliance
+
+ -- Jeff F.  Fri, 4 Jun 2020 13:37:00 -0400
+
 liblarch (v3.0-26-g2b3366b-1) unstable; urgency=medium
 
   * New upstream snapshot

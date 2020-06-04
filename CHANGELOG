@@ -1,3 +1,10 @@
+2020-06-04 liblarch 3.0.1
+
+  * Fix drag & drop from one GTK TreeView widget to another 
+  * Handle cases where the tree should and shouldn't be re-filtered
+  * Improved PyGI (GObject introspection) compatibility
+  * Improved code quality and PEP 8 compliance
+
 2014-04-19 liblarch 3.0.0
 
   * Port to Python 3, GObject introspection and GTK 3
