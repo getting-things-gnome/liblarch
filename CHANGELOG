@@ -1,8 +1,17 @@
+2014-04-19 liblarch 3.0.0
+
+  * Port to Python 3, GObject introspection and GTK 3
+
+2013-01-22 liblarch 2.2.0
+
+  * Fix an incorrect node count in a callback (LP #1078368)
+
 2012-11-08 liblarch 2.1.0
-* Introducing the changelog
-* Removed completely the "transparency" property
-* Added a new object : viewcount
-* The version number of liblarch will now be the API number + a number. Meaning that:
-  0.0.1 releases are pure bugfix/performance releases without impact on your application
-  0.1.0 releases introduce new API but are backward compatible. You don't need to port your application.
-  1.0.0 releases break the API.
+
+  * Introducing the changelog
+  * Removed completely the "transparency" property
+  * Added a new object : viewcount
+  * The version number of liblarch will now be the API number + a number. Meaning that:
+    - 0.0.1 releases are pure bugfix/performance releases without impact on your application
+    - 0.1.0 releases introduce new API but are backward compatible. You don't need to port your application.
+    - 1.0.0 releases break the API.
