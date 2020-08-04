@@ -28,6 +28,7 @@ setup(
     license='LGPLv3',
     name='liblarch',
     packages=['liblarch', 'liblarch_gtk'],
+    python_requires=">=3.5",
     description=(
         'LibLarch is a python library built to easily handle '
         'data structures such as lists, trees and directed acyclic graphs '
