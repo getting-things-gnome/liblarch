@@ -374,13 +374,13 @@ class CellRendererTags(Gtk.CellRenderer):
             # Draw circle
             radius = 7
             cr.set_source_rgb(*color)
-            cr.arc(rect_x, rect_y+8, radius, 90, 180)
+            cr.arc(rect_x, rect_y + 8, radius, 90, 180)
             cr.fill()
 
             # Outer line
             cr.set_source_rgba(0, 0, 0, 0.20)
             cr.set_line_width(1.0)
-            cr.arc(rect_x, rect_y+8, radius, 90, 180)
+            cr.arc(rect_x, rect_y + 8, radius, 90, 180)
             cr.stroke()
 
     def do_get_size(self, widget, cell_area=None):
@@ -393,6 +393,7 @@ class CellRendererTags(Gtk.CellRenderer):
             )
         else:
             return (0, 0, 0, 0)
+
 
 GObject.type_register(CellRendererTags)
 
