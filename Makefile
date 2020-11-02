@@ -39,10 +39,10 @@ pyflakes:
 
 # Check for coding standard violations.
 pep8:
-	pep8 --statistics --count examples liblarch liblarch_gtk tests \
-	main.py run-tests setup.py
+	pycodestyle --statistics --count --repeat --max-line-length=110 --ignore=E128,W504 \
+	examples liblarch liblarch_gtk tests main.py run-tests setup.py
 
 # Check for coding standard violations & flakes.
-lint: pyflakes pep8
+lint: pyflakes pycodestyle
 
-.PHONY: check tests sdist clean pyflakes pep8 lint
+.PHONY: check tests sdist clean pyflakes pycodestyle lint
