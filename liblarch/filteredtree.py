@@ -188,9 +188,9 @@ class FilteredTree(object):
                 parent_id for parent_id in new_parents
                 if parent_id in self.nodes]
 
-            remove_from = list(set(current_parents) - set(new_parents))
-            add_to = list(set(new_parents) - set(current_parents))
-            stay = list(set(new_parents) - set(add_to))
+            remove_from = set(current_parents) - set(new_parents)
+            add_to = set(new_parents) - set(current_parents)
+            stay = set(new_parents) - set(add_to)
 
             # If we are updating a node at the root, we should take care
             # of the root too
@@ -312,28 +312,25 @@ class FilteredTree(object):
         self.__flat = False
         for filter_name in self.applied_filters:
             filt = self.fbank.get_filter(filter_name)
-            if filt and not self.__flat:
-                self.__flat = filt.is_flat()
+            if filt and filt.is_flat():
+                self.__flat = True
+                break
 
         # Clean the tree
         for node_id in reversed(self.nodes[self.root_id]['children']):
             self.send_remove_tree(node_id, self.root_id)
 
-        self.nodes = {}
-        self.nodes[self.root_id] = {'parents': [], 'children': []}
+        self.nodes = {self.root_id: {'parents': [], 'children': []}}
 
         # Build tree again
         root_node = self.tree.get_root()
         queue = root_node.get_children()
 
-        while queue != []:
+        while queue:
             node_id = queue.pop(0)
             # FIXME: decide which is the best direction
             self.__update_node(node_id, direction="both")
-
-            node = self.tree.get_node(node_id)
-            for child_id in node.get_children():
-                queue.append(child_id)
+            queue.extend(self.tree.get_node(node_id).get_children())
 
     def __is_displayed(self, node_id):
         """ Should be node displayed regardless of its current status? """
@@ -599,7 +596,7 @@ class FilteredTree(object):
         return list(self.applied_filters)
 
     def apply_filter(self, filter_name, parameters=None,
-                     reset=None, refresh=None):
+                     reset=None, refresh=True):
         """ Apply a new filter to the tree.
 
         @param filter_name: The name of an registrered filter from filters_bank
@@ -628,7 +625,7 @@ class FilteredTree(object):
         else:
             toreturn = False
 
-        if should_refilter:
+        if refresh and should_refilter:
             self.refilter()
         return toreturn
 
