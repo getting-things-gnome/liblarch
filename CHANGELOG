@@ -1,3 +1,10 @@
+2021-03-31 liblarch 3.1.0
+
+  * Provide an optimized way to refresh filtered items
+    This provides better performance for GTG in particular
+  * Replace calls to the pep8 executable by pycodestyle
+  * Disable building with Python 2
+
 2020-06-04 liblarch 3.0.1
 
   * Fix drag & drop from one GTK TreeView widget to another 

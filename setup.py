@@ -21,7 +21,7 @@
 from distutils.core import setup
 
 setup(
-    version='3.0.1',
+    version='3.1.0',
     url='https://wiki.gnome.org/Projects/liblarch',
     author='Lionel Dricot & Izidor Matušov',
     author_email='gtg-contributors@lists.launchpad.net',

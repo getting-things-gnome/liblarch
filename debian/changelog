@@ -1,3 +1,12 @@
+liblarch (3.1.0-1) unstable; urgency=medium
+
+  * Provide an optimized way to refresh filtered items
+    This provides better performance for GTG in particular
+  * Replace calls to the pep8 executable by pycodestyle
+  * Disable building with Python 2
+
+ -- Jeff F.  Wed, 31 Mar 2021 13:37:00 -0400
+
 liblarch (3.0.1-1) unstable; urgency=low
 
   * Release accumulated improvements:
