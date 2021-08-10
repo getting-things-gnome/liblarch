@@ -19,6 +19,18 @@
 # -----------------------------------------------------------------------------
 
 from distutils.core import setup
+import codecs
+import os
+
+def read(*parts):
+    """
+    Build an absolute path from *parts* and and return the contents of the
+    resulting file.  Assume UTF-8 encoding.
+    """
+    HERE = os.path.abspath(os.path.dirname(__file__))
+
+    with codecs.open(os.path.join(HERE, *parts), "rb", "utf-8") as f:
+        return f.read()
 
 setup(
     version='3.1.0',
@@ -26,9 +38,25 @@ setup(
     author='Lionel Dricot & Izidor Matušov',
     author_email='gtg-contributors@lists.launchpad.net',
     license='LGPLv3',
+    long_description=read("README.md"),
+    long_description_content_type="text/markdown",
     name='liblarch',
     packages=['liblarch', 'liblarch_gtk'],
     python_requires=">=3.5",
+    keywords = ["gtk", "treeview", "treemodel"],
+    classifiers = [
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: X11 Applications :: GTK",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.5",
+        "Topic :: Desktop Environment :: Gnome",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: User Interfaces",
+    ],
     description=(
         'LibLarch is a python library built to easily handle '
         'data structures such as lists, trees and directed acyclic graphs '
