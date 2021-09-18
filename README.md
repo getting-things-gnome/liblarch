@@ -17,7 +17,7 @@ separation between your data themselves (Model) and how they are displayed (View
 
 ## Credits
 
-Liblarch is published under the LGPLv3 license.
+Liblarch is published under the LGPLv3 license, or (at your option) any later version.
 
 Authors:
  - [Lionel Dricot](https://github.com/ploum)
