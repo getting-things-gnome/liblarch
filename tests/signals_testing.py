@@ -22,7 +22,7 @@ import time
 
 from tests.watchdog import Watchdog
 
-from gi.repository import GObject
+from gi.repository import GLib
 
 
 class SignalCatcher(object):
@@ -135,8 +135,7 @@ class GobjectSignalsManager(object):
         This function returns only when the gobject main loop is running
         '''
         def gobject_main_loop():
-            GObject.threads_init()
-            self.main_loop = GObject.MainLoop()
+            self.main_loop = GLib.MainLoop()
             self.main_loop.run()
         threading.Thread(target=gobject_main_loop).start()
         while (not hasattr(self, 'main_loop') or
