@@ -20,12 +20,12 @@
 import unittest
 from gi.repository import GObject
 import uuid
+from gi.repository import GLib
 
 from tests.signals_testing import SignalCatcher, GobjectSignalsManager
 
 
 class TestSignalTesting(unittest.TestCase):
-
     def setUp(self):
         self.gobject_signal_manager = GobjectSignalsManager()
         self.gobject_signal_manager.init_signals()
@@ -36,7 +36,8 @@ class TestSignalTesting(unittest.TestCase):
     def test_signal_catching(self):
         generator = FakeGobject()
         arg = str(uuid.uuid4())
-        with SignalCatcher(self, generator, 'one') as [signal_catched_event, signal_arguments]:
+        with SignalCatcher(self, generator,
+                           'one') as [signal_catched_event, signal_arguments]:
             generator.emit_signal('one', arg)
             signal_catched_event.wait()
         self.assertEqual(len(signal_arguments), 1)
@@ -52,4 +53,4 @@ class FakeGobject(GObject.GObject):
     }
 
     def emit_signal(self, signal_name, argument):
-        GObject.idle_add(self.emit, signal_name, argument)
+        GLib.idle_add(self.emit, signal_name, argument)
