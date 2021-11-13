@@ -268,7 +268,15 @@ class TreeView(Gtk.TreeView):
 
         if schedule_next:
             self.basetree.queue_action(
-                node_id, collapsing_method, param=llpath)
+                node_id, self._collapse_node_retry,
+                param=(llpath, collapsing_method))
+
+    def _collapse_node_retry(self, param):
+        """
+        Node to be collapsed/expand found, so re-try now with correct
+        and preserved parameters.
+        """
+        self.collapse_node(param[0], collapsing_method=param[1])
 
     def show(self):
         """ Shows the TreeView and connect basetreemodel to LibLarch """

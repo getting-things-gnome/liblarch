@@ -209,7 +209,7 @@ class TestLibLarch(unittest.TestCase):
         col['renderer'] = ['markup', render_text]
         col['value'] = [str, lambda node: node.get_id()]
         desc['titles'] = col
-        TreeView(self.view, desc)
+        self.treeview = TreeView(self.view, desc)
         # initalize gobject signaling system
         self.gobject_signal_manager = GobjectSignalsManager()
         self.gobject_signal_manager.init_signals()
@@ -2001,3 +2001,23 @@ class TestLibLarch(unittest.TestCase):
             if not self.view.node_has_child(node_id):
                 node_count -= 1
                 self.tree.del_node(node_id)
+
+    def test_crash_when_collapsing_future_nodes(self):
+        """
+        Due to a mistake trying to collapse a node that isn't in the tree yet
+        causes it to schedule that operation for later, except with the wrong
+        argument type, making PyGObject complain.
+        """
+        self.treeview.collapse_node(('123123123123',))  # Should schedule
+        self.tree.add_node(DummyNode('123123123123')) # Would've errored
+        # TypeError: argument path: Expected Gtk.TreePath, but got tuple
+
+    def test_crash_when_expanding_future_nodes(self):
+        """
+        Due to a mistake trying to expand a node that isn't in the tree yet
+        causes it to schedule that operation for later, except with the wrong
+        argument type, making PyGObject complain.
+        """
+        self.treeview.expand_node(('123123123123',)) # Should schedule
+        self.tree.add_node(DummyNode('123123123123')) # Would've errored
+        # TypeError: argument path: Expected Gtk.TreePath, but got tuple
