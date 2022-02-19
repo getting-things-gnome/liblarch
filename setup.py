@@ -33,7 +33,7 @@ def read(*parts):
         return f.read()
 
 setup(
-    version='3.1.0',
+    version='3.2.0',
     url='https://wiki.gnome.org/Projects/liblarch',
     author='Lionel Dricot & Izidor Matušov',
     author_email='gtg-contributors@lists.launchpad.net',

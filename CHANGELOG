@@ -1,3 +1,12 @@
+2022-02-19 liblarch 3.2.0
+
+  * Provide a fix for collapsing/expanding future (not-yet-created) nodes
+    This prevents a TypeError under various circumstances,
+    which made GTG's TreeView display inconsistent search/filtering results.
+  * Add PyPI metadata to setup.py
+  * Clarify, in the README file, that liblarch is LGPL v3 "or later"
+  * Fix Pytest deprecation warnings
+
 2021-03-31 liblarch 3.1.0
 
   * Provide an optimized way to refresh filtered items
