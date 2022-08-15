@@ -210,7 +210,7 @@ class TestLibLarch(unittest.TestCase):
         col['value'] = [str, lambda node: node.get_id()]
         desc['titles'] = col
         self.treeview = TreeView(self.view, desc)
-        # initalize gobject signaling system
+        # initialize gobject signaling system
         self.gobject_signal_manager = GobjectSignalsManager()
         self.gobject_signal_manager.init_signals()
         self.recorded_signals = {
@@ -247,7 +247,7 @@ class TestLibLarch(unittest.TestCase):
         return not node.has_child()
 
     # Testing nodes movements in the tree
-    # We test by counting nodes that meet some criterias
+    # We test by counting nodes that meet some criteria
 
     def test_get_node(self):
         """Test that one node can be retrieved from the tree
@@ -759,7 +759,7 @@ class TestLibLarch(unittest.TestCase):
         self.assertRaises(Exception, self.tree.add_parent, '0', 'temp')
         # More complex circular relationship
         self.assertRaises(Exception, self.tree.add_parent, '1', 'temp')
-        # And then printing => if it stops, nothing ciruclar stays there
+        # And then printing => if it stops, nothing circular stays there
         view.print_tree(True)
 
     def test_mainview(self):
@@ -1243,7 +1243,7 @@ class TestLibLarch(unittest.TestCase):
         view = self.tree.get_viewtree(refresh=False)
         test = TreeTester(view)
         view.apply_filter('flatgreen')
-        # all green nodes should be visibles
+        # all green nodes should be visible
         self.assertEqual(self.green_nodes, view.get_n_nodes())
         i = 10
         nodes = []
@@ -1861,7 +1861,7 @@ class TestLibLarch(unittest.TestCase):
 
         For every update in main tree, recount every tag filter """
         # FIXME
-        # Super exterme task count
+        # Super extreme task count
         # Optimal time is 0.917s
         TASK_COUNT = 2000
 

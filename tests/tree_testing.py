@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 
 # If True, the TreeTester will automatically reorder node on the same level
-# as a deleted node. If False, it means that Liblarch has the responsability
+# as a deleted node. If False, it means that Liblarch has the responsibility
 # to handle that itself.
 REORDER_ON_DELETE = False
 

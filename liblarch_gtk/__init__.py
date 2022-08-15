@@ -117,7 +117,7 @@ class TreeView(Gtk.TreeView):
 
         types = []
         sorting_func = []
-        # Build the first coulumn if user starts with new_colum=False
+        # Build the first column if user starts with new_colum=False
         col = Gtk.TreeViewColumn()
 
         # Build columns according to the order
@@ -168,7 +168,7 @@ class TreeView(Gtk.TreeView):
                     col.set_sort_column_id(sort_num)
 
                 if 'sorting_func' in desc:
-                    # Use special funcion for comparing, e.g. dates
+                    # Use special function for comparing, e.g. dates
                     sorting_func.append((col_num, col, desc['sorting_func']))
 
         self.basetree = tree
@@ -240,7 +240,7 @@ class TreeView(Gtk.TreeView):
     def collapse_node(self, llpath, collapsing_method=None):
         """ Hide children of a node
 
-        This method is needed for "rember collapsed nodes" feature of GTG.
+        This method is needed for "remember collapsed nodes" feature of GTG.
         Transform node_id into paths and those paths collapse. By default all
         children are expanded (see self.expand_all())
 
@@ -313,7 +313,7 @@ class TreeView(Gtk.TreeView):
             return self.sort_col, self.sort_order
 
     def set_col_visible(self, col_name, visible):
-        """ Set visiblity of column.
+        """ Set visibility of column.
         Allow to hide/show certain column """
         col_num, col = self.columns[col_name]
         col.set_visible(visible)
@@ -345,7 +345,7 @@ class TreeView(Gtk.TreeView):
             self.treemodel.set_column_function(self.bg_color_column, func)
         else:
             raise ValueError(
-                "There is no colum %s to use to set color" % color_column)
+                "There is no column %s to use to set color" % color_column)
 
     def _sort_func(self, model, iter1, iter2, func=None):
         """ Sort two iterators by function which gets node objects.
@@ -418,7 +418,7 @@ class TreeView(Gtk.TreeView):
         Enable DND by calling enable_model_drag_dest(),
         enable_model-drag_source()
 
-        It didnt use support from Gtk.Widget(drag_source_set(),
+        It didn't use support from Gtk.Widget(drag_source_set(),
         drag_dest_set()). To know difference, look in PyGTK FAQ:
         http://faq.pyGtk.org/index.py?file=faq13.033.htp&req=show
         """
@@ -460,7 +460,7 @@ class TreeView(Gtk.TreeView):
         """ Handle a drop situation.
 
         First of all, we need to get id of node which should accept
-        all draged nodes as their new children. If there is no node,
+        all dragged nodes as their new children. If there is no node,
         drop to root node.
 
         Deserialize iterators of dragged nodes (see self.on_drag_data_get())
@@ -508,7 +508,7 @@ class TreeView(Gtk.TreeView):
 
         # Get dragged iter as a TaskTreeModel iter
         # If there is no selected task (empty selection.data),
-        # explictly skip handling it (set to empty list)
+        # explicitly skip handling it (set to empty list)
         data = selection.get_data()
         if data == '':
             iters = []

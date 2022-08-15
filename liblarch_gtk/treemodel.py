@@ -24,7 +24,7 @@ class TreeModel(Gtk.TreeStore):
     """ Local copy of showed tree """
 
     def __init__(self, tree, types):
-        """ Initializes parent and create list of columns. The first colum
+        """ Initializes parent and create list of columns. The first column
         is node_id of node """
 
         self.count = 0
@@ -190,7 +190,7 @@ class TreeModel(Gtk.TreeStore):
         and then deleted.
 
         @param node_id: identification of root node
-        @param path: identification of poistion of root node
+        @param path: identification of position of root node
         @param neworder: new order of children of root node
         """
 

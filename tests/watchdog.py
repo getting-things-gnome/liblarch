@@ -30,7 +30,7 @@ class Watchdog(object):
 
     def __init__(self, timeout, error_function):
         '''
-        Just sets the timeout and the function to execute when an error occours
+        Just sets the timeout and the function to execute when an error occurs
 
         @param timeout: timeout in seconds
         @param error_function: what to execute in case the watchdog timer
