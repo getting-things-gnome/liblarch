@@ -158,7 +158,7 @@ class Tree(object):
 
         @filter_name : name to give to the filter
         @filter_func : the function that will filter the nodes
-        @parameters : some default parameters fot that filter
+        @parameters : some default parameters for that filter
         Return True if the filter was added
         Return False if the filter_name was already in the bank
         """

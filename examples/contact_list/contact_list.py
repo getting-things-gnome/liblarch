@@ -131,7 +131,7 @@ class NodeTeam(TreeNode):
     """ Each team is also a node """
     def __init__(self, node_id):
         TreeNode.__init__(self, node_id)
-        # A team cannot have parents. This is arbitrarly done for the purpose
+        # A team cannot have parents. This is arbitrarily done for the purpose
         # of this example.
         self.set_parents_enabled(False)
 
@@ -329,7 +329,7 @@ class ContactListWindow(object):
 class CellRendererTags(Gtk.CellRenderer):
     """ Custom CellRenderer that will make a coloured circle
 
-    This is aboslutely not needed for liblarch. The purpose of using it is
+    This is absolutely not needed for liblarch. The purpose of using it is
     to show that liblarch works with complex cellrenderer too.
     """
     __gproperties__ = {

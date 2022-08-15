@@ -36,9 +36,9 @@ class ViewTree(object):
            changes.  If FilteredTree is used, it is connected to MainTree
            to handle changes and then send id to ViewTree if it applies.
 
-           @param maintree: a Tree object, cointaining all the nodes
+           @param maintree: a Tree object, containing all the nodes
            @param filters_bank: a FiltersBank object. Filters can be added
-                                dinamically to that.
+                                dynamically to that.
            @param refresh: if True, this ViewTree is automatically refreshed
                            after applying a filter.
            @param static: if True, this is the view of the complete maintree.
@@ -250,7 +250,7 @@ class ViewTree(object):
         """ Returns displayed parents of the given node, or [] if there is no
         parent (such as if the node is a child of the virtual root),
         or if the parent is not displayable.
-        Doesn't check wheter node node_id is displayed or not.
+        Doesn't check whether node node_id is displayed or not.
         (we only care about parents)
         """
         if self.static:

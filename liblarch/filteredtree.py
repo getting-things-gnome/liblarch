@@ -25,14 +25,14 @@ class FilteredTree(object):
     LibLarch.
 
     FilteredTree transforms general changes in tree like creating/removing
-    relationships between nodes and adding/updating/removing nodes into a serie
+    relationships between nodes and adding/updating/removing nodes into a series
     of simple steps which can be for instance by GTK Widget.
 
     FilteredTree allows filtering - hiding certain nodes defined by
     a predicate.
 
     The reason of most bugs is that FilteredTree is request to update a node.
-    FilteredTree must update its ancestors and also decestors. You cann't do
+    FilteredTree must update its ancestors and also decestors. You can't do
     that by a simple recursion.
     """
 
@@ -376,7 +376,7 @@ class FilteredTree(object):
 
     def __node_parents(self, node_id):
         """ Returns parents of the given node. If node has no parent or
-        no displyed parent, return the virtual root.
+        no displayed parent, return the virtual root.
         """
         if node_id == self.root_id:
             raise ValueError("Requested a parent of the root node")
