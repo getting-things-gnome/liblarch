@@ -19,11 +19,11 @@
 # -----------------------------------------------------------------------------
 
 import sys
-import nose
+import pytest
 
 if __name__ == "__main__":
     # By default, run tests in tests folder
     if len(sys.argv) == 1:
         sys.argv.append('tests')
 
-    nose.main()
+    pytest.main()

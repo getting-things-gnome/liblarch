@@ -1,4 +1,4 @@
-nose
+pytest
 spec
 pyflakes
 pycodestyle
